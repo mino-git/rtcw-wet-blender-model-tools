@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<diagram program="umlet" version="14.3.0">
+  <zoom_level>13</zoom_level>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>260</x>
+      <y>117</y>
+      <w>130</w>
+      <h>39</h>
+    </coordinates>
+    <panel_attributes>MDXFile</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>429</x>
+      <y>117</y>
+      <w>221</w>
+      <h>234</h>
+    </coordinates>
+    <panel_attributes>MDXFileHeader
+--
+ident: U8*4
+version: S32
+name: U8*64
+numFrames: S32
+numBones: S32
+ofsFrames: S32
+ofsBoneInfos: S32
+torsoParent: S32
+ofsEnd: S32</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>429</x>
+      <y>377</y>
+      <w>221</w>
+      <h>39</h>
+    </coordinates>
+    <panel_attributes>MDXFrame</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>689</x>
+      <y>377</y>
+      <w>260</w>
+      <h>156</h>
+    </coordinates>
+    <panel_attributes>MDXFrameHeader
+--
+minBounds: F32*3
+maxBounds: F32*3
+localOrigin: F32*3
+radius: F32
+parentOffset: F32*3</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>689</x>
+      <y>559</y>
+      <w>260</w>
+      <h>91</h>
+    </coordinates>
+    <panel_attributes>MDXBoneFrameCompressed
+--
+angles: S16*4
+offsetAngles: S16*2</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>429</x>
+      <y>676</y>
+      <w>221</w>
+      <h>156</h>
+    </coordinates>
+    <panel_attributes>MDXBoneInfo
+--
+name: U8*64
+parent: S32
+torsoWeight: F32
+parentDist: F32
+flags: S32</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>377</x>
+      <y>117</y>
+      <w>78</w>
+      <h>65</h>
+    </coordinates>
+    <panel_attributes>m1=1
+m2=1
+</panel_attributes>
+    <additional_attributes>10.0;20.0;40.0;20.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>299</x>
+      <y>143</y>
+      <w>156</w>
+      <h>299</h>
+    </coordinates>
+    <panel_attributes>m1=1
+m2=numFrames
+</panel_attributes>
+    <additional_attributes>30.0;10.0;30.0;200.0;100.0;200.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>637</x>
+      <y>377</y>
+      <w>78</w>
+      <h>65</h>
+    </coordinates>
+    <panel_attributes>m1=1
+m2=1
+</panel_attributes>
+    <additional_attributes>10.0;20.0;40.0;20.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>520</x>
+      <y>403</y>
+      <w>195</w>
+      <h>221</h>
+    </coordinates>
+    <panel_attributes>m1=1
+m2=numBones
+</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;140.0;130.0;140.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>299</x>
+      <y>143</y>
+      <w>156</w>
+      <h>598</h>
+    </coordinates>
+    <panel_attributes>m1=1
+m2=numBones
+</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;430.0;100.0;430.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLNote</id>
+    <coordinates>
+      <x>689</x>
+      <y>117</y>
+      <w>325</w>
+      <h>130</h>
+    </coordinates>
+    <panel_attributes>Note:
+--
+U8: 8-bit unsigned octet character
+S16: Little-endian signed 16-bit integer
+S32: Little-endian signed 32-bit integer
+F32: IEEE-754 32-bit floating-point</panel_attributes>
+    <additional_attributes/>
+  </element>
+</diagram>

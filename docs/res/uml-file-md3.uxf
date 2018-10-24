@@ -1,0 +1,304 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<diagram program="umlet" version="14.3.0">
+  <zoom_level>9</zoom_level>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>333</x>
+      <y>54</y>
+      <w>99</w>
+      <h>27</h>
+    </coordinates>
+    <panel_attributes>MD3File
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>459</x>
+      <y>54</y>
+      <w>153</w>
+      <h>207</h>
+    </coordinates>
+    <panel_attributes>MD3FileHeader
+--
+ident: U8*4
+version: S32
+name: U8*64
+flags: S32
+numFrames: S32
+numTags: S32
+numSurfaces: S32
+numSkins: S32
+ofsFrameHeaders: S32
+ofsTags: S32
+ofsSurfaces: S32
+ofsEnd: S32</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>639</x>
+      <y>486</y>
+      <w>171</w>
+      <h>207</h>
+    </coordinates>
+    <panel_attributes>MD3SurfaceHeader
+--
+ident: U8*4
+name: U8*64
+flags: S32
+numFrames: S32
+numShaders: S32
+numVertices: S32
+numTriangles: S32
+ofsTriangles: S32
+ofsShaders: S32
+ofsTexCoords: S32
+ofsVertices: S32
+ofsEnd: S32
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>423</x>
+      <y>54</y>
+      <w>54</w>
+      <h>45</h>
+    </coordinates>
+    <panel_attributes>m1=1
+m2=1
+</panel_attributes>
+    <additional_attributes>40.0;20.0;10.0;20.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>459</x>
+      <y>279</y>
+      <w>153</w>
+      <h>99</h>
+    </coordinates>
+    <panel_attributes>MD3FrameHeader
+--
+minBounds: F32*3
+maxBounds: F32*3
+localOrigin: F32*3
+radius: F32
+name: U8*16
+
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>459</x>
+      <y>396</y>
+      <w>153</w>
+      <h>72</h>
+    </coordinates>
+    <panel_attributes>MD3Tag
+--
+name: U8*64
+location: F32*3
+rotationMatrix: F32*3*3
+
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>459</x>
+      <y>486</y>
+      <w>153</w>
+      <h>27</h>
+    </coordinates>
+    <panel_attributes>MD3Surface
+
+
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>639</x>
+      <y>702</y>
+      <w>171</w>
+      <h>45</h>
+    </coordinates>
+    <panel_attributes>MD3Triangle
+--
+indices: S32*3</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>639</x>
+      <y>765</y>
+      <w>171</w>
+      <h>54</h>
+    </coordinates>
+    <panel_attributes>MD3Shader
+--
+name: U8*64
+shaderIndex: S32</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>639</x>
+      <y>837</y>
+      <w>171</w>
+      <h>45</h>
+    </coordinates>
+    <panel_attributes>MD3TexCoords
+--
+texCoords: F32*2</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>639</x>
+      <y>900</y>
+      <w>171</w>
+      <h>54</h>
+    </coordinates>
+    <panel_attributes>MD3Vertex
+--
+location: S16*3
+normal: S16</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLNote</id>
+    <coordinates>
+      <x>639</x>
+      <y>54</y>
+      <w>243</w>
+      <h>144</h>
+    </coordinates>
+    <panel_attributes>Note:
+--
+U8: 8-bit unsigned octet character
+S16: Little-endian signed 16-bit integer
+U16: Little-endian unsigned 16-bit integer
+S32: Little-endian signed 32-bit integer
+U32: Little-endian unsigned 32-bit integer
+F32: IEEE-754 32-bit floating-point</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>369</x>
+      <y>72</y>
+      <w>108</w>
+      <h>252</h>
+    </coordinates>
+    <panel_attributes>m1=1
+m2=numFrames
+</panel_attributes>
+    <additional_attributes>30.0;10.0;30.0;250.0;100.0;250.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>315</x>
+      <y>72</y>
+      <w>162</w>
+      <h>369</h>
+    </coordinates>
+    <panel_attributes>m1=1
+m2=numFrames*numTags
+</panel_attributes>
+    <additional_attributes>70.0;10.0;70.0;380.0;160.0;380.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>351</x>
+      <y>72</y>
+      <w>126</w>
+      <h>459</h>
+    </coordinates>
+    <panel_attributes>m1=1
+m2=numSurfaces
+</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;480.0;120.0;480.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>603</x>
+      <y>486</y>
+      <w>54</w>
+      <h>45</h>
+    </coordinates>
+    <panel_attributes>m1=1
+m2=1
+</panel_attributes>
+    <additional_attributes>40.0;20.0;10.0;20.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>540</x>
+      <y>504</y>
+      <w>117</w>
+      <h>243</h>
+    </coordinates>
+    <panel_attributes>m1=1
+m2=numTriangles
+</panel_attributes>
+    <additional_attributes>20.0;10.0;20.0;240.0;110.0;240.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>531</x>
+      <y>504</y>
+      <w>126</w>
+      <h>306</h>
+    </coordinates>
+    <panel_attributes>m1=1
+m2=numShaders
+</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;310.0;120.0;310.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>513</x>
+      <y>504</y>
+      <w>144</w>
+      <h>378</h>
+    </coordinates>
+    <panel_attributes>m1=1
+m2=numVerts
+</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;390.0;140.0;390.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>495</x>
+      <y>504</y>
+      <w>162</w>
+      <h>441</h>
+    </coordinates>
+    <panel_attributes>m1=1
+m2=numFrames*numVerts
+</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;460.0;160.0;460.0</additional_attributes>
+  </element>
+</diagram>
