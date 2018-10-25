@@ -4,8 +4,8 @@
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>333</x>
-      <y>54</y>
+      <x>279</x>
+      <y>27</y>
       <w>99</w>
       <h>27</h>
     </coordinates>
@@ -16,8 +16,8 @@
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>459</x>
-      <y>54</y>
+      <x>405</x>
+      <y>27</y>
       <w>153</w>
       <h>207</h>
     </coordinates>
@@ -40,8 +40,8 @@ ofsEnd: S32</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>639</x>
-      <y>486</y>
+      <x>585</x>
+      <y>459</y>
       <w>171</w>
       <h>207</h>
     </coordinates>
@@ -65,8 +65,8 @@ ofsEnd: S32
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>423</x>
-      <y>54</y>
+      <x>369</x>
+      <y>27</y>
       <w>54</w>
       <h>45</h>
     </coordinates>
@@ -78,8 +78,8 @@ m2=1
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>459</x>
-      <y>279</y>
+      <x>405</x>
+      <y>252</y>
       <w>153</w>
       <h>99</h>
     </coordinates>
@@ -97,8 +97,8 @@ name: U8*16
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>459</x>
-      <y>396</y>
+      <x>405</x>
+      <y>369</y>
       <w>153</w>
       <h>72</h>
     </coordinates>
@@ -114,8 +114,8 @@ rotationMatrix: F32*3*3
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>459</x>
-      <y>486</y>
+      <x>405</x>
+      <y>459</y>
       <w>153</w>
       <h>27</h>
     </coordinates>
@@ -128,8 +128,8 @@ rotationMatrix: F32*3*3
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>639</x>
-      <y>702</y>
+      <x>585</x>
+      <y>675</y>
       <w>171</w>
       <h>45</h>
     </coordinates>
@@ -141,8 +141,8 @@ indices: S32*3</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>639</x>
-      <y>765</y>
+      <x>585</x>
+      <y>738</y>
       <w>171</w>
       <h>54</h>
     </coordinates>
@@ -155,8 +155,8 @@ shaderIndex: S32</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>639</x>
-      <y>837</y>
+      <x>585</x>
+      <y>810</y>
       <w>171</w>
       <h>45</h>
     </coordinates>
@@ -168,8 +168,8 @@ texCoords: F32*2</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>639</x>
-      <y>900</y>
+      <x>585</x>
+      <y>873</y>
       <w>171</w>
       <h>54</h>
     </coordinates>
@@ -182,8 +182,8 @@ normal: S16</panel_attributes>
   <element>
     <id>UMLNote</id>
     <coordinates>
-      <x>639</x>
-      <y>54</y>
+      <x>585</x>
+      <y>27</y>
       <w>243</w>
       <h>144</h>
     </coordinates>
@@ -200,8 +200,8 @@ F32: IEEE-754 32-bit floating-point</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>369</x>
-      <y>72</y>
+      <x>315</x>
+      <y>45</y>
       <w>108</w>
       <h>252</h>
     </coordinates>
@@ -213,8 +213,8 @@ m2=numFrames
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>315</x>
-      <y>72</y>
+      <x>261</x>
+      <y>45</y>
       <w>162</w>
       <h>369</h>
     </coordinates>
@@ -226,8 +226,8 @@ m2=numFrames*numTags
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>351</x>
-      <y>72</y>
+      <x>297</x>
+      <y>45</y>
       <w>126</w>
       <h>459</h>
     </coordinates>
@@ -239,8 +239,8 @@ m2=numSurfaces
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>603</x>
-      <y>486</y>
+      <x>549</x>
+      <y>459</y>
       <w>54</w>
       <h>45</h>
     </coordinates>
@@ -252,8 +252,8 @@ m2=1
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>540</x>
-      <y>504</y>
+      <x>486</x>
+      <y>477</y>
       <w>117</w>
       <h>243</h>
     </coordinates>
@@ -265,8 +265,8 @@ m2=numTriangles
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>531</x>
-      <y>504</y>
+      <x>477</x>
+      <y>477</y>
       <w>126</w>
       <h>306</h>
     </coordinates>
@@ -278,8 +278,8 @@ m2=numShaders
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>513</x>
-      <y>504</y>
+      <x>459</x>
+      <y>477</y>
       <w>144</w>
       <h>378</h>
     </coordinates>
@@ -291,8 +291,8 @@ m2=numVerts
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>495</x>
-      <y>504</y>
+      <x>441</x>
+      <y>477</y>
       <w>162</w>
       <h>441</h>
     </coordinates>

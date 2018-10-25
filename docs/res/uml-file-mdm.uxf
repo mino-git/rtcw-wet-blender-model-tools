@@ -4,8 +4,8 @@
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>400</x>
-      <y>112</y>
+      <x>392</x>
+      <y>0</y>
       <w>80</w>
       <h>24</h>
     </coordinates>
@@ -16,8 +16,8 @@
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>504</x>
-      <y>288</y>
+      <x>496</x>
+      <y>176</y>
       <w>136</w>
       <h>24</h>
     </coordinates>
@@ -27,8 +27,8 @@
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>504</x>
-      <y>112</y>
+      <x>496</x>
+      <y>0</y>
       <w>136</w>
       <h>160</h>
     </coordinates>
@@ -50,8 +50,8 @@ ofsEnd: S32
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>504</x>
-      <y>840</y>
+      <x>496</x>
+      <y>728</y>
       <w>136</w>
       <h>120</h>
     </coordinates>
@@ -71,8 +71,8 @@ ofsEnd: S32
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>472</x>
-      <y>112</y>
+      <x>464</x>
+      <y>0</y>
       <w>48</w>
       <h>40</h>
     </coordinates>
@@ -84,8 +84,8 @@ m2=1
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>424</x>
-      <y>128</y>
+      <x>416</x>
+      <y>16</y>
       <w>96</w>
       <h>752</h>
     </coordinates>
@@ -97,8 +97,8 @@ m2=numTags
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>664</x>
-      <y>288</y>
+      <x>656</x>
+      <y>176</y>
       <w>136</w>
       <h>200</h>
     </coordinates>
@@ -124,8 +124,8 @@ ofsEnd: S32
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>632</x>
-      <y>288</y>
+      <x>624</x>
+      <y>176</y>
       <w>48</w>
       <h>40</h>
     </coordinates>
@@ -137,8 +137,8 @@ m2=1
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>664</x>
-      <y>504</y>
+      <x>656</x>
+      <y>392</y>
       <w>136</w>
       <h>64</h>
     </coordinates>
@@ -153,8 +153,8 @@ numWeights: S32
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>664</x>
-      <y>664</y>
+      <x>656</x>
+      <y>552</y>
       <w>136</w>
       <h>40</h>
     </coordinates>
@@ -167,8 +167,8 @@ indices: S32*3
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>664</x>
-      <y>720</y>
+      <x>656</x>
+      <y>608</y>
       <w>160</w>
       <h>40</h>
     </coordinates>
@@ -180,8 +180,8 @@ mappings: S32*numVertices</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>664</x>
-      <y>776</y>
+      <x>656</x>
+      <y>664</y>
       <w>160</w>
       <h>40</h>
     </coordinates>
@@ -194,8 +194,8 @@ boneRefs: S32*numBoneRefs
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>416</x>
-      <y>128</y>
+      <x>408</x>
+      <y>16</y>
       <w>104</w>
       <h>200</h>
     </coordinates>
@@ -207,8 +207,8 @@ m2=numSurfaces
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>584</x>
-      <y>304</y>
+      <x>576</x>
+      <y>192</y>
       <w>96</w>
       <h>240</h>
     </coordinates>
@@ -220,8 +220,8 @@ m2=numVertices
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>824</x>
-      <y>584</y>
+      <x>816</x>
+      <y>472</y>
       <w>136</w>
       <h>64</h>
     </coordinates>
@@ -236,8 +236,8 @@ offsetLocation: F32*3
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>720</x>
-      <y>560</y>
+      <x>712</x>
+      <y>448</y>
       <w>120</w>
       <h>64</h>
     </coordinates>
@@ -249,8 +249,8 @@ m2=1..n
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>568</x>
-      <y>304</y>
+      <x>560</x>
+      <y>192</y>
       <w>112</w>
       <h>400</h>
     </coordinates>
@@ -262,8 +262,8 @@ m2=numTriangles
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>552</x>
-      <y>304</y>
+      <x>544</x>
+      <y>192</y>
       <w>128</w>
       <h>456</h>
     </coordinates>
@@ -275,8 +275,8 @@ m2=1
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>536</x>
-      <y>304</y>
+      <x>528</x>
+      <y>192</y>
       <w>144</w>
       <h>512</h>
     </coordinates>
@@ -288,8 +288,8 @@ m2=1
   <element>
     <id>UMLNote</id>
     <coordinates>
-      <x>664</x>
-      <y>112</y>
+      <x>656</x>
+      <y>0</y>
       <w>200</w>
       <h>80</h>
     </coordinates>
@@ -304,27 +304,27 @@ F32: IEEE-754 32-bit floating-point</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>664</x>
-      <y>976</y>
-      <w>136</w>
+      <x>656</x>
+      <y>864</y>
+      <w>160</w>
       <h>40</h>
     </coordinates>
-    <panel_attributes>MDMBoneRef
+    <panel_attributes>MDMBoneRefs
 --
-boneRef: S32
+boneRefs: S32*numBoneRefs
 </panel_attributes>
     <additional_attributes/>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>560</x>
-      <y>952</y>
+      <x>552</x>
+      <y>840</y>
       <w>120</w>
       <h>64</h>
     </coordinates>
     <panel_attributes>m1=1
-m2=numBoneRefs
+m2=1
 </panel_attributes>
     <additional_attributes>10.0;10.0;10.0;50.0;130.0;50.0</additional_attributes>
   </element>
