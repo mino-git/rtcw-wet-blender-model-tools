@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <diagram program="umlet" version="14.3.0">
-  <zoom_level>5</zoom_level>
+  <zoom_level>12</zoom_level>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>415</x>
-      <y>120</y>
-      <w>80</w>
-      <h>50</h>
+      <x>156</x>
+      <y>288</y>
+      <w>192</w>
+      <h>120</h>
     </coordinates>
     <panel_attributes>MDI_MTM
 --
@@ -22,10 +22,10 @@ numTags: integer
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>610</x>
-      <y>300</y>
-      <w>85</w>
-      <h>25</h>
+      <x>624</x>
+      <y>720</y>
+      <w>204</w>
+      <h>60</h>
     </coordinates>
     <panel_attributes>MDI_Triangle
 --
@@ -35,10 +35,10 @@ indices: integer*3</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>610</x>
-      <y>335</y>
-      <w>85</w>
-      <h>25</h>
+      <x>624</x>
+      <y>804</y>
+      <w>204</w>
+      <h>60</h>
     </coordinates>
     <panel_attributes>MDI_TexCoords
 --
@@ -48,10 +48,10 @@ texCoords: float*2</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>415</x>
-      <y>555</y>
-      <w>80</w>
-      <h>65</h>
+      <x>156</x>
+      <y>1332</y>
+      <w>192</w>
+      <h>156</h>
     </coordinates>
     <panel_attributes>MDI_SM
 --
@@ -68,10 +68,10 @@ numTags: integer
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>510</x>
-      <y>180</y>
-      <w>85</w>
-      <h>60</h>
+      <x>384</x>
+      <y>432</y>
+      <w>204</w>
+      <h>144</h>
     </coordinates>
     <panel_attributes>MTM_Surface
 --
@@ -88,10 +88,10 @@ numFrames: integer
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>610</x>
-      <y>265</y>
-      <w>85</w>
-      <h>25</h>
+      <x>624</x>
+      <y>636</y>
+      <w>204</w>
+      <h>60</h>
     </coordinates>
     <panel_attributes>MDI_Shader
 --
@@ -101,10 +101,10 @@ name: str</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>610</x>
-      <y>370</y>
-      <w>85</w>
-      <h>30</h>
+      <x>624</x>
+      <y>888</y>
+      <w>204</w>
+      <h>72</h>
     </coordinates>
     <panel_attributes>MTM_FrameVertex
 --
@@ -115,10 +115,10 @@ normal: float*3</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>455</x>
-      <y>165</y>
-      <w>65</w>
-      <h>40</h>
+      <x>252</x>
+      <y>396</y>
+      <w>156</w>
+      <h>96</h>
     </coordinates>
     <panel_attributes>m1=1
 m2=numSurfaces
@@ -128,10 +128,10 @@ m2=numSurfaces
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>560</x>
-      <y>235</y>
-      <w>60</w>
-      <h>55</h>
+      <x>504</x>
+      <y>564</y>
+      <w>144</w>
+      <h>132</h>
     </coordinates>
     <panel_attributes>m1=1
 m2=numShaders
@@ -141,10 +141,10 @@ m2=numShaders
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>555</x>
-      <y>235</y>
-      <w>65</w>
-      <h>90</h>
+      <x>492</x>
+      <y>564</y>
+      <w>156</w>
+      <h>216</h>
     </coordinates>
     <panel_attributes>m1=1
 m2=numTriangles
@@ -154,10 +154,10 @@ m2=numTriangles
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>545</x>
-      <y>235</y>
-      <w>75</w>
-      <h>125</h>
+      <x>468</x>
+      <y>564</y>
+      <w>180</w>
+      <h>300</h>
     </coordinates>
     <panel_attributes>m1=1
 m2=numVertices
@@ -167,10 +167,10 @@ m2=numVertices
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>520</x>
-      <y>235</y>
-      <w>100</w>
-      <h>160</h>
+      <x>408</x>
+      <y>564</y>
+      <w>240</w>
+      <h>384</h>
     </coordinates>
     <panel_attributes>m1=1
 m2=numFrames*numVertices
@@ -180,10 +180,10 @@ m2=numFrames*numVertices
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>510</x>
-      <y>410</y>
-      <w>85</w>
-      <h>25</h>
+      <x>384</x>
+      <y>984</y>
+      <w>204</w>
+      <h>60</h>
     </coordinates>
     <panel_attributes>MTM_Tag
 --
@@ -193,10 +193,10 @@ name: str</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>445</x>
-      <y>165</y>
-      <w>75</w>
-      <h>270</h>
+      <x>228</x>
+      <y>396</y>
+      <w>180</w>
+      <h>648</h>
     </coordinates>
     <panel_attributes>m1=1
 m2=numTags
@@ -206,10 +206,10 @@ m2=numTags
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>545</x>
-      <y>430</y>
-      <w>70</w>
-      <h>40</h>
+      <x>468</x>
+      <y>1032</y>
+      <w>168</w>
+      <h>96</h>
     </coordinates>
     <panel_attributes>m1=1
 m2=numFrames
@@ -219,10 +219,10 @@ m2=numFrames
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>605</x>
-      <y>445</y>
-      <w>85</w>
-      <h>35</h>
+      <x>612</x>
+      <y>1068</y>
+      <w>204</w>
+      <h>84</h>
     </coordinates>
     <panel_attributes>MTM_FrameTag
 --
@@ -234,10 +234,10 @@ rotationMatrix: float*3*3
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>415</x>
-      <y>50</y>
-      <w>80</w>
-      <h>35</h>
+      <x>156</x>
+      <y>120</y>
+      <w>192</w>
+      <h>84</h>
     </coordinates>
     <panel_attributes>MDI
 --
@@ -250,10 +250,10 @@ data: MDI_MTM
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>510</x>
-      <y>630</y>
-      <w>85</w>
-      <h>35</h>
+      <x>384</x>
+      <y>1512</y>
+      <w>204</w>
+      <h>84</h>
     </coordinates>
     <panel_attributes>SM_Skeleton
 --
@@ -268,10 +268,10 @@ numBones: S32
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>610</x>
-      <y>725</y>
-      <w>85</w>
-      <h>35</h>
+      <x>624</x>
+      <y>1740</y>
+      <w>204</w>
+      <h>84</h>
     </coordinates>
     <panel_attributes>SM_FrameBone
 --
@@ -286,10 +286,10 @@ rotationMatrix: float*3*3
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>610</x>
-      <y>675</y>
-      <w>85</w>
-      <h>40</h>
+      <x>624</x>
+      <y>1620</y>
+      <w>204</w>
+      <h>96</h>
     </coordinates>
     <panel_attributes>SM_BoneInfo
 --
@@ -305,10 +305,10 @@ torsoWeight: integer
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>550</x>
-      <y>660</y>
-      <w>70</w>
-      <h>40</h>
+      <x>480</x>
+      <y>1584</y>
+      <w>168</w>
+      <h>96</h>
     </coordinates>
     <panel_attributes>m1=1
 m2=numBones
@@ -318,10 +318,10 @@ m2=numBones
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>525</x>
-      <y>660</y>
-      <w>95</w>
-      <h>90</h>
+      <x>420</x>
+      <y>1584</y>
+      <w>228</w>
+      <h>216</h>
     </coordinates>
     <panel_attributes>m1=1
 m2=numFrames*numBones
@@ -331,10 +331,10 @@ m2=numFrames*numBones
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>460</x>
-      <y>615</y>
-      <w>60</w>
-      <h>40</h>
+      <x>264</x>
+      <y>1476</y>
+      <w>144</w>
+      <h>96</h>
     </coordinates>
     <panel_attributes>m1=1
 m2=1
@@ -344,10 +344,10 @@ m2=1
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>510</x>
-      <y>770</y>
-      <w>80</w>
-      <h>50</h>
+      <x>384</x>
+      <y>1848</y>
+      <w>192</w>
+      <h>120</h>
     </coordinates>
     <panel_attributes>SM_Surface
 --
@@ -363,10 +363,10 @@ numBoneRefs: integer
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>445</x>
-      <y>80</y>
-      <w>20</w>
-      <h>50</h>
+      <x>228</x>
+      <y>192</y>
+      <w>48</w>
+      <h>120</h>
     </coordinates>
     <panel_attributes>m1=1
 m2=1
@@ -376,10 +376,10 @@ m2=1
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>415</x>
-      <y>485</y>
-      <w>80</w>
-      <h>35</h>
+      <x>156</x>
+      <y>1164</y>
+      <w>192</w>
+      <h>84</h>
     </coordinates>
     <panel_attributes>MDI
 --
@@ -392,10 +392,10 @@ data: MDI_SM
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>445</x>
-      <y>515</y>
-      <w>20</w>
-      <h>50</h>
+      <x>228</x>
+      <y>1236</y>
+      <w>48</w>
+      <h>120</h>
     </coordinates>
     <panel_attributes>m1=1
 m2=1
@@ -405,10 +405,10 @@ m2=1
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>450</x>
-      <y>615</y>
-      <w>70</w>
-      <h>180</h>
+      <x>240</x>
+      <y>1476</y>
+      <w>168</w>
+      <h>432</h>
     </coordinates>
     <panel_attributes>m1=1
 m2=numSurfaces
@@ -418,10 +418,10 @@ m2=numSurfaces
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>605</x>
-      <y>830</y>
-      <w>85</w>
-      <h>25</h>
+      <x>612</x>
+      <y>1992</y>
+      <w>204</w>
+      <h>60</h>
     </coordinates>
     <panel_attributes>MDI_Shader
 --
@@ -431,10 +431,10 @@ name: str</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>570</x>
-      <y>815</y>
-      <w>45</w>
-      <h>40</h>
+      <x>528</x>
+      <y>1956</y>
+      <w>108</w>
+      <h>96</h>
     </coordinates>
     <panel_attributes>m1=1
 m2=1
@@ -444,10 +444,10 @@ m2=1
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>605</x>
-      <y>935</y>
-      <w>85</w>
-      <h>35</h>
+      <x>612</x>
+      <y>2244</y>
+      <w>204</w>
+      <h>84</h>
     </coordinates>
     <panel_attributes>SM_Vertex
 --
@@ -459,10 +459,10 @@ numWeights: integer
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>700</x>
-      <y>980</y>
-      <w>85</w>
-      <h>40</h>
+      <x>840</x>
+      <y>2352</y>
+      <w>204</w>
+      <h>96</h>
     </coordinates>
     <panel_attributes>SM_Weight
 --
@@ -475,10 +475,10 @@ offsetLocation: float*3
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>640</x>
-      <y>965</y>
-      <w>70</w>
-      <h>40</h>
+      <x>696</x>
+      <y>2316</y>
+      <w>168</w>
+      <h>96</h>
     </coordinates>
     <panel_attributes>m1=1
 m2=1..n
@@ -488,10 +488,10 @@ m2=1..n
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>540</x>
-      <y>815</y>
-      <w>75</w>
-      <h>145</h>
+      <x>456</x>
+      <y>1956</y>
+      <w>180</w>
+      <h>348</h>
     </coordinates>
     <panel_attributes>m1=1
 m2=numVertices
@@ -501,10 +501,10 @@ m2=numVertices
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>605</x>
-      <y>1030</y>
-      <w>110</w>
-      <h>25</h>
+      <x>612</x>
+      <y>2472</y>
+      <w>264</w>
+      <h>60</h>
     </coordinates>
     <panel_attributes>SM_CollapseMap
 --
@@ -514,10 +514,10 @@ mappings: integer*numVertices</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>605</x>
-      <y>1065</y>
-      <w>110</w>
-      <h>25</h>
+      <x>612</x>
+      <y>2556</y>
+      <w>264</w>
+      <h>60</h>
     </coordinates>
     <panel_attributes>SM_BoneRefs
 --
@@ -528,10 +528,10 @@ boneRefs: integer*numBoneRefs
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>520</x>
-      <y>815</y>
-      <w>95</w>
-      <h>275</h>
+      <x>408</x>
+      <y>1956</y>
+      <w>228</w>
+      <h>660</h>
     </coordinates>
     <panel_attributes>m1=1
 m2=1
@@ -541,10 +541,10 @@ m2=1
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>530</x>
-      <y>815</y>
-      <w>85</w>
-      <h>240</h>
+      <x>432</x>
+      <y>1956</y>
+      <w>204</w>
+      <h>576</h>
     </coordinates>
     <panel_attributes>m1=1
 m2=1
@@ -554,10 +554,10 @@ m2=1
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>605</x>
-      <y>865</y>
-      <w>85</w>
-      <h>25</h>
+      <x>612</x>
+      <y>2076</y>
+      <w>204</w>
+      <h>60</h>
     </coordinates>
     <panel_attributes>MDI_Triangle
 --
@@ -568,10 +568,10 @@ indices: integer*3
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>550</x>
-      <y>815</y>
-      <w>65</w>
-      <h>75</h>
+      <x>480</x>
+      <y>1956</y>
+      <w>156</w>
+      <h>180</h>
     </coordinates>
     <panel_attributes>m1=1
 m2=numTriangles
@@ -581,10 +581,10 @@ m2=numTriangles
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>605</x>
-      <y>900</y>
-      <w>85</w>
-      <h>25</h>
+      <x>612</x>
+      <y>2160</y>
+      <w>204</w>
+      <h>60</h>
     </coordinates>
     <panel_attributes>MDI_TexCoords
 --
@@ -594,10 +594,10 @@ texCoords: float*2</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>550</x>
-      <y>815</y>
-      <w>65</w>
-      <h>110</h>
+      <x>480</x>
+      <y>1956</y>
+      <w>156</w>
+      <h>264</h>
     </coordinates>
     <panel_attributes>m1=1
 m2=numVertices
@@ -607,10 +607,10 @@ m2=numVertices
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>440</x>
-      <y>615</y>
-      <w>80</w>
-      <h>510</h>
+      <x>216</x>
+      <y>1476</y>
+      <w>192</w>
+      <h>1224</h>
     </coordinates>
     <panel_attributes>m1=1
 m2=numTags
@@ -620,16 +620,17 @@ m2=numTags
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>510</x>
-      <y>1100</y>
-      <w>100</w>
-      <h>65</h>
+      <x>384</x>
+      <y>2640</y>
+      <w>240</w>
+      <h>180</h>
     </coordinates>
     <panel_attributes>SM_Tag
 --
 name: str
 parentBone: integer
 isBone: bool
+numBoneRefs: integer
 torsoWeight: float
 offsetLocation: float*3
 offsetRotationMatrix: float*3*3
@@ -642,10 +643,10 @@ offsetRotationMatrix: float*3*3
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>605</x>
-      <y>1175</y>
-      <w>110</w>
-      <h>25</h>
+      <x>612</x>
+      <y>2844</y>
+      <w>264</w>
+      <h>60</h>
     </coordinates>
     <panel_attributes>SM_BoneRefs
 --
@@ -656,10 +657,10 @@ boneRefs: integer*numBoneRefs
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>540</x>
-      <y>1160</y>
-      <w>75</w>
-      <h>40</h>
+      <x>456</x>
+      <y>2808</y>
+      <w>180</w>
+      <h>96</h>
     </coordinates>
     <panel_attributes>m1=1
 m2=1
@@ -669,12 +670,25 @@ m2=1
   <element>
     <id>UMLNote</id>
     <coordinates>
-      <x>415</x>
-      <y>0</y>
-      <w>70</w>
-      <h>35</h>
+      <x>384</x>
+      <y>120</y>
+      <w>348</w>
+      <h>276</h>
     </coordinates>
-    <panel_attributes>Note..</panel_attributes>
+    <panel_attributes>Note:
+--
+Model Definition Interchange (MDI) Format
+
+A minimal format which abstracts md3, mdc,
+mds and mdm/mdx for easier conversions.
+
+Data depends on meshType:
+- MTM: morph target mesh 
+- SM: skeletal mesh
+
+Possible conversions:
+- MTM -&gt; md3, mdc
+- SM -&gt; md3, mdc, mds, mdm/mdx</panel_attributes>
     <additional_attributes/>
   </element>
 </diagram>
