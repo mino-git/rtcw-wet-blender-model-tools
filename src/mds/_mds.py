@@ -1042,7 +1042,7 @@ class MDSFrameInfo:
                            (local_origin_x, local_origin_y, local_origin_z),
                            radius,
                            (parent_bone_offset_x, parent_bone_offset_y,
-                           parent_bone_offset_z))
+                            parent_bone_offset_z))
 
         return mds_frame_header
 

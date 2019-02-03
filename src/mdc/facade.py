@@ -73,4 +73,3 @@ def write(mdi, file_path, encoding="binary"):
         pass  # TODO
     else:
         print("encoding option '{}' not supported".format(encoding))
-

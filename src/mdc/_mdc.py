@@ -1308,7 +1308,7 @@ class MDC:
 
     max_ofs = 127.0
     location_scale = 1.0 / 20
-    max_dist = max_ofs * location_scale  #  per vertex (6,35)
+    max_dist = max_ofs * location_scale  # per vertex (6,35)
     max_compression_delta = 0.1
 
     def __init__(self):
