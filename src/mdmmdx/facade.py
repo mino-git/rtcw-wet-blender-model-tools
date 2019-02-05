@@ -27,13 +27,12 @@ from mdmmdx import _mdmmdx_mdi
 
 
 def read(file_path_mdm, file_path_mdx, encoding="binary"):
-
     """Reads MDM/MDX data from file, then converts it to MDI.
 
     Args:
 
-        file_path_mdm (tuple): path to MDM file.
-        file_path_mdx (tuple): path to MDX file.
+        file_path_mdm (str): path to MDM file.
+        file_path_mdx (str): path to MDX file.
         encoding (str): encoding to use for MDM/MDX.
 
     Notes:
@@ -62,16 +61,12 @@ def read(file_path_mdm, file_path_mdx, encoding="binary"):
 
 
 def write(mdi, file_path_mdm, file_path_mdx, encoding="binary"):
-
     """Converts MDI data to MDM/MDX, then writes it back to file.
-
-    Notes:
-
-        Can write just MDX. MDM without MDX is not possible.
 
     Args:
         mdi (MDI): model definition interchange format.
-        file_paths (str): path to which MDS data is written to.
+        file_path_mdm (str): path to which MDM data is written to.
+        file_path_mdx (str): path to which MDX data is written to.
         encoding (str): encoding to use for MDS.
     """
 
