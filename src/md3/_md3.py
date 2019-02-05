@@ -695,7 +695,7 @@ class MD3FrameTag:
         file.seek(file_ofs)
 
         name, \
-            location_x, location_y, location_z,\
+            location_x, location_y, location_z, \
             orientation_x1, orientation_x2, orientation_x3, \
             orientation_y1, orientation_y2, orientation_y3, \
             orientation_z1, orientation_z2, orientation_z3 \

@@ -66,9 +66,9 @@ class MDSTag:
     Attributes:
 
         name (bytes): tag name, ASCII encoded, null-terminated, length 64.
-        torso_weight (float): scale torso rotation about torsoParent by this.
+        torso_weight (float): scale torso rotation about torso parent by this.
         parent_bone (int): bone that controls the tags location and
-            orientation.
+            orientation. Given as index into the list of bone_infos.
 
     File encodings:
 
@@ -165,8 +165,8 @@ class MDSBoneRefs:
 
     Attributes:
 
-        bone_refs (list): indices into the list of bone_frames_compressed for
-            this surface, size=num_bone_refs.
+        bone_refs (list): indices into the list of bone_infos for this surface,
+        size=num_bone_refs.
 
     File encodings:
 
@@ -395,7 +395,7 @@ class MDSWeight:
 
     Background:
 
-        See "Skinning" or "Skeletal animation" for more details.
+        See "skinning" or "skeletal animation" for more details.
     """
 
     format = '<If3f'
@@ -811,10 +811,10 @@ class MDSBoneInfo:
     Attributes:
 
         name (bytes): bone name, ASCII encoded, null-terminated, length 64.
-        parent_bone (int): TODO.
+        parent_bone (int): parent bone as index into the list of bone_infos.
         torso_weight (float): TODO.
-        parent_dist (float): TODO.
-        flags (int): TODO.
+        parent_dist (float): distance to parent bone.
+        flags (int): this bone is either a bone (0) or a tag (1).
 
     File encodings:
 
@@ -899,8 +899,8 @@ class MDSBoneFrameCompressed:
 
     File encodings:
 
-        orientation: INT16.
-        location_dir: INT16.
+        orientation: 4*INT16.
+        location_dir: 2*INT16.
 
     Notes:
 
@@ -916,8 +916,8 @@ class MDSBoneFrameCompressed:
     format = '<hhhhhh'
     format_size = struct.calcsize(format)
 
-    angle_scale = 360 / 65536.0
-    off_angle_scale = 360 / 4095.0
+    angle_scale = 360 / 65536.0  # TODO
+    off_angle_scale = 360 / 4095.0  # TODO
 
     angle_none_default = 777
 
@@ -943,14 +943,13 @@ class MDSBoneFrameCompressed:
 
         file.seek(file_ofs)
 
-        # TODO
-        angle_pitch, angle_yaw, angle_roll, angle_none, off_angle_pitch, \
-            off_angle_yaw \
+        pitch, yaw, roll, none, off_pitch, off_yaw \
             = struct.unpack(MDSBoneFrameCompressed.format,
                             file.read(MDSBoneFrameCompressed.format_size))
 
-        orientation = (angle_pitch, angle_yaw, angle_roll, angle_none)
-        location_dir = (off_angle_pitch, off_angle_yaw)
+        orientation = (pitch, yaw, roll, none)
+        location_dir = (off_pitch, off_yaw)
+
         mds_bone_frame_compressed = MDSBoneFrameCompressed(orientation,
                                                            location_dir)
 
@@ -970,8 +969,7 @@ class MDSBoneFrameCompressed:
         file.write(struct.pack(MDSBoneFrameCompressed.format,
                                self.orientation[0], self.orientation[1],
                                self.orientation[2], self.orientation[3],
-                               self.location_dir[0],
-                               self.location_dir[1]))
+                               self.location_dir[0], self.location_dir[1]))
 
 
 class MDSFrameInfo:
@@ -985,7 +983,7 @@ class MDSFrameInfo:
             bounding box as tuple of floats.
         local_origin (tuple): ???
         radius (float): ???
-        parent_bone_offset (float): ???
+        root_bone_location (float): ???
 
     File encodings:
 
@@ -993,7 +991,7 @@ class MDSFrameInfo:
         max_bound: 3*F32, IEEE-754.
         local_origin: 3*F32, IEEE-754.
         radius: F32, IEEE-754.
-        parent_bone_offset: 3*F32, IEEE-754.
+        root_bone_location: 3*F32, IEEE-754.
 
     Notes:
 
@@ -1004,13 +1002,13 @@ class MDSFrameInfo:
     format_size = struct.calcsize(format)
 
     def __init__(self, min_bound, max_bound, local_origin, radius,
-                 parent_bone_offset):
+                 root_bone_location):
 
         self.min_bound = min_bound
         self.max_bound = max_bound
         self.local_origin = local_origin
         self.radius = radius
-        self.parent_bone_offset = parent_bone_offset
+        self.root_bone_location = root_bone_location
 
     @staticmethod
     def read(file, file_ofs):
@@ -1023,7 +1021,7 @@ class MDSFrameInfo:
 
         Returns:
 
-            mds_frame_header (MDSFrameInfo): MDSFrameInfo object.
+            mds_frame_info (MDSFrameInfo): MDSFrameInfo object.
         """
 
         file.seek(file_ofs)
@@ -1032,19 +1030,19 @@ class MDSFrameInfo:
             max_bound_x, max_bound_y, max_bound_z, \
             local_origin_x, local_origin_y, local_origin_z, \
             radius, \
-            parent_bone_offset_x, parent_bone_offset_y, parent_bone_offset_z \
+            root_bone_location_x, root_bone_location_y, root_bone_location_z \
             = struct.unpack(MDSFrameInfo.format,
                             file.read(MDSFrameInfo.format_size))
 
-        mds_frame_header \
+        mds_frame_info \
             = MDSFrameInfo((min_bound_x, min_bound_y, min_bound_z),
                            (max_bound_x, max_bound_y, max_bound_z),
                            (local_origin_x, local_origin_y, local_origin_z),
                            radius,
-                           (parent_bone_offset_x, parent_bone_offset_y,
-                            parent_bone_offset_z))
+                           (root_bone_location_x, root_bone_location_y,
+                            root_bone_location_z))
 
-        return mds_frame_header
+        return mds_frame_info
 
     def write(self, file, file_ofs):
         """Writes MDSFrameInfo object to file.
@@ -1063,9 +1061,9 @@ class MDSFrameInfo:
                                self.max_bound[1], self.max_bound[2],
                                self.local_origin[0], self.local_origin[1],
                                self.local_origin[2], self.radius,
-                               self.parent_bone_offset[0],
-                               self.parent_bone_offset[1],
-                               self.parent_bone_offset[2]))
+                               self.root_bone_location[0],
+                               self.root_bone_location[1],
+                               self.root_bone_location[2]))
 
 
 class MDSFrame:
@@ -1167,8 +1165,8 @@ class MDSHeader:
         ident: 4*ASCII.
         version: UINT32.
         name: 64*ASCII (C-String).
-        lod_scale: UINT32.
-        lod_bias: UINT32.
+        lod_scale: F32, IEEE-754.
+        lod_bias: F32, IEEE-754.
         num_frames: UINT32.
         num_bones: UINT32.
         ofs_frames: UINT32.

@@ -221,6 +221,14 @@ class MDCBaseFrameIndices:
 class MDCCompFrameVertex:
     """Vertex location and normal in a compressed frame.
 
+    Attributes:
+
+        TODO
+
+    File encodings:
+
+        TODO
+
     Background:
 
         TODO
@@ -281,6 +289,14 @@ class MDCCompFrameVertex:
 
 class MDCBaseFrameVertex:
     """Vertex location and normal in a base frame.
+
+    Attributes:
+
+        TODO
+
+    File encodings:
+
+        TODO
 
     Background:
 
