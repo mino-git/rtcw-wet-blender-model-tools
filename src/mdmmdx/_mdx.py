@@ -135,8 +135,8 @@ class MDXBoneFrameCompressed:
 
     File encodings:
 
-        orientation: 4*INT16
-        location_dir: 2*INT16
+        orientation: 4*INT16.
+        location_dir: 2*INT16.
 
     Notes:
 
@@ -145,6 +145,7 @@ class MDXBoneFrameCompressed:
         mapped. For this, a hard coded scale value is used. The result is
         an angle in the range of [0, 360). To convert the angles to a rotation
         matrix, we first roll, then pitch, then yaw (intrinsic).
+        TODO recheck signed integer to angle range
 
         Bone location values are given as offset direction from a parent bone.
         Combined with the parent_dist value in the bone info field and the

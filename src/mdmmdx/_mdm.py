@@ -966,13 +966,8 @@ class MDM:
 
     max_weights = 3  # per vertex
 
-    max_weights = 3
     min_weight_value = 0.0
     max_weight_value = 1.0
-
-
-
-
 
     def __init__(self):
 

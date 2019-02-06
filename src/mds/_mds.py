@@ -379,9 +379,12 @@ class MDSWeight:
 
     Attributes:
 
-        bone_index (int): TODO.
-        bone_weight (float): TODO.
-        location_offset (tuple): TODO, specified in model space.
+        bone_index (int): bone that exercises a weighted influence over the
+            vertex location given as index into the list of bone_infos.
+        bone_weight (float): amount of influence from the bone over the vertex
+            location.
+        location_offset (tuple): location coordinates given in bone space.
+            TODO recheck with source code
 
     File encodings:
 
@@ -451,13 +454,13 @@ class MDSWeight:
 
 
 class MDSVertex:
-    """TODO.
+    """Vertex location, normal and texture coordinates.
 
     Attributes:
 
-        normal (tuple): TODO.
-        tex_coords (tuple): TODO.
-        num_weights (int): TODO.
+        normal (tuple): vertex normal coordinates.
+        tex_coords (tuple): u and v coordinates in UV-space as tuple.
+        num_weights (int): number of weights for this vertex.
         fixed_parent (int): TODO.
         fixed_dist (float): TODO.
 
@@ -471,11 +474,15 @@ class MDSVertex:
 
     Notes:
 
-        TODO.
+        The number of weights usually does not exceed 3 (at least i have never
+        seen any model with more).
 
     Background:
 
-        TODO.
+        Vertex normals manipulate the shading of a surface (for example smooth
+        or flat).
+
+        Texture coordinate values refer to the process of UV-mapping.
     """
 
     format = '<3f2fIIf'
@@ -556,24 +563,26 @@ class MDSVertex:
 
 
 class MDSSurfaceHeader:
-    """TODO.
+    """General information about a surface.
 
     Attributes:
 
-        ident (bytes): TODO.
-        name (bytes): TODO.
-        shader (bytes): TODO.
-        shader_index (int): TODO.
-        min_lod (int): TODO.
-        ofs_header (int): TODO.
-        num_vertices (int): TODO.
-        ofs_vertices (int): TODO.
-        num_triangles (int): TODO.
-        ofs_triangles (int): TODO.
-        ofs_collapse_map (int): TODO.
-        num_bone_refs (int): TODO.
-        ofs_bone_refs (int): TODO.
-        ofs_end (int): TODO.
+        ident (bytes): magic number, ASCII encoded, length 4.
+        name (bytes): surface name, ASCII encoded, null-terminated, length 64.
+        shader (bytes): shader name, ASCII encoded, null-terminated, length 64.
+        shader_index (int): used in-game only.
+        min_lod (int): minimum amount of vertices for the surface or maximum
+            amount of collapse operations during runtime.
+        ofs_header (int): relative offset from this surface to start of file.
+            This is a negative number.
+        num_vertices (int): number of vertices.
+        ofs_vertices (int): file offset to field of vertices.
+        num_triangles (int): number of triangles.
+        ofs_triangles (int): file offset to field of triangles.
+        ofs_collapse_map (int): file offset to collapse map.
+        num_bone_refs (int): number of bones this surface references.
+        ofs_bone_refs (int): file offset to bone references.
+        ofs_end (int): file offset to end of surface.
 
     File encodings:
 
@@ -594,11 +603,7 @@ class MDSSurfaceHeader:
 
     Notes:
 
-        TODO.
-
-    Background:
-
-        TODO.
+        Used mainly to navigate file data.
     """
 
     format = '<4s64s64s11I'
@@ -824,13 +829,9 @@ class MDSBoneInfo:
         parent_dist: F32, IEEE-754.
         flags: UINT32.
 
-    Notes:
-
-        TODO.
-
     Background:
 
-        TODO.
+        See "skeletal animation".
     """
 
     format = '<64sIffI'
@@ -894,8 +895,11 @@ class MDSBoneFrameCompressed:
 
     Attributes:
 
-        orientation (tuple): TODO.
-        location_dir (tuple): TODO.
+        orientation (tuple): orientation as euler angles in frame as tuple of
+            shorts. Index 0 = pitch, index 1 = yaw, index 2 = roll. Index 3 is
+            not used and contains a default value.
+        location_dir (tuple): location in spherical coordinates as tuple of
+            shorts. Index 0 = latitude, index 1 = longitude.
 
     File encodings:
 
@@ -904,20 +908,27 @@ class MDSBoneFrameCompressed:
 
     Notes:
 
-        TODO.
-        file: pitch, yaw, roll, location_dir = pitch, yaw
-        first roll, then pitch, then yaw (intrinsic)
+        Bone orientation values are given as compressed 16-Bit integers. To
+        convert this range to a range of floats, the given value is linearly
+        mapped. For this, a hard coded scale value is used. The result is
+        an angle in the range of [0, 360). To convert the angles to a rotation
+        matrix, we first roll, then pitch, then yaw (intrinsic).
+        TODO recheck signed integer to angle range
 
-    Background:
-
-        TODO.
+        Bone location values are given as offset direction from a parent bone.
+        Combined with the parent_dist value in the bone info field and the
+        parent bones frame location, one can calculate the bones frame
+        location. Linear mapping is done the same way as with the bone
+        orientation values to get the angle values from the range of integer
+        to the range of floats. To convert the angles to a direction vector,
+        we first pitch (latitude), then yaw (longitude).
     """
 
     format = '<hhhhhh'
     format_size = struct.calcsize(format)
 
-    angle_scale = 360 / 65536.0  # TODO
-    off_angle_scale = 360 / 4095.0  # TODO
+    angle_scale = 360 / 65536.0  # TODO recheck with source
+    off_angle_scale = 360 / 4095.0  # TODO recheck with source
 
     angle_none_default = 777
 
