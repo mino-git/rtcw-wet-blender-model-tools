@@ -4,6 +4,5 @@
 **Work in progress**
 
 This repository contains:
-* **dev** directory for development utility tools.
 * **docs** directory for documention.
-* **source** directory for the add-on.
+* **src** directory for the add-on.
