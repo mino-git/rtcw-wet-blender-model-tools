@@ -1,0 +1,523 @@
+<!doctype html>
+<html>
+   <head>
+      <title>Documentation</title>
+      <meta charset="utf-8" />
+      <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1" />
+      <style type="text/css"> 
+      </style>
+   </head>
+   <body>
+      <h1>Documentation</h1>
+      <p>Table of contents:</p>
+      <p style="padding-left: 30px;">TODO</p>
+      <p>Last updated: 02/07/2019</p>
+      <h2>Background</h2>
+      <p>A general overview of background knowledge as keyword-list.</p>
+      <ul style="list-style-type: circle;">
+         <li>Mesh approximation, tesselation and triangle meshes</li>
+         <li>Cartesian coordinate system</li>
+         <li>Vectors and matrices</li>
+         <li>Spherical coordinates</li>
+         <li>Rotation matrices</li>
+         <li>Euler angles</li>
+         <li>Conversions: spherical-to-cartesian, euler-to-matrix</li>
+         <li>UV-Mapping</li>
+         <li>Vertex normals, Gouraud shading and lightning models</li>
+         <li>Morph target animation</li>
+         <li>Skeletal animation</li>
+         <li>Level of detail (LOD) and progressive meshes</li>
+      </ul>
+      <h2>Publications</h2>
+      <p>Specifics of the formats and helpful publications.</p>
+      <ul style="list-style-type: circle;">
+         <li>PhaethonH. "Description of MD3 Format". July 2011.</li>
+         <li>Prinz, Wolfgang. "The MDC File Format". May 2004.</li>
+         <li>Melax, Stan. "A Simple, Fast, and Effective Polyong Reduction Algorithm". November 1998.</li>
+         <li>Slabaugh, Gregory: "Computing Euler angles from a rotation matrix". January 1999.</li>
+         <li>Dunn, Fletcher and Parberry, Ian. "3D Math Primer for Graphics and Game Development (2nd Edition)". November 2011.</li>
+      </ul>
+      <h2>File Format Specifications</h2>
+      <p>The file formats are stored as a byte stream to file. Data types are encoded in little-endian byte order. If not else specified, all coordinates are given in cartesian space. Convention is right-handed: x points forward, y points left, z points up.</p>
+      <p>The following abbreviations are used for the data types.</p>
+      <table style="width: 640px;" border="1">
+         <tbody>
+            <tr style="background-color: #e6e6ef;">
+               <td style="width: 150px;"><strong>Name</strong></td>
+               <td style="width: 500px;"><strong>Description</strong></td>
+            </tr>
+            <tr>
+               <td style="width: 150px;">UINT8</td>
+               <td style="width: 500px;">unsigned 8-bit integer</td>
+            </tr>
+            <tr>
+               <td style="width: 150px;">INT16</td>
+               <td style="width: 500px;">signed 16-bit integer</td>
+            </tr>
+            <tr>
+               <td style="width: 150px;">UINT16</td>
+               <td style="width: 500px;">unsigned 16-bit integer</td>
+            </tr>
+            <tr>
+               <td style="width: 150px;">INT32</td>
+               <td style="width: 500px;">signed 32-bit integer</td>
+            </tr>
+            <tr>
+               <td style="width: 150px;">UINT32</td>
+               <td style="width: 500px;">unsigned 32-bit integer</td>
+            </tr>
+            <tr>
+               <td style="width: 150px;">F32</td>
+               <td style="width: 500px;">
+                  <p>32-bit floating-point (IEEE-754 )</p>
+               </td>
+            </tr>
+            <tr>
+               <td style="width: 150px;">ASCII</td>
+               <td style="width: 500px;">
+                  <p>8-bit ASCII character</p>
+               </td>
+            </tr>
+            <tr>
+               <td style="width: 150px;">(*)</td>
+               <td style="width: 500px;">
+                  <p>Marks a sequence of objects of the same type. Multiple appearances of * inside the round brackets mark a sequence of sequences, etc.</p>
+               </td>
+            </tr>
+         </tbody>
+      </table>
+      <h3>MD3</h3>
+      <p>MD3 is defined as a triangle mesh using morph target animation. Surfaces make up the basic model. They are described by geometry, color and animation data. Tags complement the format.</p>
+      <p>Geometry of a surface is described by grouping vertices into a triangle. Triangles are then grouped into a surface.</p>
+      <p>Colorization of a surface is done by defining UV-maps and references to shaders. The UV-maps are used to color surfaces with solid color from a 2D image. Shaders manipulate surface properties. These properties define how the surface interacts with light sources present in a scene. Additionally vertex normals manipulate the shading of a surface.</p>
+      <p>Animation of a surface is done by storing vertex positions per frame. This animation technique is also known as "morph target animation". The way it works is that for each key frame a series of vertex positions is stored. Between two successive frames, the vertices are then interpolated between the positions. MD3 stores absolute vertex positions as opposed to MDC, which can store offsets relative to a base frame.</p>
+      <p>Tags provide the possibility to attach external models to the model.</p>
+      <h4>Object View</h4>
+      <h5>MD3</h5>
+      <table style="width: 840px;" border="1">
+         <tbody>
+            <tr style="background-color: #e6e6ef;">
+               <td style="width: 150px;">MD3</td>
+               <td style="width: 500px;"></td>
+               <td style="width: 150px;"></td>
+            </tr>
+            <tr style="background-color: #e6e6fa;">
+               <td style="width: 150px;"><strong>Name</strong></td>
+               <td style="width: 500px;"><strong>Description</strong></td>
+               <td style="width: 150px;"><strong>Type</strong></td>
+            </tr>
+            <tr>
+               <td style="width: 150px;">header</td>
+               <td style="width: 500px;">reference to MD3Header object.</td>
+               <td style="width: 150px;">MD3Header</td>
+            </tr>
+            <tr>
+               <td style="width: 150px;">frame_infos</td>
+               <td style="width: 500px;">list of MD3FrameInfo objects, size=num_frames.</td>
+               <td style="width: 150px;">MD3FrameInfo (*)</td>
+            </tr>
+            <tr>
+               <td style="width: 150px;">tags</td>
+               <td style="width: 500px;">list of list objects, size=num_frames. Each nested list contains MD3FrameTag objects, size=num_tags.</td>
+               <td style="width: 150px;">MD3FrameTag (**)</td>
+            </tr>
+            <tr>
+               <td style="width: 150px;">surfaces</td>
+               <td style="width: 500px;">list of MD3Surface objects, size=num_surfaces.</td>
+               <td style="width: 150px;">MD3Surface (*)</td>
+            </tr>
+         </tbody>
+      </table>
+      <p>References to all MD3 data.</p>
+      <h5>MD3Header</h5>
+      <table style="width: 840px;" border="1">
+         <tbody>
+            <tr style="background-color: #e6e6ef;">
+               <td style="width: 150px;">MD3Header</td>
+               <td style="width: 500px;"></td>
+               <td style="width: 150px;"></td>
+            </tr>
+            <tr style="background-color: #e6e6fa;">
+               <td style="width: 150px;"><strong>Name</strong></td>
+               <td style="width: 500px;"><strong>Description</strong></td>
+               <td style="width: 150px;"><strong>Type</strong></td>
+            </tr>
+            <tr>
+               <td style="width: 150px;">ident</td>
+               <td style="width: 500px;">magic number, ASCII encoded, length 4, reads "IDP3".</td>
+               <td style="width: 150px;">4*ASCII</td>
+            </tr>
+            <tr>
+               <td style="width: 150px;">version</td>
+               <td style="width: 500px;">version number, latest known is 15.</td>
+               <td style="width: 150px;">UINT32</td>
+            </tr>
+            <tr>
+               <td style="width: 150px;">name</td>
+               <td style="width: 500px;">model name, usually its pathname, ASCII encoded, null-terminated, length 64.</td>
+               <td style="width: 150px;">64*ASCII</td>
+            </tr>
+            <tr>
+               <td style="width: 150px;">flags</td>
+               <td style="width: 500px;">not used.</td>
+               <td style="width: 150px;">UINT32</td>
+            </tr>
+            <tr>
+               <td style="width: 150px;">num_frames</td>
+               <td style="width: 500px;">number of animation frames.</td>
+               <td style="width: 150px;">UINT32</td>
+            </tr>
+            <tr>
+               <td style="width: 150px;">num_tags</td>
+               <td style="width: 500px;">number of tags.</td>
+               <td style="width: 150px;">UINT32</td>
+            </tr>
+            <tr>
+               <td style="width: 150px;">num_surfaces</td>
+               <td style="width: 500px;">number of surfaces.</td>
+               <td style="width: 150px;">UINT32</td>
+            </tr>
+            <tr>
+               <td style="width: 150px;">num_skins</td>
+               <td style="width: 500px;">not used.</td>
+               <td style="width: 150px;">UINT32</td>
+            </tr>
+            <tr>
+               <td style="width: 150px;">ofs_frame_infos</td>
+               <td style="width: 500px;">file offset to field of frame infos.</td>
+               <td style="width: 150px;">UINT32</td>
+            </tr>
+            <tr>
+               <td style="width: 150px;">ofs_tags</td>
+               <td style="width: 500px;">file offset to field of tags.</td>
+               <td style="width: 150px;">UINT32</td>
+            </tr>
+            <tr>
+               <td style="width: 150px;">ofs_surfaces</td>
+               <td style="width: 500px;">file offset to field of surfaces.</td>
+               <td style="width: 150px;">UINT32</td>
+            </tr>
+            <tr>
+               <td style="width: 150px;">ofs_end</td>
+               <td style="width: 500px;">file offset to end of file.</td>
+               <td style="width: 150px;">UINT32</td>
+            </tr>
+         </tbody>
+      </table>
+      <p>General information about MD3 data</p>
+      <p><span style="text-decoration: underline;">Notes:</span></p>
+      <p>Used mainly to navigate file data.</p>
+      <h5>MD3FrameInfo</h5>
+      <table style="width: 840px;" border="1">
+         <tbody>
+            <tr style="background-color: #e6e6ef;">
+               <td style="width: 150px;">MD3FrameInfo</td>
+               <td style="width: 500.px;"></td>
+               <td style="width: 150px;"></td>
+            </tr>
+            <tr style="background-color: #e6e6fa;">
+               <td style="width: 150px;"><strong>Name</strong></td>
+               <td style="width: 500.px;"><strong>Description</strong></td>
+               <td style="width: 150px;"><strong>Type</strong></td>
+            </tr>
+            <tr>
+               <td style="width: 150px;">min_bound</td>
+               <td style="width: 500.px;">location coordinates of min corner of minimum bounding box.</td>
+               <td style="width: 150px;">3*F32</td>
+            </tr>
+            <tr>
+               <td style="width: 150px;">max_bound</td>
+               <td style="width: 500.px;">location coordinates of max corner of minimum bounding box.</td>
+               <td style="width: 150px;">3*F32</td>
+            </tr>
+            <tr>
+               <td style="width: 150px;">local_origin</td>
+               <td style="width: 500.px;">TODO</td>
+               <td style="width: 150px;">3*F32</td>
+            </tr>
+            <tr>
+               <td style="width: 150px;">radius</td>
+               <td style="width: 500.px;">TODO</td>
+               <td style="width: 150px;">F32</td>
+            </tr>
+            <tr>
+               <td style="width: 150px;">name</td>
+               <td style="width: 500.px;">name of frame, ASCII encoded, null-terminated, length 16, does not seem to be used.</td>
+               <td style="width: 150px;">16*ASCII</td>
+            </tr>
+         </tbody>
+      </table>
+      <p>General information about a frame.</p>
+      <p><span style="text-decoration: underline;">Notes:</span></p>
+      <p>Describes mostly bounding box information. (TODO For frustum culling?)</p>
+      <h5>MD3FrameTag</h5>
+      <table style="width: 840px;" border="1">
+         <tbody>
+            <tr style="background-color: #e6e6ef;">
+               <td style="width: 150px;">MD3FrameTag</td>
+               <td style="width: 500.px;"></td>
+               <td style="width: 150px;"></td>
+            </tr>
+            <tr style="background-color: #e6e6fa;">
+               <td style="width: 150px;"><strong>Name</strong></td>
+               <td style="width: 500.px;"><strong>Description</strong></td>
+               <td style="width: 150px;"><strong>Type</strong></td>
+            </tr>
+            <tr>
+               <td style="width: 150px;">name</td>
+               <td style="width: 500.px;">name of tag, ASCII encoded, null-terminated, length 64.</td>
+               <td style="width: 150px;">64*ASCII</td>
+            </tr>
+            <tr>
+               <td style="width: 150px;">location</td>
+               <td style="width: 500.px;">location coordinates in this frame.</td>
+               <td style="width: 150px;">3*F32</td>
+            </tr>
+            <tr>
+               <td style="width: 150px;">orientation</td>
+               <td style="width: 500.px;">orientation as rotation matrix in frame. Each sequence of 3 floats make up the coordinates of a basis vector. The first 3 floats make up the x basis vector, etc.</td>
+               <td style="width: 150px;">9*F32</td>
+            </tr>
+         </tbody>
+      </table>
+      <p>A tag in a specific frame.</p>
+      <p><span style="text-decoration: underline;">Background:</span></p>
+      <p>Tags are used to attach external models to a model. Attachment means that the external models origin aligns itself with the models tag location and orientation. As the external model is parented to the tag (nested in tag space), any animation of the tag will also affect the external model.</p>
+      <p>Domain specific scripts tell the engine which external models to attach to a given tag. These scripts are either located in mapscript files (attachtotag command) or .skin files. Sometimes they are also hard coded.</p>
+      <p>An example use case is a hat model (defined separately) attached to a head model. This way, characters can be assembled with different looks without having to duplicate their model definitions. Tags therefore support reuse.</p>
+      <p>Another example use case is that of a tank turret model attached to a tank model. Instead of having a shooting animation (rotate turret left, shoot, rotate turret right) be recorded as vertex positions across several key-frames inside a single MD3 model, a tag can be used to control the shooting animation of a separated model. This safes memory, as the tags animation data most likely takes much less space compared to the animation data of the tank turret inside a single model.</p>
+      <p>However, reuse and memory savings are traded against loss in performance. Vertex positions of the external models have to be recalculated against the current frame tags location and orientation.</p>
+      <h5>MD3Surface</h5>
+      <table style="width: 840px;" border="1">
+         <tbody>
+            <tr style="background-color: #e6e6ef;">
+               <td style="width: 150px;">MD3Surface</td>
+               <td style="width: 500.px;"></td>
+               <td style="width: 150px;"></td>
+            </tr>
+            <tr style="background-color: #e6e6fa;">
+               <td style="width: 150px;"><strong>Name</strong></td>
+               <td style="width: 500.px;"><strong>Description</strong></td>
+               <td style="width: 150px;"><strong>Type</strong></td>
+            </tr>
+            <tr>
+               <td style="width: 150px;">header</td>
+               <td style="width: 500.px;">reference to MD3SurfaceHeader object.</td>
+               <td style="width: 150px;">MD3SurfaceHeader</td>
+            </tr>
+            <tr>
+               <td style="width: 150px;">triangles</td>
+               <td style="width: 500.px;">list of MD3Triangle objects, size=num_triangles.</td>
+               <td style="width: 150px;">MD3Triangle (*)</td>
+            </tr>
+            <tr>
+               <td style="width: 150px;">shaders</td>
+               <td style="width: 500.px;">list of MD3Shader objects, size=num_shaders.</td>
+               <td style="width: 150px;">MD3Shader (*)</td>
+            </tr>
+            <tr>
+               <td style="width: 150px;">tex_coords</td>
+               <td style="width: 500.px;">list of MD3TexCoords objects, size=num_vertices.</td>
+               <td style="width: 150px;">MD3TexCoords (*)</td>
+            </tr>
+            <tr>
+               <td style="width: 150px;">vertices</td>
+               <td style="width: 500.px;">list of list objects, size=num_frames. Each nested list contains MD3FrameVertex objects, size=num_vertices.</td>
+               <td style="width: 150px;">MD3FrameVertex (**)</td>
+            </tr>
+         </tbody>
+      </table>
+      <p>A surface of the model.</p>
+      <p><span style="text-decoration: underline;">Background:</span></p>
+      <p>Surfaces are described by geometry, color and animation data. A model can consist of multiple surfaces.</p>
+      <h5>MD3SurfaceHeader</h5>
+      <table style="width: 840px;" border="1">
+         <tbody>
+            <tr style="background-color: #e6e6ef;">
+               <td style="width: 150px;">MD3SurfaceHeader</td>
+               <td style="width: 500.px;"></td>
+               <td style="width: 150px;"></td>
+            </tr>
+            <tr style="background-color: #e6e6fa;">
+               <td style="width: 150px;"><strong>Name</strong></td>
+               <td style="width: 500.px;"><strong>Description</strong></td>
+               <td style="width: 150px;"><strong>Type</strong></td>
+            </tr>
+            <tr>
+               <td style="width: 150px;">ident</td>
+               <td style="width: 500.px;">magic number, ASCII encoded, length 4, reads "IDP3".</td>
+               <td style="width: 150px;">4*ASCII</td>
+            </tr>
+            <tr>
+               <td style="width: 150px;">name</td>
+               <td style="width: 500.px;">surface name, ASCII encoded, null-terminated, length 64.</td>
+               <td style="width: 150px;">64*ASCII</td>
+            </tr>
+            <tr>
+               <td style="width: 150px;">flags</td>
+               <td style="width: 500.px;">not used.</td>
+               <td style="width: 150px;">UINT32</td>
+            </tr>
+            <tr>
+               <td style="width: 150px;">num_frames</td>
+               <td style="width: 500.px;">number of animation frames.</td>
+               <td style="width: 150px;">UINT32</td>
+            </tr>
+            <tr>
+               <td style="width: 150px;">num_shaders</td>
+               <td style="width: 500.px;">number of shaders.</td>
+               <td style="width: 150px;">UINT32</td>
+            </tr>
+            <tr>
+               <td style="width: 150px;">num_vertices</td>
+               <td style="width: 500.px;">number of vertices.</td>
+               <td style="width: 150px;">UINT32</td>
+            </tr>
+            <tr>
+               <td style="width: 150px;">num_triangles</td>
+               <td style="width: 500.px;">number of triangles.</td>
+               <td style="width: 150px;">UINT32</td>
+            </tr>
+            <tr>
+               <td style="width: 150px;">ofs_triangles</td>
+               <td style="width: 500.px;">file offset to field of triangles.</td>
+               <td style="width: 150px;">UINT32</td>
+            </tr>
+            <tr>
+               <td style="width: 150px;">ofs_shaders</td>
+               <td style="width: 500.px;">file offset to field of shaders.</td>
+               <td style="width: 150px;">UINT32</td>
+            </tr>
+            <tr>
+               <td style="width: 150px;">ofs_tex_coords</td>
+               <td style="width: 500.px;">file offset to field of texture coordinates.</td>
+               <td style="width: 150px;">UINT32</td>
+            </tr>
+            <tr>
+               <td style="width: 150px;">ofs_vertices</td>
+               <td style="width: 500.px;">file offset to field of vertices.</td>
+               <td style="width: 150px;">UINT32</td>
+            </tr>
+            <tr>
+               <td style="width: 150px;">ofs_end</td>
+               <td style="width: 500.px;">file offset to end of surface.</td>
+               <td style="width: 150px;">UINT32</td>
+            </tr>
+         </tbody>
+      </table>
+      <p>General information about a surface.</p>
+      <p><span style="text-decoration: underline;">Notes:</span></p>
+      <p>Used mainly to navigate file data.</p>
+      <h5>MD3Triangle</h5>
+      <table style="width: 840px;" border="1">
+         <tbody>
+            <tr style="background-color: #e6e6ef;">
+               <td style="width: 150px;">MD3Triangle</td>
+               <td style="width: 500.px;"></td>
+               <td style="width: 150px;"></td>
+            </tr>
+            <tr style="background-color: #e6e6fa;">
+               <td style="width: 150px;"><strong>Name</strong></td>
+               <td style="width: 500.px;"><strong>Description</strong></td>
+               <td style="width: 150px;"><strong>Type</strong></td>
+            </tr>
+            <tr>
+               <td style="width: 150px;">indices</td>
+               <td style="width: 500.px;">indices into the list of vertices. The order defines in which direction the face normal is pointing.</td>
+               <td style="width: 150px;">3*UINT32</td>
+            </tr>
+         </tbody>
+      </table>
+      <p>A triangle for a surface.</p>
+      <h5>MD3Shader</h5>
+      <table style="width: 840px;" border="1">
+         <tbody>
+            <tr style="background-color: #e6e6ef;">
+               <td style="width: 150px;">MD3Shader</td>
+               <td style="width: 500.px;"></td>
+               <td style="width: 150px;"></td>
+            </tr>
+            <tr style="background-color: #e6e6fa;">
+               <td style="width: 150px;"><strong>Name</strong></td>
+               <td style="width: 500.px;"><strong>Description</strong></td>
+               <td style="width: 150px;"><strong>Type</strong></td>
+            </tr>
+            <tr>
+               <td style="width: 150px;">name</td>
+               <td style="width: 500.px;">shader name, ASCII encoded, null-terminated, length 64.</td>
+               <td style="width: 150px;">64*ASCII</td>
+            </tr>
+            <tr>
+               <td style="width: 150px;">shader_index</td>
+               <td style="width: 500.px;">used in-game only.</td>
+               <td style="width: 150px;">UINT32</td>
+            </tr>
+         </tbody>
+      </table>
+      <p>Shader for a surface.</p>
+      <p><span style="text-decoration: underline;">Notes:</span></p>
+      <p>The name of the shader is a reference to either a shader inside a script file, or a path from top level directory to an texture image. Suffixes like .tga or .jpg can be omitted. Search order is: shader, .tga, .jpg. First found will be used.</p>
+      <p><span style="text-decoration: underline;">Background:</span></p>
+      <p>Shaders manipulate surface properties. These properties define how the surface interacts with light sources present in a scene.</p>
+      <p>The term can be a bit confusing, since a shader in this context can either mean a script file (with references to texture images) or an texture image.</p>
+      <h5>MD3TexCoords</h5>
+      <table style="width: 840px;" border="1">
+         <tbody>
+            <tr style="background-color: #e6e6ef;">
+               <td style="width: 150px;">MD3TexCoords</td>
+               <td style="width: 500.px;"></td>
+               <td style="width: 150px;"></td>
+            </tr>
+            <tr style="background-color: #e6e6fa;">
+               <td style="width: 150px;"><strong>Name</strong></td>
+               <td style="width: 500.px;"><strong>Description</strong></td>
+               <td style="width: 150px;"><strong>Type</strong></td>
+            </tr>
+            <tr>
+               <td style="width: 150px;">tex_coords</td>
+               <td style="width: 500.px;">u and v coordinates in UV-space.</td>
+               <td style="width: 150px;">2*F32</td>
+            </tr>
+         </tbody>
+      </table>
+      <p>Texture coordinates for a single vertex.</p>
+      <p><span style="text-decoration: underline;">Notes:</span></p>
+      <p>UV coordinates are given so that u points right, and v points down. Each value should be in range of [0, 1]. Values outside this range are interpreted as repeating. Each vertex is mapped exactly once to UV-space. Therefore, seams will most likely cause an exporter to add additional vertices along the seam line to enforce bijection. UV-maps are stored once per surface.</p>
+      <p><span style="text-decoration: underline;">Background:</span></p>
+      <p>The UV-map is used to color the surface with solid color from a 2D image. Texture coordinates make up UV-space.</p>
+      <h5>MD3FrameVertex</h5>
+      <table style="width: 840px;" border="1">
+         <tbody>
+            <tr style="background-color: #e6e6ef;">
+               <td style="width: 150px;">MD3FrameVertex</td>
+               <td style="width: 500.px;"></td>
+               <td style="width: 150px;"></td>
+            </tr>
+            <tr style="background-color: #e6e6fa;">
+               <td style="width: 150px;"><strong>Name</strong></td>
+               <td style="width: 500.px;"><strong>Description</strong></td>
+               <td style="width: 150px;"><strong>Type</strong></td>
+            </tr>
+            <tr>
+               <td style="width: 150px;">location</td>
+               <td style="width: 500.px;">location coordinates in frame.</td>
+               <td style="width: 150px;">3*INT16</td>
+            </tr>
+            <tr>
+               <td style="width: 150px;">normal</td>
+               <td style="width: 500.px;">vertex normal in spherical coordinates. Index 0 = latitude, index 1 = longitude.</td>
+               <td style="width: 150px;">2*UINT8</td>
+            </tr>
+         </tbody>
+      </table>
+      <p>Vertex location and normal in a specific frame.</p>
+      <p><span style="text-decoration: underline;">Notes:</span></p>
+      <p>Each key frame contains a list of vertex locations and normals.</p>
+      <p>Vertex location values from file are given as compressed 16-Bit integers. To convert this range to a range of floats, the given value is linearly mapped. For this, a hard coded scale value is used.</p>
+      <p>Vertex normals manipulate the shading of a surface (for example smooth or flat). They are given in spherical coordinates. Since the coordinates describe the direction of a normal, the radius value is omitted and only latitude and longitude values are given as unsigned 8-bit values from file. To convert them to cartesian space, the upwards vector is first rotated by the latitude value, then by the longitude value. Latitude range is within [0, 180] degrees. Longitude range is within [0, 360) degrees. To obtain the values in degrees, the given range of [0, 255] from file needs to be linearly mapped to [0, 360) degrees.</p>
+      <h4>UML view</h4>
+      <img src="./img/uml-file-md3.svg"/>
+   </body>
+</html>
+

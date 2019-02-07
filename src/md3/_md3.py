@@ -740,8 +740,8 @@ class MD3FrameInfo:
             bounding box as tuple of floats.
         max_bound (tuple): location coordinates of max corner of minimum
             bounding box as tuple of floats.
-        local_origin (tuple): ???
-        radius (float): ???
+        local_origin (tuple): TODO.
+        radius (float): TODO.
         name (bytes): name of frame, ASCII encoded, null-terminated, length 16,
             does not seem to be used.
 
