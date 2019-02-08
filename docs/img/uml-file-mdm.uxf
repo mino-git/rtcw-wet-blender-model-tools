@@ -59,7 +59,7 @@ ofs_end: UINT32
 --
 name: 64*ASCII (C-String)
 orientation: 3*3*F32
-parent_bone_index: UINT32
+parent_bone: UINT32
 location_offset: 3*F32
 num_bone_refs: UINT32
 ofs_bone_refs: UINT32
