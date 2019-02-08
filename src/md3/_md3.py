@@ -658,10 +658,10 @@ class MD3FrameTag:
         Another example use case is that of a tank turret model attached to a
         tank model. Instead of having a shooting animation (rotate turret left,
         shoot, rotate turret right) be recorded as vertex positions across
-        several key-frames inside a single MD3 model, a tag can be used to
-        control the shooting animation of a separated model. This safes memory,
-        as the tags animation data most likely takes much less space compared
-        to the animation data of the tank turret inside a single model.
+        several key-frames inside a single model, a tag can be used to control 
+        the shooting animation of a separated model. This safes memory, as the 
+        tags animation data most likely takes much less space compared to the 
+        animation data of the tank turret inside a single model.
 
         However, reuse and memory savings are traded against loss in
         performance. Vertex positions of the external models have to be

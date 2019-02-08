@@ -574,7 +574,8 @@ class MDCSurfaceHeader:
 
     Attributes:
 
-        ident (bytes): magic number, ASCII encoded, length 4.
+        ident (bytes): magic number, ASCII encoded, length 4, latest known is 
+            7.
         name (bytes): surface name, ASCII encoded, null-terminated, length 64.
         flags (int): not used.
         num_comp_frames (int): number of compressed animation frames.
@@ -584,6 +585,7 @@ class MDCSurfaceHeader:
         num_triangles (int): number of triangles.
         ofs_triangles (int): file offset to field of triangles.
         ofs_shaders (int): file offset to field of shaders.
+        ofs_tex_coords (int): file offset to field of texture coordinates.
         ofs_base_vertices (int): file offset to field of base vertices.
         ofs_comp_vertices (int): file offset to field of compressed vertices.
         ofs_base_frame_indices (int): file offset to field of base vertex
@@ -970,10 +972,10 @@ class MDCFrameTag:
         Another example use case is that of a tank turret model attached to a
         tank model. Instead of having a shooting animation (rotate turret left,
         shoot, rotate turret right) be recorded as vertex positions across
-        several key-frames inside a single MD3 model, a tag can be used to
-        control the shooting animation of a separated model. This safes memory,
-        as the tags animation data most likely takes much less space compared
-        to the animation data of the tank turret inside a single model.
+        several key-frames inside a single model, a tag can be used to control 
+        the shooting animation of a separated model. This safes memory, as the 
+        tags animation data most likely takes much less space compared to the 
+        animation data of the tank turret inside a single model.
 
         However, reuse and memory savings are traded against loss in
         performance. Vertex positions of the external models have to be
@@ -1100,8 +1102,8 @@ class MDCFrameInfo:
             bounding box as tuple of floats.
         max_bound (tuple): location coordinates of max corner of minimum
             bounding box as tuple of floats.
-        local_origin (tuple): ???
-        radius (float): ???
+        local_origin (tuple): TODO
+        radius (float): TODO
         name (bytes): name of frame, ASCII encoded, null-terminated, length 16,
             does not seem to be used.
 

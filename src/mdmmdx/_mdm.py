@@ -82,8 +82,8 @@ class MDMTag:
             tuple of floats. The values are given in parent bone space.
         num_bone_refs (int): number of bones this tag references.
         ofs_bone_refs (int): file offset to list of bone references.
-        bone_refs (list): indices into the list of bone_infos (from the
-            referenced MDX file) for this tag, size=num_bone_refs.
+        ofs_end (int): file offset to end of tag.
+        bone_refs (MDMBoneRefs): reference to MDMBoneRefs object.
 
     File encodings:
 
@@ -94,6 +94,7 @@ class MDMTag:
         num_bone_refs: UINT32.
         ofs_bone_refs: UINT32.
         ofs_end: UINT32.
+        bone_refs: num_bone_refs*UINT32.
 
     Notes:
 
@@ -124,10 +125,10 @@ class MDMTag:
         Another example use case is that of a tank turret model attached to a
         tank model. Instead of having a shooting animation (rotate turret left,
         shoot, rotate turret right) be recorded as vertex positions across
-        several key-frames inside a single MD3 model, a tag can be used to
-        control the shooting animation of a separated model. This safes memory,
-        as the tags animation data most likely takes much less space compared
-        to the animation data of the tank turret inside a single model.
+        several key-frames inside a single model, a tag can be used to control 
+        the shooting animation of a separated model. This safes memory, as the 
+        tags animation data most likely takes much less space compared to the 
+        animation data of the tank turret inside a single model.
 
         However, reuse and memory savings are traded against loss in
         performance. Vertex positions of the external models have to be

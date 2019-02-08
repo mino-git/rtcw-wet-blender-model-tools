@@ -102,10 +102,10 @@ class MDSTag:
         Another example use case is that of a tank turret model attached to a
         tank model. Instead of having a shooting animation (rotate turret left,
         shoot, rotate turret right) be recorded as vertex positions across
-        several key-frames inside a single MD3 model, a tag can be used to
-        control the shooting animation of a separated model. This safes memory,
-        as the tags animation data most likely takes much less space compared
-        to the animation data of the tank turret inside a single model.
+        several key-frames inside a single model, a tag can be used to control 
+        the shooting animation of a separated model. This safes memory, as the 
+        tags animation data most likely takes much less space compared to the 
+        animation data of the tank turret inside a single model.
 
         However, reuse and memory savings are traded against loss in
         performance. Vertex positions of the external models have to be
@@ -384,7 +384,7 @@ class MDSWeight:
         bone_weight (float): amount of influence from the bone over the vertex
             location.
         location_offset (tuple): location coordinates given in bone space.
-            TODO recheck with source code
+            TODO recheck with source code.
 
     File encodings:
 
@@ -570,7 +570,7 @@ class MDSSurfaceHeader:
         ident (bytes): magic number, ASCII encoded, length 4.
         name (bytes): surface name, ASCII encoded, null-terminated, length 64.
         shader (bytes): shader name, ASCII encoded, null-terminated, length 64.
-        shader_index (int): used in-game only.
+        shader_index (int): TODO.
         min_lod (int): minimum amount of vertices for the surface or maximum
             amount of collapse operations during runtime.
         ofs_header (int): relative offset from this surface to start of file.
@@ -992,9 +992,9 @@ class MDSFrameInfo:
             bounding box as tuple of floats.
         max_bound (tuple): location coordinates of max corner of minimum
             bounding box as tuple of floats.
-        local_origin (tuple): ???
-        radius (float): ???
-        root_bone_location (float): ???
+        local_origin (tuple): TODO
+        radius (float): TODO
+        root_bone_location (float): TODO
 
     File encodings:
 

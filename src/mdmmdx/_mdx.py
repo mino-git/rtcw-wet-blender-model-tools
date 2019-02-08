@@ -30,8 +30,8 @@ Notes:
 
 Background:
 
-    MDX contains skeletal animation data. Bones make up the skeleton. They are
-    defined by location and orientation values per frame.
+    MDX contains skeletal animation data. Bones make up the skeleton. Their
+    location and orientation values are animated per frame.
 
     MDM data will reference the bone information defined in MDX to calculate
     its surface and tag data in a specific frame. As MDX files can be
