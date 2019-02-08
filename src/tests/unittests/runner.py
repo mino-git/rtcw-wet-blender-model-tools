@@ -32,13 +32,20 @@ def run():
 
         suite = unittest.TestSuite()
 
+        '''
         suite.addTest(tests.unittests.test_md3.TestMD3('test_read_write'))
         suite.addTest(tests.unittests.test_mdc.TestMDC('test_read_write'))
         suite.addTest(tests.unittests.test_mds.TestMDS('test_read_write'))
         suite.addTest(tests.unittests.test_mdm.TestMDM('test_read_write'))
         suite.addTest(tests.unittests.test_mdx.TestMDX('test_read_write'))
+        '''
+
         suite.addTest(tests.unittests.test_misc.TestMisc('test_rand'))
         suite.addTest(tests.unittests.test_misc.TestMisc('test_allied_engineer'))
+
+        '''
+        suite.addTest(tests.unittests.test_mds.TestMDS('test_mds_vertex_fixed'))
+        '''
 
         return suite
 

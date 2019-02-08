@@ -49,3 +49,57 @@ class TestMDS(unittest.TestCase):
             hash_sum_out = hasher.hexdigest()
 
         self.assertEqual(hash_sum_in, hash_sum_out)
+
+    def test_mds_vertex_fixed(self):
+        """Test the fixed_parent and fixed_dist value of all vertices, because
+        we expect/assume them to be not used and having the same values in all
+        models.
+        """
+
+        file_paths = \
+            [
+                "./tests/testmodels/in/mds/beast.mds",
+                "./tests/testmodels/in/mds/bj2.mds",
+                "./tests/testmodels/in/mds/dark.mds",
+                "./tests/testmodels/in/mds/deathshead1.mds",
+                "./tests/testmodels/in/mds/director.mds",
+                "./tests/testmodels/in/mds/doc.mds",
+                "./tests/testmodels/in/mds/drz.mds",
+                "./tests/testmodels/in/mds/eliteguard.mds",
+                "./tests/testmodels/in/mds/eva.mds",
+                "./tests/testmodels/in/mds/femzombie.mds",
+                "./tests/testmodels/in/mds/hans.mds",
+                "./tests/testmodels/in/mds/heinrich.mds",
+                "./tests/testmodels/in/mds/helga.mds",
+                "./tests/testmodels/in/mds/higgs.mds",
+                "./tests/testmodels/in/mds/himmler.mds",
+                "./tests/testmodels/in/mds/infantryss.mds",
+                "./tests/testmodels/in/mds/inge.mds",
+                "./tests/testmodels/in/mds/jack.mds",
+                "./tests/testmodels/in/mds/loper.mds",
+                "./tests/testmodels/in/mds/mechanic.mds",
+                "./tests/testmodels/in/mds/murphy.mds",
+                "./tests/testmodels/in/mds/officerss.mds",
+                "./tests/testmodels/in/mds/partisan.mds",
+                "./tests/testmodels/in/mds/priestss.mds",
+                "./tests/testmodels/in/mds/protosoldier.mds",
+                "./tests/testmodels/in/mds/supersoldier.mds",
+                "./tests/testmodels/in/mds/trench.mds",
+                "./tests/testmodels/in/mds/venom.mds",
+                "./tests/testmodels/in/mds/warrior.mds",
+                "./tests/testmodels/in/mds/zemph.mds",
+                "./tests/testmodels/in/mds/zombie.mds",
+            ]
+
+        for file_path_in in file_paths:
+
+            file_path_in = os.path.abspath(file_path_in)
+
+            mds_model = mds._mds.MDS.read(file_path_in)
+
+            for mds_surface in mds_model.surfaces:
+
+                for mds_vertex in mds_surface.vertices:
+
+                    self.assertEqual(mds_vertex.fixed_parent, 0)
+                    self.assertEqual(mds_vertex.fixed_dist, 0.0)

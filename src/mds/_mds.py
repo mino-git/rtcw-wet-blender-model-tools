@@ -461,8 +461,8 @@ class MDSVertex:
         normal (tuple): vertex normal coordinates.
         tex_coords (tuple): u and v coordinates in UV-space as tuple.
         num_weights (int): number of weights for this vertex.
-        fixed_parent (int): TODO.
-        fixed_dist (float): TODO.
+        fixed_parent (int): not used.
+        fixed_dist (float): not used.
 
     File encodings:
 
