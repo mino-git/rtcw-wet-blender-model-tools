@@ -33,10 +33,6 @@ class TestMD3(unittest.TestCase):
         file_paths = {
             "./tests/testmodels/in/head.md3":
                 "./tests/testmodels/out/head.md3",
-            "./tests/testmodels/in/pump_animated.md3":
-                "./tests/testmodels/out/pump_animated.md3",
-            "./tests/testmodels/in/bbout.md3":
-                "./tests/testmodels/out/bbout.md3",
         }
 
         for file_path_in, file_path_out in file_paths.items():

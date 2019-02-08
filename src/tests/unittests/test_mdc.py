@@ -31,10 +31,6 @@ class TestMDC(unittest.TestCase):
     def test_read_write(self):
 
         file_paths = {
-            "./tests/testmodels/in/head.mdc":
-                "./tests/testmodels/out/head.mdc",
-            "./tests/testmodels/in/helmut.mdc":
-                "./tests/testmodels/out/helmut.mdc",
             "./tests/testmodels/in/thompson.mdc":
                 "./tests/testmodels/out/thompson.mdc"
         }
