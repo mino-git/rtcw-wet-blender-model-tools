@@ -24,31 +24,48 @@
 bl_info = {
     "name": "RtCW/ET Model Tools",
     "author": "Norman Mitschke",
-    "location": "View3d > Tools > RtCW/ET",
     "version": (0, 9, 0),
-    "blender": (2, 7, 9),
+    "blender": (2, 80, 0),
+    "location": "View3D",
     "description": "RtCW/ET Model Tools for Blender",
+    "warning": "",
     "wiki_url": "",
-    "tracker_url": "",
-    "category": "Development",
+    "category": "Object",
 }
 
 import bpy
-import os
-
-import rtcw_et_model_tools.controller
 
 
-class TestOperator(bpy.types.Operator):
+class TestsPanel(bpy.types.Panel):
+    """TODO
+    """
 
-    bl_idname = "rtcw_et_model_tools.test_operator"
-    bl_label = 'RtCW/ET Test Operator'
+    bl_label = "Tests"
+    bl_space_type = 'VIEW_3D'
+    bl_region_type = 'UI'
+    bl_context = "objectmode"
+    bl_category = "RtCW/ET"
+
+    def draw(self, context):
+
+        layout = self.layout
+
+        row = layout.row()
+        row.operator("rtcw_et_model_tools.test_read_write_operator", text="Read/Write", icon="MOD_BOOLEAN")
+
+
+class TestReadWriteOperator(bpy.types.Operator):
+    """Tests reading from and writing to file.
+    """
+
+    bl_idname = "rtcw_et_model_tools.test_read_write_operator"
+    bl_label = "RtCW/ET Test Read/Write Operator"
+    bl_description = "Tests file read/write operations"
 
     def execute(self, context):
 
-        working_directory = bpy.path.abspath(context.scene.working_directory)
-
-        rtcw_et_model_tools.controller.run_unit_tests(working_directory)
+        import rtcw_et_model_tools.tests.unittests.runner as runner
+        runner.run()
 
         return {'FINISHED'}
 
@@ -63,61 +80,25 @@ class TestOperator(bpy.types.Operator):
         pass
 
 
-class TestPanel(bpy.types.Panel):
-
-    bl_space_type = "VIEW_3D"
-    bl_region_type = "TOOLS"
-    bl_category = "RtCW/ET"
-    bl_label = "RtCW/ET Model Tools"
-    bl_context = "objectmode"
-
-    def draw(self, context):
-
-        box = self.layout.box()
-        box.prop(context.scene, "working_directory")
-
-        box = self.layout.box()
-        box.operator("rtcw_et_model_tools.test_operator", text="Run Tests")
-
-    @classmethod
-    def register(cls):
-
-        bpy.types.Scene.working_directory \
-            = bpy.props.StringProperty(name = "Working Directory",
-                                       default = "",
-                                       description = "Filepath to mesh data (.mdm)",
-                                       subtype = "FILE_PATH")
-
-        bpy.types.Scene.test_operator \
-            = bpy.props.StringProperty(name = "",
-                                       description = "description",
-                                       default = "Test")
-
-
-    @classmethod
-    def unregister(cls):
-
-        del bpy.types.Scene.working_directory
-        del bpy.types.Scene.test_operator
-
+classes = (
+    TestsPanel,
+    TestReadWriteOperator,
+)
 
 def register():
 
-    bpy.utils.register_class(TestOperator)
-    bpy.utils.register_class(TestPanel)
+    for cls in classes:
+
+        bpy.utils.register_class(cls)
 
 
 def unregister():
 
-    bpy.utils.unregister_module(__name__)
+    for cls in classes:
+
+        bpy.utils.unregister_class(cls)
 
 
 if __name__ == "__main__":
-
-    try:
-        unregister()
-    except Exception as e:
-        print(e)
-        pass
 
     register()

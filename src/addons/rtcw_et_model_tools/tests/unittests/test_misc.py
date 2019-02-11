@@ -28,14 +28,12 @@ import rtcw_et_model_tools.md3._md3 as md3
 
 class TestMisc(unittest.TestCase):
 
-    working_directory = "."
-
     def test_rand(self):
         """Random Test
         """
 
-        file_path_in = os.path.abspath("{}/in/{}".format(self.working_directory, "head.md3"))
-        file_path_out = os.path.abspath("{}/out/{}".format(self.working_directory, "head.md3"))
+        file_path_in = os.path.abspath("C:\\Users\\nm\\Desktop\\test-model-tools\\src\\addons\\rtcw_et_model_tools\\tests\\testmodels\\in\\head.md3")
+        file_path_out = os.path.abspath("C:\\Users\\nm\\Desktop\\test-model-tools\\src\\addons\\rtcw_et_model_tools\\tests\\testmodels\\out\\head.md3")
 
         md3_model = md3.MD3.read(file_path_in)
         md3_model.write(file_path_out)

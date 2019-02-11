@@ -26,13 +26,12 @@ import rtcw_et_model_tools.tests.unittests.test_mdx as test_mdx
 import rtcw_et_model_tools.tests.unittests.test_misc as test_misc
 
 
-def run(working_directory):
+def run():
 
     def create_standard_test_suite():
 
         suite = unittest.TestSuite()
 
-        test_misc.TestMisc.working_directory = working_directory
         suite.addTest(test_misc.TestMisc('test_rand'))
 
         '''
