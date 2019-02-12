@@ -37,13 +37,21 @@ class TestReadWrite(unittest.TestCase):
     """Read/Write Tests.
     """
 
+    test_directory = ""
+
     def setUp(self):
 
-        pass
+        if not self.test_directory:
+            self.test_directory = "."
+
+        self.test_directory = os.path.abspath(self.test_directory)
+
+        self.old_working_directory = os.getcwd()
+        os.chdir(self.test_directory)
 
     def tearDown(self):
 
-        pass
+        os.chdir(self.old_working_directory)
 
     def test_binary_read_write(self):
         """Tests the modules binary read/write functions.
@@ -56,7 +64,6 @@ class TestReadWrite(unittest.TestCase):
         """
         print("----------------------------------------")
         print("Running test: test_binary_read_write.")
-        print("----------------------------------------")
 
         test_settings = {
             ".md3": md3.MD3,
@@ -66,9 +73,7 @@ class TestReadWrite(unittest.TestCase):
             ".mdx": mdx.MDX,
         }
 
-        test_directory = "."  # TODO setting from ui
-
-        dir_list = os.listdir(test_directory)
+        dir_list = os.listdir(self.test_directory)
 
         num_input_file_found = 0
         for suffix, model_handler in test_settings.items():
@@ -77,9 +82,11 @@ class TestReadWrite(unittest.TestCase):
             test_files = []
             for file in dir_list:
 
-                if file.endswith(suffix) and os.path.isfile(file):
+                file_path = os.path.abspath(file)
 
-                    test_files.append(os.path.abspath(file))
+                if file_path.endswith(suffix) and os.path.isfile(file_path):
+
+                        test_files.append(file_path)
 
             # test the files
             for test_file in test_files:
@@ -111,4 +118,7 @@ class TestReadWrite(unittest.TestCase):
                     self.assertEqual(hash_sum_in, hash_sum_out)
 
         if num_input_file_found == 0:
-            print("test_binary_read_write: no input files.")
+            print("test_binary_read_write: no input files in directory '{}'" \
+                    .format(self.test_directory))
+
+        print("----------------------------------------")

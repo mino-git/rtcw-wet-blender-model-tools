@@ -26,7 +26,7 @@ import unittest
 import rtcw_et_model_tools.tests.unittests.test_read_write
 
 
-def run():
+def run(test_directory):
     """Runs the specified unit tests.
     """
 
@@ -36,6 +36,8 @@ def run():
 
         suite = unittest.TestSuite()
 
+        rtcw_et_model_tools.tests.unittests. \
+            test_read_write.TestReadWrite.test_directory = test_directory
         suite.addTest(
             rtcw_et_model_tools.tests.unittests. \
                 test_read_write.TestReadWrite('test_binary_read_write')

@@ -37,7 +37,7 @@ import bpy
 
 
 class TestsPanel(bpy.types.Panel):
-    """TODO
+    """Panel for test operations.
     """
 
     bl_label = "Tests"
@@ -51,7 +51,14 @@ class TestsPanel(bpy.types.Panel):
         layout = self.layout
 
         row = layout.row()
-        row.operator("rtcw_et_model_tools.test_read_write_operator", text="Read/Write", icon="MOD_BOOLEAN")
+        row.prop(context.scene,
+                 "rtcw_et_model_tools_test_directory")
+
+        row = layout.row()
+        row.operator("rtcw_et_model_tools.test_read_write_operator",
+                     text="Read/Write",
+                     icon="MOD_BOOLEAN")
+
 
 
 class TestReadWriteOperator(bpy.types.Operator):
@@ -60,12 +67,13 @@ class TestReadWriteOperator(bpy.types.Operator):
 
     bl_idname = "rtcw_et_model_tools.test_read_write_operator"
     bl_label = "RtCW/ET Test Read/Write Operator"
-    bl_description = "Tests file read/write operations"
+    bl_description = "Tests file read/write operations. Tests all models" \
+                     " found in the test directory"
 
     def execute(self, context):
 
         import rtcw_et_model_tools.tests.unittests.runner as runner
-        runner.run()
+        runner.run(context.scene.rtcw_et_model_tools_test_directory)
 
         return {'FINISHED'}
 
@@ -91,12 +99,22 @@ def register():
 
         bpy.utils.register_class(cls)
 
+    bpy.types.Scene.rtcw_et_model_tools_test_directory = \
+        bpy.props.StringProperty(
+            name="Test Directory",
+            description="File path to directory of test models. If not"
+                " specified the current working directory will be the test"
+                " directory.",
+            subtype='FILE_PATH')
+
 
 def unregister():
 
     for cls in classes:
 
         bpy.utils.unregister_class(cls)
+
+    del bpy.types.Scene.rtcw_et_model_tools_test_directory
 
 
 if __name__ == "__main__":
