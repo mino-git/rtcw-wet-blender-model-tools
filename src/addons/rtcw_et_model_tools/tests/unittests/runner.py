@@ -16,38 +16,31 @@
 #
 # ##### END GPL LICENSE BLOCK #####
 
+# <pep8-80  compliant>
+
+"""Tests using the unittest module.
+"""
+
 import unittest
 
-import rtcw_et_model_tools.tests.unittests.test_md3 as test_md3
-import rtcw_et_model_tools.tests.unittests.test_mdc as test_mdc
-import rtcw_et_model_tools.tests.unittests.test_mds as test_mds
-import rtcw_et_model_tools.tests.unittests.test_mdm as test_mdm
-import rtcw_et_model_tools.tests.unittests.test_mdx as test_mdx
-import rtcw_et_model_tools.tests.unittests.test_misc as test_misc
+import rtcw_et_model_tools.tests.unittests.test_read_write as test_read_write
 
 
 def run():
+    """Runs the specified unit tests.
+    """
 
     def create_standard_test_suite():
+        """Creates a suite of unit tests.
+        """
 
         suite = unittest.TestSuite()
 
-        suite.addTest(test_misc.TestMisc('test_rand'))
-
-        '''
-        suite.addTest(test_md3.TestMD3('test_read_write'))
-        suite.addTest(test_mdc.TestMDC('test_read_write'))
-        suite.addTest(test_mds.TestMDS('test_read_write'))
-        suite.addTest(test_mdm.TestMDM('test_read_write'))
-        suite.addTest(test_mdx.TestMDX('test_read_write'))
-        suite.addTest(test_misc.TestMisc('test_allied_engineer'))
-        suite.addTest(test_mds.TestMDS('test_mds_vertex_fixed'))
-        '''
+        suite.addTest(
+            test_read_write.TestReadWrite('test_binary_read_write')
+            )
 
         return suite
-
-    # TODO check if the working directory contains a cfg
-    # if present, run tests based on cfg
 
     runner = unittest.TextTestRunner()
     runner.run(create_standard_test_suite())
