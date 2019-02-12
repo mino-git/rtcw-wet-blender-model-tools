@@ -41,6 +41,14 @@ class TestReadWrite(unittest.TestCase):
 
     def setUp(self):
 
+        self.suffix_handler_dict = {
+            ".md3": md3.MD3,
+            ".mdc": mdc.MDC,
+            ".mds": mds.MDS,
+            ".mdm": mdm.MDM,
+            ".mdx": mdx.MDX,
+        }
+
         if not self.test_directory:
             self.test_directory = "."
 
@@ -62,21 +70,14 @@ class TestReadWrite(unittest.TestCase):
         new file. The actual test then compares hash values of the original and
         written files.
         """
+
         print("----------------------------------------")
         print("Running test: test_binary_read_write.")
-
-        test_settings = {
-            ".md3": md3.MD3,
-            ".mdc": mdc.MDC,
-            ".mds": mds.MDS,
-            ".mdm": mdm.MDM,
-            ".mdx": mdx.MDX,
-        }
 
         dir_list = os.listdir(self.test_directory)
 
         num_input_file_found = 0
-        for suffix, model_handler in test_settings.items():
+        for suffix, handler in self.suffix_handler_dict.items():
 
             # find all test files ending with suffix
             test_files = []
@@ -98,7 +99,7 @@ class TestReadWrite(unittest.TestCase):
                 file_path_out = "{}.out".format(test_file)
 
                 # read/write
-                model = model_handler.read(file_path_in)
+                model = handler.read(file_path_in)
                 model.write(file_path_out)
 
                 # compare hash values
@@ -113,6 +114,8 @@ class TestReadWrite(unittest.TestCase):
 
                     hasher.update(file.read())
                     hash_sum_out = hasher.hexdigest()
+
+                os.remove(file_path_out)
 
                 with self.subTest(file_path=file_path_in):
                     self.assertEqual(hash_sum_in, hash_sum_out)

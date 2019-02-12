@@ -57,8 +57,7 @@ class TestsPanel(bpy.types.Panel):
         row = layout.row()
         row.operator("rtcw_et_model_tools.test_read_write_operator",
                      text="Read/Write",
-                     icon="MOD_BOOLEAN")
-
+                     icon="FILE_NEW")
 
 
 class TestReadWriteOperator(bpy.types.Operator):
@@ -68,7 +67,8 @@ class TestReadWriteOperator(bpy.types.Operator):
     bl_idname = "rtcw_et_model_tools.test_read_write_operator"
     bl_label = "RtCW/ET Test Read/Write Operator"
     bl_description = "Tests file read/write operations. Tests all models" \
-                     " found in the test directory"
+                     " found in the test directory. A duplicate of each file" \
+                     " will be created on disk to compare results."
 
     def execute(self, context):
 
@@ -104,8 +104,8 @@ def register():
             name="Test Directory",
             description="File path to directory of test models. If not"
                 " specified the current working directory will be the test"
-                " directory.",
-            subtype='FILE_PATH')
+                " directory",
+            subtype='DIR_PATH')
 
 
 def unregister():
