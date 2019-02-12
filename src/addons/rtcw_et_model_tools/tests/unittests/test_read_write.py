@@ -54,6 +54,9 @@ class TestReadWrite(unittest.TestCase):
         new file. The actual test then compares hash values of the original and
         written files.
         """
+        print("----------------------------------------")
+        print("Running test: test_binary_read_write.")
+        print("----------------------------------------")
 
         test_settings = {
             ".md3": md3.MD3,
@@ -67,6 +70,7 @@ class TestReadWrite(unittest.TestCase):
 
         dir_list = os.listdir(test_directory)
 
+        num_input_file_found = 0
         for suffix, model_handler in test_settings.items():
 
             # find all test files ending with suffix
@@ -81,6 +85,7 @@ class TestReadWrite(unittest.TestCase):
             for test_file in test_files:
 
                 print("test_binary_read_write={}".format(test_file))
+                num_input_file_found += 1
 
                 file_path_in = test_file
                 file_path_out = "{}.out".format(test_file)
@@ -104,3 +109,6 @@ class TestReadWrite(unittest.TestCase):
 
                 with self.subTest(file_path=file_path_in):
                     self.assertEqual(hash_sum_in, hash_sum_out)
+
+        if num_input_file_found == 0:
+            print("test_binary_read_write: no input files.")

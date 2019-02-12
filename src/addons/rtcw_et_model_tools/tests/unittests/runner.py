@@ -23,7 +23,7 @@
 
 import unittest
 
-import rtcw_et_model_tools.tests.unittests.test_read_write as test_read_write
+import rtcw_et_model_tools.tests.unittests.test_read_write
 
 
 def run():
@@ -37,7 +37,8 @@ def run():
         suite = unittest.TestSuite()
 
         suite.addTest(
-            test_read_write.TestReadWrite('test_binary_read_write')
+            rtcw_et_model_tools.tests.unittests. \
+                test_read_write.TestReadWrite('test_binary_read_write')
             )
 
         return suite
