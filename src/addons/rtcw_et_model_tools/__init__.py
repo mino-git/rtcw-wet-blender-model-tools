@@ -138,6 +138,11 @@ def unregister():
     del bpy.types.Scene.remt_test_directory
 
     # logging
+    # as far as i know the logger itself can't be removed, so at least clean
+    # up its handlers
+    logger = logging.getLogger('remt_logger')
+    for handler in logger.handlers[:]:
+        logger.removeHandler(handler)
 
 if __name__ == "__main__":
 
