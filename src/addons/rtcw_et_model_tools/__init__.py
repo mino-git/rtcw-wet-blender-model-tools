@@ -33,6 +33,9 @@ bl_info = {
     "category": "Object",
 }
 
+import sys
+import logging
+
 import bpy
 
 import rtcw_et_model_tools.tests.unittests.runner
@@ -100,10 +103,12 @@ classes = (
 
 def register():
 
+    # classes
     for cls in classes:
 
         bpy.utils.register_class(cls)
 
+    # global ui properties
     bpy.types.Scene.remt_test_directory = \
         bpy.props.StringProperty(
             name="Test Directory",
@@ -112,14 +117,27 @@ def register():
                 " directory",
             subtype='DIR_PATH')
 
+    # logging
+    logger = logging.getLogger('remt_logger')
+    logger.setLevel(logging.DEBUG)
+    stream_handler = logging.StreamHandler(sys.stdout)
+    stream_handler.setLevel(logging.DEBUG)
+    formatter = logging.Formatter('%(asctime)15s %(levelname)-6s %(message)s')
+    stream_handler.setFormatter(formatter)
+    logger.addHandler(stream_handler)
+
+
 def unregister():
 
+    # classes
     for cls in classes:
 
         bpy.utils.unregister_class(cls)
 
+    # global ui properties
     del bpy.types.Scene.remt_test_directory
 
+    # logging
 
 if __name__ == "__main__":
 
