@@ -35,6 +35,8 @@ bl_info = {
 
 import bpy
 
+import rtcw_et_model_tools.tests.unittests.runner
+
 
 class TestsPanel(bpy.types.Panel):
     """Panel for test operations.
@@ -52,10 +54,10 @@ class TestsPanel(bpy.types.Panel):
 
         row = layout.row()
         row.prop(context.scene,
-                 "rtcw_et_model_tools_test_directory")
+                 "remt_test_directory")
 
         row = layout.row()
-        row.operator("rtcw_et_model_tools.test_read_write_operator",
+        row.operator("remt.test_read_write_operator",
                      text="Read/Write",
                      icon="FILE_NEW")
 
@@ -64,7 +66,7 @@ class TestReadWriteOperator(bpy.types.Operator):
     """Tests reading from and writing to file.
     """
 
-    bl_idname = "rtcw_et_model_tools.test_read_write_operator"
+    bl_idname = "remt.test_read_write_operator"
     bl_label = "RtCW/ET Test Read/Write Operator"
     bl_description = "Tests file read/write operations. Tests all models" \
                      " found in the test directory. A duplicate of each file" \
@@ -72,8 +74,11 @@ class TestReadWriteOperator(bpy.types.Operator):
 
     def execute(self, context):
 
-        import rtcw_et_model_tools.tests.unittests.runner as runner
-        runner.run(context.scene.rtcw_et_model_tools_test_directory)
+        test_directory = context.scene.remt_test_directory
+        settings = rtcw_et_model_tools.tests.unittests.runner. \
+            TestParameters(test_directory)
+        rtcw_et_model_tools.tests.unittests.runner. \
+            TestManager.run_test("test_binary_read_write", settings)
 
         return {'FINISHED'}
 
@@ -99,7 +104,7 @@ def register():
 
         bpy.utils.register_class(cls)
 
-    bpy.types.Scene.rtcw_et_model_tools_test_directory = \
+    bpy.types.Scene.remt_test_directory = \
         bpy.props.StringProperty(
             name="Test Directory",
             description="File path to directory of test models. If not"
@@ -107,14 +112,13 @@ def register():
                 " directory",
             subtype='DIR_PATH')
 
-
 def unregister():
 
     for cls in classes:
 
         bpy.utils.unregister_class(cls)
 
-    del bpy.types.Scene.rtcw_et_model_tools_test_directory
+    del bpy.types.Scene.remt_test_directory
 
 
 if __name__ == "__main__":

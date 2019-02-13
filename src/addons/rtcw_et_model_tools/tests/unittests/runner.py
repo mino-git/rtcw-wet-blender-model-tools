@@ -22,28 +22,48 @@
 """
 
 import unittest
+import sys
 
 import rtcw_et_model_tools.tests.unittests.test_read_write
 
 
-def run(test_directory):
-    """Runs the specified unit tests.
+class TestParameters:
+    """Used for passing parameters.
     """
 
-    def create_standard_test_suite():
-        """Creates a suite of unit tests.
+    parameters = None
+
+    def __init__(self, test_directory=None):
+
+        self.test_directory = test_directory
+
+
+class TestManager:
+    """Used to coordinate tests.
+    """
+
+    @staticmethod
+    def run_test(test_name, parameters=None):
+        """Runs the specified unit tests.
         """
+
+        TestParameters.parameters = parameters
 
         suite = unittest.TestSuite()
 
-        rtcw_et_model_tools.tests.unittests. \
-            test_read_write.TestReadWrite.test_directory = test_directory
-        suite.addTest(
-            rtcw_et_model_tools.tests.unittests. \
-                test_read_write.TestReadWrite('test_binary_read_write')
+        if test_name == "":
+
+            pass
+
+        elif test_name == "test_binary_read_write":
+
+            suite.addTest(
+               rtcw_et_model_tools.tests.unittests.test_read_write. \
+                   TestReadWrite('test_binary_read_write')
             )
 
-        return suite
+        else:
 
-    runner = unittest.TextTestRunner()
-    runner.run(create_standard_test_suite())
+            pass
+
+        unittest.TextTestRunner(stream=sys.stdout, verbosity=2).run(suite)

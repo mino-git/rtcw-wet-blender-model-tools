@@ -21,7 +21,6 @@
 """Read/Write Tests.
 """
 
-
 import unittest
 import hashlib
 import os
@@ -32,14 +31,20 @@ import rtcw_et_model_tools.mds._mds as mds
 import rtcw_et_model_tools.mdmmdx._mdm as mdm
 import rtcw_et_model_tools.mdmmdx._mdx as mdx
 
+import rtcw_et_model_tools.tests.unittests.runner as runner
+
 
 class TestReadWrite(unittest.TestCase):
     """Read/Write Tests.
     """
 
-    test_directory = ""
-
     def setUp(self):
+
+        test_directory = runner.TestParameters.parameters.test_directory
+        if not test_directory:
+            test_directory = "."
+        test_directory = os.path.abspath(test_directory)
+        runner.TestParameters.parameters.test_directory = test_directory
 
         self.suffix_handler_dict = {
             ".md3": md3.MD3,
@@ -49,13 +54,8 @@ class TestReadWrite(unittest.TestCase):
             ".mdx": mdx.MDX,
         }
 
-        if not self.test_directory:
-            self.test_directory = "."
-
-        self.test_directory = os.path.abspath(self.test_directory)
-
         self.old_working_directory = os.getcwd()
-        os.chdir(self.test_directory)
+        os.chdir(runner.TestParameters.parameters.test_directory)
 
     def tearDown(self):
 
@@ -65,18 +65,14 @@ class TestReadWrite(unittest.TestCase):
         """Tests the modules binary read/write functions.
 
         The model definitions are located in a test directory. The test scans
-        this directory for any files specified in the test_settings. Then it
-        reads the found files to memory and immediately writes them back to a
-        new file. The actual test then compares hash values of the original and
-        written files.
+        this directory for any files specified in the suffix_handler_dict. Then
+        it reads the found files to memory and immediately writes them back to
+        a new file. The actual test then compares hash values of the original
+        and written files.
         """
 
-        print("----------------------------------------")
-        print("Running test: test_binary_read_write.")
+        dir_list = os.listdir(runner.TestParameters.parameters.test_directory)
 
-        dir_list = os.listdir(self.test_directory)
-
-        num_input_file_found = 0
         for suffix, handler in self.suffix_handler_dict.items():
 
             # find all test files ending with suffix
@@ -91,9 +87,6 @@ class TestReadWrite(unittest.TestCase):
 
             # test the files
             for test_file in test_files:
-
-                print("test_binary_read_write={}".format(test_file))
-                num_input_file_found += 1
 
                 file_path_in = test_file
                 file_path_out = "{}.out".format(test_file)
@@ -119,9 +112,3 @@ class TestReadWrite(unittest.TestCase):
 
                 with self.subTest(file_path=file_path_in):
                     self.assertEqual(hash_sum_in, hash_sum_out)
-
-        if num_input_file_found == 0:
-            print("test_binary_read_write: no input files in directory '{}'" \
-                    .format(self.test_directory))
-
-        print("----------------------------------------")
