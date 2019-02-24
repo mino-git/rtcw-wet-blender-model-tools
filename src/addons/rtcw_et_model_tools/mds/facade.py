@@ -21,8 +21,8 @@
 """Facade for MDS file format.
 """
 
-from mds import _mds
-from mds import _mds_mdi
+from rtcw_et_model_tools.mds import _mds as mds
+from rtcw_et_model_tools.mds import _mds_mdi as mds_mdi
 
 
 def read(file_path, encoding="binary"):
@@ -40,7 +40,7 @@ def read(file_path, encoding="binary"):
     """
 
     if encoding == "binary":
-        mds = _mds.MDS.read(file_path)
+        mds_model = mds.MDS.read(file_path)
     elif encoding == "xml":
         pass  # TODO
     elif encoding == "json":
@@ -48,12 +48,12 @@ def read(file_path, encoding="binary"):
     else:
         print("encoding option '{}' not supported".format(encoding))
 
-    mdi = _mds_mdi.convert_to_mdi(mds)
+    mdi_model = mds_mdi.ModelToMDI.convert(mds_model)
 
-    return mdi
+    return mdi_model
 
 
-def write(mdi, file_path, encoding="binary"):
+def write(mdi_model, file_path, encoding="binary"):
 
     """Converts MDI data to MDS, then writes it back to file.
 
@@ -63,10 +63,10 @@ def write(mdi, file_path, encoding="binary"):
         encoding (str): encoding to use for MDS.
     """
 
-    mds = _mds_mdi.convert_from_mdi(mdi)
+    mds_model = mds_mdi.MDIToModel.convert(mdi_model)
 
     if encoding == "binary":
-        mds.write(file_path)
+        mds_model.write(file_path)
     elif encoding == "xml":
         pass  # TODO
     elif encoding == "json":
