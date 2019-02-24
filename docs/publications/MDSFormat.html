@@ -1,0 +1,572 @@
+<html>
+
+<head>
+<title>Unofficial Return to Castle Wolfenstein MDS File Format Specs</title>
+
+<!-- A:link { text-decoration: underline;color:blue; } A:visited { color: gray; } A:hover { text-decoration: underline;color:red; } -->
+<style type="text/css">
+
+<!--
+body {
+font-family: verdana,helvetica,sans-serif;
+font-size:9pt;
+font-weight:normal;
+}
+
+td {
+font-family: verdana,helvetica,sans-serif;
+font-size:9pt;
+font-weight:normal;
+}
+
+a:link {
+text-decoration: underline;
+color: blue;
+}
+
+a:visited {
+color:gray;
+}
+
+a:hover {
+text-decoration:underline;
+color:red;
+}
+
+.title {
+font-size:14pt;
+font-weight:bold;
+color:#000000;
+}
+
+.subtitle {
+font-size:12pt;
+font-weight:bold;
+color:#a00000;
+}
+
+.auth {
+font-size:12pt;
+font-weight:normal;
+}
+
+.struct {
+color:#a00000;
+background-color:#f0f0f0;
+font-size:10pt;
+font-weight:bold;
+}
+
+.code {
+background-color:#f5f5ff;
+}
+
+.hilite {
+font-size:10pt;
+font-weight:bold;
+color:#a00000;
+}
+
+-->
+</style>
+</head>
+
+<body bgcolor="#ffffff">
+
+<P>
+<div class="title" align="center">
+Unofficial Return to Castle Wolfenstein MDS File Format Spec v1.0
+</div>
+<div class="auth" align="center">
+By Chris Cookson (<a href="mailto:cjcookson@hotmail.com">cjcookson@hotmail.com</a>)
+</div>
+</P>
+
+<P class="subtitle">Contents</p>
+<ul>
+	<li><a href="#intro">Introduction</a></li>
+	<li><a href="#nut">MDS In a Nutshell</a></li>
+	<li><a href="#ds">MDS Data Structures</a></li>
+	<li><a href="#limits">Limits</a></li>
+	<li><a href="#colmap">The Collapse Map</a></li>
+	<li><a href="#polycounts">Poly Counts</a></li>
+</ul>
+
+
+<!-- Introduction -->
+
+<P class="subtitle"><a name="intro">Introduction</a></p>
+
+<P>This document is my attempt at providing some documentation on the MDS
+format used in <a href="http://www.castlewolfenstein.com">Return to Castle Wolfenstein</a>.
+It's totally unofficial, so bear with me if certain areas are a little vague or
+inaccurate. Most of the information was gleaned by myself using a hex editor and
+many nights of MAXScripting, but huge thanks go to Ryan Feltrin for providing me
+with the crucial last bits of the MDS puzzle; Richard Crowder for getting me to
+continue working on my MDS importer (as well as providing loads of help and advice);
+and TiCaL for all his help. Cheers, guys!
+</P>
+<P>
+I'm assuming you're familiar with the basics of 3D, Quake 3 mods, and skeletal animation with
+smooth mesh deformation, so I won't cover these topics in much detail.
+</P>
+
+
+<P class="subtitle">
+MDS In a Nutshell
+</P>
+
+<P>
+So what's in an MDS file? The main things are:
+
+<ul>
+<li>A skeleton, or hierarchy of bones, some of which represent tags (as in Quake 3)</li>
+<li>A number of triangle meshes, known as <b>surfaces</b></li>
+<li>Animation frames in the form of skeletal poses</li>
+<li>Runtime LOD data for each surface: the intriguingly named <a href="#colmap">collapse maps</a></li>
+</ul>
+
+Tags are simply bones named with the special
+prefix "tag_" and work in a similar way to tags in Quake 3.
+In RTCW, they are mainly used as mount points for weapons, ammo packs,
+heads, mouths (for effects like cigarette smoke) and so on.
+</p>
+
+<P class="subtitle">
+MDS Data Structures
+</P>
+These are the main data structures present in an MDS file:
+<ul>
+<li><a href="#MDSHeader">MDSHeader</a></li>
+<li><a href="#MDSBone">MDSBone</a></li>
+<li><a href="#MDSTag">MDSTag</a></li>
+<li><a href="#MDSFrame">MDSFrame</a></li>
+<li><a href="#MDSCompressedBoneFrame">MDSCompressedBoneFrame</a></li>
+<li><a href="#MDSSurface">MDSSurface</a></li>
+<li><a href="#MDSVertex">MDSVertex</a></li>
+<li><a href="#MDSWeight">MDSWeight</a></li>
+<li><a href="#MDSTriangle">MDSTriangle</a></li>
+</ul>
+
+<P>
+I've used a C/C++ like notation with
+explicitly sized types for clarity.
+For example, <b>uint32</b> is a 32-bit unsigned integer,
+<b>sint16</b> is a signed 16-bit integer and so on.
+<b>floats</b> are assumed to be 32 bits in size, and <b>chars</b> 8-bits.
+
+Note that as there are some hard <a href="#limits">limits</a>
+on the numbers of certain structures, so the unsigned/signed distinction is probably overkill.
+</p>
+
+<table border="0" cellpadding="4" cellspacing="3">
+<tr><td class="struct">
+	<a name="MDSHeader">MDSHeader</a>
+</td></tr>
+<tr><td class="code">
+<pre>
+struct MDSHeader
+{
+  uint32  ident;          // "MDSW"
+  uint32  version;        // 0x0004
+  char    name[64];       // Model name eg. "body.mds"
+
+  float   lodScale;       // LOD Scale
+  float   lodBias;        // LOD Bias
+
+  uint32  numFrames;      // Number of animation frames
+  uint32  numBones;       // Number of bones
+  uint32  offsetFrames;   // Offset of animation frames (see <a href="#MDSFrame">MDSFrame</a>)
+  uint32  offsetBones;    // Offset of bones (see <a href="#MDSBone">MDSBone</a>)
+
+  uint32  torsoParent;    // Index of torso parent bone
+
+  uint32  numSurfaces;    // Number of surfaces
+  uint32  offsetSurfaces; // Offset of surfaces (numSurfaces * MDS_Surface)
+
+  uint32  numTags;        // Number of tags
+  uint32  offsetTags;     // Offset of tags (numTags * MDS_Tag)
+
+  uint32  offsetEnd;      // Offset of end of file
+};</pre></td></tr>
+
+<tr><td>
+<P>
+This structure is located at the very start of an MDS file.
+</P>
+<P>The <b>torsoParent</b> index probably
+refers to the bone that controls the overall orientation of a player's torso.
+</p>
+<br>
+</td></tr>
+
+<tr><td class="struct">
+	<a name="MDSBone">MDSBone</a>
+</td></tr>
+
+<tr><td class="code">
+<pre>
+struct MDSBone
+{
+  char   name[64];    // Bone name
+  sint32 parentIndex; // Bone parent index (-1 if root)
+  float  torsoWeight; // 0.0 to 1.0
+  float  parentDist;  // Distance from parent bone to this bone's pivot point
+  uint32 flags;       // Bit 0 is set if bone is a tag
+};
+</pre></td></tr>
+<tr><td>
+<P>
+Defines a bone used to deform the MDS model's
+<a href="#MDSSurface">surface meshes</a> during animation.
+The <b>torsoWeight</b> value is apparently used to scale the torso rotation and torso
+parent bone.
+</p>
+<br>
+</td></tr>
+
+<tr><td class="struct">
+<a name="MDSTag">MDSTag</a>
+</td></tr>
+
+<tr><td class="code">
+<pre>
+struct MDSTag
+{
+  char   name[64];    // Name of tag
+  float  torsoWeight; // 0.0, 0.3
+  uint32 boneIndex;   // Index of <a href="#MDSBone">bone</a> this tag is attached to
+};
+</pre>
+</td></tr>
+
+<tr><td>
+<p>
+Defines a tag/attachment point for weapons, MD3/MDC head models and particle effects.
+Each tag has a corresponding <a href="#MDSTag">bone</a> in the skeleton, with
+the same name as the tag (eg. <b>tag_head</b>).
+</p>
+<br>
+</td></tr>
+
+<tr><td class="struct">
+<a name="MDSFrame">MDSFrame</a>
+</td></tr>
+
+<tr><td class="code">
+<pre>
+struct MDSFrame
+{
+  float[3]  bboxMin;      // Bounding box min
+  float[3]  bboxMax;      // Bounding box max
+  float[3]  localOrigin;  // Local origin
+  float     radius;       // Radius of bounding sphere (used for runtime culling)
+  float[3]  parentOffset; // Offset of parent bone from origin
+
+  // Following this structure is a list of compressed bone frames
+  <a href="#MDSCompressedBoneFrame">MDSCompressedBoneFrame</a>  bones[numBones];
+};
+</pre>
+</td></tr>
+<tr><td>
+<p>
+This structure is present at the start of every animation frame. Following
+each MDSFrame is a sequence of <a href="#MDSCompressedBoneFrame">MDSCompressedBoneFrames</a>,
+with one entry for each <a href="#MDSBone">bone</a> in the model's skeleton.
+</p>
+<p>
+The <b>parentOffset</b> vector defines the offset of the parent bone from the world origin.
+</p><br>
+</td></tr>
+
+
+<tr><td class="struct">
+<a name="MDSCompressedBoneFrame">MDSCompressedBoneFrame</a>
+</td></tr>
+
+<tr><td class="code">
+<pre>
+struct MDSCompressedBoneFrame
+{
+  sint16[4]  angles;        // Defines the bone orientation
+  sint16[2]  offsetAngles;  // Defines the direction of the bone pivot from this bone's parent
+};
+</pre>
+</td></tr>
+
+<tr><td>
+<p>
+A bone keyframe that defines position and orientation per frame.
+The first 3 entries in the <b>angles</b> array are stored in (pitch, yaw, roll) order.
+The 4th entry is just padding and can be safely ignored (it's typically set to zero anyway).
+The <b>offsetAngles</b> are stored in (pitch, yaw) order.
+</p>
+
+<P>
+In RTCW, pitch, yaw and roll are defined assuming that +X is forward, -Y is right and +Z
+is up, with right handed rotations. For example, a positive pitch will tilt down towards -Z.
+To convert the compressed 16-bit angles into degrees, simply scale them by <b>360.0 / 65536.0</b>.
+</p>
+
+<P>
+To obtain the origin of the bone's local coordinate system, create a rotation matrix from <b>offsetAngles</b>
+using its pitch and yaw values. Construct a 3D point with
+the <b>parentDist</b> value stored in the bone's <a href="#MDSBone">MDSBone</a> structure as the
+x component, with y and z components set to zero (ie. [<b>parentDist</b>, 0, 0]).
+Transform this point using the <b>offsetAngles</b> rotation matrix and
+add it to the bone's parent's origin to get the bone's own origin. If the bone
+has no parent, use the <b>parentOffset</b> coordinate stored in the <a href="#MDSBoneFrame">MDSBoneFrame</a>
+for this frame in place of the parent's origin.
+</p>
+
+<p>
+To correctly orient the bone, construct its rotation matrix from <b>angles</b> using the roll, pitch and
+yaw (in that order) values. Together with the bone origin, this rotation matrix defines the bone's coordinate
+system for the current frame.
+</p>
+
+<P>Take a look at <b>MDSData.ms</b> and <b>MDSLoader.ms</b> in my MDS Importer to see how I managed
+to load the bone information into gmax/max.</P>
+
+<br>
+</td></tr>
+
+
+<tr><td class="struct">
+<a name="MDSSurface">MDSSurface</a>
+</td></tr>
+
+<tr><td class="code">
+<pre>
+struct MDSSurface
+{
+  uint32  ident;           // Always 0x0008
+  char    name[64];        // Name of surface
+  char    shader[64];      // Name of shader
+  uint32  shaderIndex;     // Used in game only
+
+  sint32  minLod;          // Minimum Lod level
+  sint32  offsetHeader;    // Offset of this surface header, always negative
+
+  uint32  numVerts;        // Number of vertices
+  uint32  offsetVerts;     // Offset of vertices (<a href="#MDSVertex">MDSVertex</a> * numVerts)
+
+  uint32  numTris;         // Number of triangles
+  uint32  offsetTris;      // Offset of triangles (<a href="#MDSTriangle">MDSTriangle</a> * numTris)
+
+  uint32  offsetCollapseMap; // Offset of the collapse map (uint32 * numVerts in size)
+
+  uint32  numBoneRefs;     // Number of bone references (bones that influence this surface)
+  uint32  offsetBoneRefs;  // Offset of bone refs (uint32 * numBones)
+
+  uint32  offsetEnd;       // Offset of the end of this surface, from start of MDSSurface header.
+                           // The next surface (if there are more) can be found at this offset.
+};
+</pre>
+</td></tr>
+
+<tr><td>
+<P>
+A surface is a triangle mesh rendered using a single shader. Each surface
+has its own collection of <a href="#MDSVertex">vertices</a> (each <a href="MDSWeight">
+influenced by one or more bones</a>) and <a href="#MDSTriangle">triangles</a>.
+The bone references <i>aren't</i> indexed by the <a href="#MDSWeight">MDSWeight</a>
+structures, which instead index into the main bone list.
+The bone refs provide a list of all the bones referenced by a surface's <a href="#MDSWeight">MDSWeight</a>
+structures, which is often less than the total number of bones in the model.
+</P>
+<P>
+The <a href="#colmap">collapse map</a> is a list of target vertices for each surface
+vertex. The mapping from a mesh vertex to a target vertex defines an edge collapse.
+By successively collapsing edges and removing triangles that become degenerate after
+these collapses, the surface can be simplified automatically. It's also possible
+to go the other way, adding triangles right back up to the original full level of
+detail. This is known as a progressive mesh system and is used by RTCW to dynamically
+adjust the individual levels of detail for all onscreen MDS models whilst the game
+is running. See the <a href="#colmap">collapse map</a> section for a few more details on
+this dead funky technique.
+</P>
+<P>
+The <b>minLod</b> is likely to be the lowest possible detail level. This is the point
+in the collapse map at which the engine should stop edge collapsing to prevent the
+mesh becoming noticeably distorted, even when in the distance.
+</p><br>
+</td></tr>
+
+
+<tr><td class="struct">
+<a name="MDSVertex">MDSVertex</a>
+</td></tr>
+
+<tr><td class="code">
+<pre>
+struct MDSVertex
+{
+  float[3]  normal;      // Vertex normal vector. In base pose/model space I presume.
+  float[2]  texCoords;   // Texture (s,t) co-ordinates
+  uint32    numWeights;  // Number of bone weights affecting this vertex
+
+  uint32    fixedParent; // Stay equidistant from this parent
+  float     fixedDist;   // Fixed distance from parent
+
+  <a href="#MDSWeight">MDSWeight</a> weights[numWeights]  // List of weights follows
+};
+</pre>
+</td></tr>
+
+<tr><td>
+<P>
+A surface vertex, which must have at least one <a href="#MDSWeight">weight</a>.
+</P>
+
+<P>
+Not 100% sure on the <b>fixedParent</b> and
+<b>fixedDist</b> entries, but they are probably used to prevent certain vertices
+straying too far from certain bones (causing visually unacceptable distortion)
+during animation.
+</p><br>
+</td></tr>
+
+<tr><td class="struct">
+<a name="MDSWeight">MDSWeight</a>
+</td></tr>
+
+<tr><td class="code">
+<pre>
+struct MDSWeight
+{
+  uint32    boneIndex;  // Index of bone in the main <a href="#MDSBone">bone</a> list
+  float     weight;     // Bone weighting (from 0.0 to 1.0)
+  float[3]  xyz;        // xyz bone space position of vertex
+};
+</pre>
+</td></tr>
+
+<tr><td>
+<P>
+There is an MDSWeight structure for every bone that has some influence over a vertex.
+Bones with higher <b>weights</b> have more influence over the final position of a vertex
+during animation. For example, a <b>weight</b> of 1.0 will mean the corresponding bone
+(indicated by <b>boneIndex</b>) totally defines the position of the vertex.
+The <b>weight</b> values stored in each MDSWeight for a single vertex should all sum to 1.0.
+</p>
+<P>
+If you want to know more about how the smooth mesh deformation process works, check out Game Programming Gems I
+for some good articles. Also, have a look at the function "SkinBaseSurfaces" in the <b>MDSLoader.ms</b> MAXScript
+from my MDS Importer where I manually 'skin' the initial base pose mesh before handing it over to the Skin modifier
+to do the rest of the work.
+</P>
+
+<P>
+
+</p>
+<br>
+</td></tr>
+
+<tr><td class="struct">
+<a name="MDSTriangle">MDSTriangle</a>
+</td></tr>
+
+<tr><td class="code">
+<pre>
+struct MDSTriangle
+{
+  uint32[3] vertexIndices;  // 3 indices into the surface's vertex list
+};
+</pre>
+</td></tr>
+
+<tr><td>
+<p>
+A triangle in a surface.
+</P><br>
+</td></tr>
+</table>
+
+<div class="subtitle">
+<a name="limits">Limits</a>
+</div>
+<P>
+These are the upper limits imposed by RTCW on the numbers of various data structures
+in an MDS file:
+<ul>
+	<li>Max no. verts = 6000</li>
+	<li>Max no. triangles = 8192</li>
+	<li>Max no. bones = 128</li>
+	<li>Max no. surfaces = 32</li>
+	<li>Max no. tags = 128</li>
+</ul>
+</p>
+
+<p class="subtitle"><a name="colmap">The Collapse Map</a></p>
+
+<P>
+Here are some ramblings on the collapse map structure that might be of use:
+</P>
+
+<P>
+The collapse map (as introduced <a href="#MDSSurface">here</a>) is used for runtime
+dynamic LOD (level of detail) adjustment.
+In Quake 3, separate models where switched between according to the estimated
+on-screen size of each player model. The system used in Wolfenstein automatically adjusts
+the triangle count of the model up and down as its on-screen size changes without requiring
+any additional models! Cool, eh?
+<P>
+
+<P>
+Models that can have their detail adjusted by edge collapses (and the opposite, vertex splits)
+are known as progressive meshes. Technically, RTCW uses view-independent
+progressive meshes or VIPM as it's known to its friends.
+The particular variant
+used in RTCW is based on the one described by Stan Melax
+in his polygon reduction article, which you can find
+<a href="http://www.melax.com/polychop/">on his web site</a> along with example
+programs and source.
+</P>
+
+<P>
+There has been a lot written on progressive meshes in the last few years, and I'd recommend
+you consult Game Programming Gems I and II for some great articles by Jan Svarovsky
+and Tom Forsyth on the topic. Charles Bloom also has some very interesting VIPM notes
+<a href="http://www.cbloom.com">on his web site</a>. Finally, if you
+don't mind academic papers, the relevant work
+by <a href="http://research.microsoft.com/~hoppe/">Hugues Hoppe</a> is
+essential reading.
+</p>
+
+<P>
+Creating the collapse map involves picking the edge collapse that causes the least visible
+difference, doing the collapse and repeating with the remaining edges until the mesh
+cannot be simplified any more. Once all the collapses are done, the mesh vertices are
+sorted into collapse order (last one to be collapsed is first) and the collapse map
+is written out. It would be far too time consuming to manually pick the edge collapses
+in the best order, so this process is done automatically by the MDS build tool. A fully
+featured exporter is free to choose edge collapses in any order, but for best results
+some time should be spent on developing a good error metric.
+</p>
+
+
+<p class="subtitle"><a name="polycounts">Polygon Counts</a></p>
+
+<P>
+As a rough guide, here are total poly counts for some MDS models:
+<ul>
+<li>Helga: 1246</li>
+<li>Trench: 1162</li>
+<li>ProtoSolider: 2601</li>
+<li>Venom: 1656</li>
+<li>Multi: 1268</li>
+</ul>
+1250 tris seems about typical for an average player model.
+</p>
+
+<P class="subtitle">The End</P>
+
+<hr>
+<div align="center"><small>Copyright (C) 2002 Chris Cookson</small></div>
+<hr>
+
+
+</body>
+
+</html>
