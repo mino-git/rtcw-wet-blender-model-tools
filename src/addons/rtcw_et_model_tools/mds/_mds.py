@@ -102,9 +102,9 @@ class MDSTag:
         Another example use case is that of a tank turret model attached to a
         tank model. Instead of having a shooting animation (rotate turret left,
         shoot, rotate turret right) be recorded as vertex positions across
-        several key-frames inside a single model, a tag can be used to control 
-        the shooting animation of a separated model. This safes memory, as the 
-        tags animation data most likely takes much less space compared to the 
+        several key-frames inside a single model, a tag can be used to control
+        the shooting animation of a separated model. This safes memory, as the
+        tags animation data most likely takes much less space compared to the
         animation data of the tank turret inside a single model.
 
         However, reuse and memory savings are traded against loss in
@@ -824,7 +824,7 @@ class MDSBoneInfo:
     File encodings:
 
         name: 64*ASCII (C-String).
-        parent_bone: UINT32.
+        parent_bone: INT32.
         torso_weight: F32, IEEE-754.
         parent_dist: F32, IEEE-754.
         flags: UINT32.
@@ -834,7 +834,7 @@ class MDSBoneInfo:
         See "skeletal animation".
     """
 
-    format = '<64sIffI'
+    format = '<64siffI'
     format_size = struct.calcsize(format)
 
     name_len = 64
