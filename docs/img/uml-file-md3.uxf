@@ -4,8 +4,8 @@
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>279</x>
-      <y>18</y>
+      <x>414</x>
+      <y>45</y>
       <w>99</w>
       <h>27</h>
     </coordinates>
@@ -16,8 +16,8 @@
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>405</x>
-      <y>18</y>
+      <x>540</x>
+      <y>45</y>
       <w>162</w>
       <h>207</h>
     </coordinates>
@@ -40,8 +40,8 @@ ofs_end: UINT32</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>594</x>
-      <y>450</y>
+      <x>729</x>
+      <y>477</y>
       <w>171</w>
       <h>207</h>
     </coordinates>
@@ -65,8 +65,8 @@ ofs_end: UINT32
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>369</x>
-      <y>18</y>
+      <x>504</x>
+      <y>45</y>
       <w>54</w>
       <h>45</h>
     </coordinates>
@@ -78,8 +78,8 @@ m2=1
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>405</x>
-      <y>243</y>
+      <x>540</x>
+      <y>270</y>
       <w>162</w>
       <h>99</h>
     </coordinates>
@@ -97,8 +97,8 @@ name: 16*ASCII (C-String)
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>405</x>
-      <y>360</y>
+      <x>540</x>
+      <y>387</y>
       <w>162</w>
       <h>72</h>
     </coordinates>
@@ -114,8 +114,8 @@ orientation: 3*3*F32
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>405</x>
-      <y>450</y>
+      <x>540</x>
+      <y>477</y>
       <w>162</w>
       <h>27</h>
     </coordinates>
@@ -128,8 +128,8 @@ orientation: 3*3*F32
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>594</x>
-      <y>675</y>
+      <x>729</x>
+      <y>702</y>
       <w>171</w>
       <h>45</h>
     </coordinates>
@@ -141,8 +141,8 @@ indices: 3*UINT32</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>594</x>
-      <y>738</y>
+      <x>729</x>
+      <y>765</y>
       <w>171</w>
       <h>54</h>
     </coordinates>
@@ -155,8 +155,8 @@ shader_index: UINT32</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>594</x>
-      <y>810</y>
+      <x>729</x>
+      <y>837</y>
       <w>171</w>
       <h>45</h>
     </coordinates>
@@ -168,8 +168,8 @@ tex_coords: 2*F32</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>594</x>
-      <y>873</y>
+      <x>729</x>
+      <y>900</y>
       <w>171</w>
       <h>54</h>
     </coordinates>
@@ -182,8 +182,8 @@ normal: 2*UINT8</panel_attributes>
   <element>
     <id>UMLNote</id>
     <coordinates>
-      <x>594</x>
-      <y>18</y>
+      <x>729</x>
+      <y>45</y>
       <w>207</w>
       <h>162</h>
     </coordinates>
@@ -203,8 +203,8 @@ ASCII: 8-bit ASCII character</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>315</x>
-      <y>36</y>
+      <x>450</x>
+      <y>63</y>
       <w>108</w>
       <h>252</h>
     </coordinates>
@@ -216,8 +216,8 @@ m2=num_frames
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>252</x>
-      <y>36</y>
+      <x>387</x>
+      <y>63</y>
       <w>171</w>
       <h>369</h>
     </coordinates>
@@ -229,8 +229,8 @@ m2=num_frames*num_tags
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>297</x>
-      <y>36</y>
+      <x>432</x>
+      <y>63</y>
       <w>126</w>
       <h>459</h>
     </coordinates>
@@ -242,8 +242,8 @@ m2=num_surfaces
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>558</x>
-      <y>450</y>
+      <x>693</x>
+      <y>477</y>
       <w>54</w>
       <h>45</h>
     </coordinates>
@@ -255,8 +255,8 @@ m2=1
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>495</x>
-      <y>468</y>
+      <x>630</x>
+      <y>495</y>
       <w>117</w>
       <h>252</h>
     </coordinates>
@@ -268,8 +268,8 @@ m2=num_triangles
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>477</x>
-      <y>468</y>
+      <x>612</x>
+      <y>495</y>
       <w>135</w>
       <h>315</h>
     </coordinates>
@@ -281,8 +281,8 @@ m2=num_shaders
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>459</x>
-      <y>468</y>
+      <x>594</x>
+      <y>495</y>
       <w>153</w>
       <h>387</h>
     </coordinates>
@@ -294,8 +294,8 @@ m2=num_vertices
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>423</x>
-      <y>468</y>
+      <x>558</x>
+      <y>495</y>
       <w>189</w>
       <h>450</h>
     </coordinates>
