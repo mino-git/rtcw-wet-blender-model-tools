@@ -21,14 +21,8 @@
 import mathutils
 import math
 
-def offAnglesToOffset(offAngleYaw, offAnglePitch):
 
-      # TODO recheck with source
-    location_dir_scale = 360 / 4095.0
-
-    # quantization, angles (short) to degrees (float)
-    yaw = (offAngleYaw >> 4) * location_dir_scale
-    pitch = (offAnglePitch >> 4) * location_dir_scale
+def angles_to_vector(yaw, pitch):
 
     yaw = math.radians(yaw)
     pitch = math.radians(pitch)
@@ -46,19 +40,11 @@ def offAnglesToOffset(offAngleYaw, offAnglePitch):
     y = sy * cp
     z = -sp
 
-    offset = mathutils.Vector((x, y, z))
+    vector = mathutils.Vector((x, y, z))
 
-    return offset
+    return vector
 
-
-def anglesToMatrix(angleYaw, anglePitch, angleRoll):
-
-    orientation_scale = 360 / 65536.0  # TODO recheck with source
-
-    # quantization, angles (short) to degrees (float)
-    yaw = angleYaw * orientation_scale
-    pitch = anglePitch * orientation_scale
-    roll = angleRoll * orientation_scale
+def euler_to_matrix(yaw, pitch, roll):
 
     yaw = math.radians(yaw)
     pitch = math.radians(pitch)
@@ -77,28 +63,27 @@ def anglesToMatrix(angleYaw, anglePitch, angleRoll):
     # first roll, then pitch, then yaw (intrinsic)
     # +x = forward, +y = left, +z = up, right handed
     # the result is a passive transform matrix expressed in object space
-    forwardX = cy * cp
-    forwardY = sy * cp
-    forwardZ = -sp
+    forward_x = cy * cp
+    forward_y = sy * cp
+    forward_z = -sp
 
-    leftX = cy * sp * sr + (-sy) * cr
-    leftY = sy * sp * sr + cy * cr
-    leftZ = cp * sr
+    left_x = cy * sp * sr + (-sy) * cr
+    left_y = sy * sp * sr + cy * cr
+    left_z = cp * sr
 
-    upX = cy * sp * cr + (-sy) * (-sr)
-    upY = sy * sp * cr + cy * (-sr)
-    upZ = cp * cr
+    up_x = cy * sp * cr + (-sy) * (-sr)
+    up_y = sy * sp * cr + cy * (-sr)
+    up_z = cp * cr
 
     matrix = mathutils.Matrix().Identity(3)
-    matrix[0][0:3] = forwardX, leftX, upX # first row
-    matrix[1][0:3] = forwardY, leftY, upY # second row
-    matrix[2][0:3] = forwardZ, leftZ, upZ # third row
+    matrix[0][0:3] = forward_x, left_x, up_x # first row
+    matrix[1][0:3] = forward_y, left_y, up_y # second row
+    matrix[2][0:3] = forward_z, left_z, up_z # third row
 
     # transform passive to active
     matrix = matrix.transposed() # orthonormal => inverse == transpose
 
     return matrix
-
 
 def utf_8_string_to_c_string(utf_8_string):
 

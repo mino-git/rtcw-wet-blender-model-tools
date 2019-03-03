@@ -18,9 +18,6 @@
 
 # <pep8-80 compliant>
 
-# TODO bei listen init auf is None checken statt not
-# bounds init abstellen
-
 import mathutils
 
 import rtcw_et_model_tools.mdi.mdi_util as mdi_util
@@ -90,7 +87,7 @@ class MDISocket:
         TODO
     """
 
-    def __init__(self, name = None, type_ = MDIType.unknown):
+    def __init__(self, name, type_ = MDIType.unknown):
 
         self.name = name
 
@@ -120,8 +117,8 @@ class MDISocketParentBoneOffset(MDISocket):
         TODO
     """
 
-    def __init__(self, name, parent_skeleton, parent_bone, location = None,
-                 orientation = None):
+    def __init__(self, name, parent_skeleton, parent_bone, location,
+                 orientation):
 
         super().__init__(name, MDIType.socket_parent_bone_offset)
 
@@ -238,7 +235,7 @@ class MDISocketFree(MDISocket):
         TODO
     """
 
-    def __init__(self, name = None, location = None, orientation = None,
+    def __init__(self, name, location = None, orientation = None,
                  animation = None):
 
         super().__init__(name, MDIType.socket_free)
@@ -309,7 +306,6 @@ class MDISockets:
             self.socket_list = []
         else:
             self.socket_list = socket_list
-
 
 
 # ====================
@@ -397,7 +393,7 @@ class MDIBone:
         TODO
     """
 
-    def __init__(self, name = None, parent_bone = -1, parent_dist = 0,
+    def __init__(self, name, parent_bone = -1, parent_dist = 0,
                  torso_weight = 0, flags = 0, location = None,
                  orientation = None, animation = None):
 
@@ -496,7 +492,7 @@ class MDISkeleton:
         TODO
     """
 
-    def __init__(self, name = None, bones = None):
+    def __init__(self, name = "MDISkeleton None", bones = None):
 
         self.name = name
 
@@ -1575,7 +1571,7 @@ class MDISurface:
         TODO
     """
 
-    def __init__(self, name = None, geometry = None, color = None, lod = None):
+    def __init__(self, name = "MDISurface None", geometry = None, color = None, lod = None):
 
         self.name = name
 
@@ -1723,7 +1719,7 @@ class MDI:
 
     version = 1
 
-    def __init__(self, name = None, lod_scale = 5, lod_bias = 0,
+    def __init__(self, name = "MDI None", lod_scale = 5, lod_bias = 0,
                  surfaces = None, skeletons = None, sockets = None):
 
         self.name = name
