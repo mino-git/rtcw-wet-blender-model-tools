@@ -4,7 +4,7 @@
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>400</x>
+      <x>312</x>
       <y>0</y>
       <w>80</w>
       <h>24</h>
@@ -16,7 +16,7 @@
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>504</x>
+      <x>416</x>
       <y>176</y>
       <w>136</w>
       <h>24</h>
@@ -27,7 +27,7 @@
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>504</x>
+      <x>416</x>
       <y>0</y>
       <w>144</w>
       <h>160</h>
@@ -50,7 +50,7 @@ ofs_end: UINT32
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>504</x>
+      <x>416</x>
       <y>736</y>
       <w>152</w>
       <h>120</h>
@@ -60,7 +60,7 @@ ofs_end: UINT32
 name: 64*ASCII (C-String)
 orientation: 3*3*F32
 parent_bone: UINT32
-location_offset: 3*F32
+location: 3*F32
 num_bone_refs: UINT32
 ofs_bone_refs: UINT32
 ofs_end: UINT32
@@ -71,7 +71,7 @@ ofs_end: UINT32
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>472</x>
+      <x>384</x>
       <y>0</y>
       <w>48</w>
       <h>40</h>
@@ -84,7 +84,7 @@ m2=1
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>424</x>
+      <x>336</x>
       <y>16</y>
       <w>96</w>
       <h>760</h>
@@ -97,7 +97,7 @@ m2=num_tags
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>664</x>
+      <x>576</x>
       <y>176</y>
       <w>152</w>
       <h>208</h>
@@ -124,7 +124,7 @@ ofs_end: UINT32
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>632</x>
+      <x>544</x>
       <y>176</y>
       <w>48</w>
       <h>40</h>
@@ -137,7 +137,7 @@ m2=1
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>664</x>
+      <x>576</x>
       <y>400</y>
       <w>136</w>
       <h>64</h>
@@ -153,7 +153,7 @@ num_weights: UINT32
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>664</x>
+      <x>576</x>
       <y>560</y>
       <w>184</w>
       <h>40</h>
@@ -167,7 +167,7 @@ indices: 3*UINT32
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>664</x>
+      <x>576</x>
       <y>616</y>
       <w>184</w>
       <h>40</h>
@@ -180,7 +180,7 @@ mappings: num_vertices*UINT32</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>664</x>
+      <x>576</x>
       <y>672</y>
       <w>184</w>
       <h>40</h>
@@ -194,7 +194,7 @@ bone_refs: num_bone_refs*UINT32
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>416</x>
+      <x>328</x>
       <y>16</y>
       <w>104</w>
       <h>200</h>
@@ -207,7 +207,7 @@ m2=num_surfaces
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>576</x>
+      <x>488</x>
       <y>192</y>
       <w>104</w>
       <h>248</h>
@@ -220,7 +220,7 @@ m2=num_vertices
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>824</x>
+      <x>736</x>
       <y>480</y>
       <w>136</w>
       <h>64</h>
@@ -229,14 +229,14 @@ m2=num_vertices
 --
 bone_index: UINT32
 bone_weight: F32
-location_offset: 3*F32
+location: 3*F32
 </panel_attributes>
     <additional_attributes/>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>720</x>
+      <x>632</x>
       <y>456</y>
       <w>120</w>
       <h>64</h>
@@ -249,7 +249,7 @@ m2=1..n
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>568</x>
+      <x>480</x>
       <y>192</y>
       <w>112</w>
       <h>408</h>
@@ -262,7 +262,7 @@ m2=num_triangles
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>552</x>
+      <x>464</x>
       <y>192</y>
       <w>128</w>
       <h>464</h>
@@ -275,7 +275,7 @@ m2=1
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>536</x>
+      <x>448</x>
       <y>192</y>
       <w>144</w>
       <h>520</h>
@@ -288,7 +288,7 @@ m2=1
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>664</x>
+      <x>576</x>
       <y>872</y>
       <w>184</w>
       <h>40</h>
@@ -302,7 +302,7 @@ bone_refs: num_bone_refs*UINT32
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>560</x>
+      <x>472</x>
       <y>848</y>
       <w>120</w>
       <h>64</h>
@@ -315,7 +315,7 @@ m2=1
   <element>
     <id>UMLNote</id>
     <coordinates>
-      <x>672</x>
+      <x>584</x>
       <y>0</y>
       <w>184</w>
       <h>144</h>
