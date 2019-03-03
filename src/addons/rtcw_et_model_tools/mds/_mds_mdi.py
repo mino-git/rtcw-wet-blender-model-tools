@@ -23,9 +23,9 @@
 
 import mathutils
 
-from rtcw_et_model_tools.mds import _mds as mds
-from rtcw_et_model_tools.mdi import mdi as mdi
-from rtcw_et_model_tools.mdi import mdi_util as mdi_util
+import rtcw_et_model_tools.mds._mds as mds
+import rtcw_et_model_tools.mdi.mdi as mdi
+import rtcw_et_model_tools.mdi.mdi_util as mdi_util
 
 
 class MDIToModel:

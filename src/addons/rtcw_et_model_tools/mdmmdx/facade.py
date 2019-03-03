@@ -21,9 +21,9 @@
 """Facade for MDM and MDX file format.
 """
 
-from rtcw_et_model_tools.mdmmdx import _mdm
-from rtcw_et_model_tools.mdmmdx import _mdx
-from rtcw_et_model_tools.mdmmdx import _mdmmdx_mdi
+import rtcw_et_model_tools.mdmmdx._mdm as mdm
+import rtcw_et_model_tools.mdmmdx._mdx as mdx
+import rtcw_et_model_tools.mdmmdx._mdmmdx_mdi as mdmmdx_mdi
 
 
 def read(file_path_mdx, file_path_mdm, encoding="binary"):
@@ -45,10 +45,10 @@ def read(file_path_mdx, file_path_mdm, encoding="binary"):
     """
 
     if encoding == "binary":
-        mdx_model = _mdx.MDX.read(file_path_mdx)
+        mdx_model = mdx.MDX.read(file_path_mdx)
         mdm_model = None
         if file_path_mdm is not None:
-            mdm_model = _mdm.MDM.read(file_path_mdm)
+            mdm_model = mdm.MDM.read(file_path_mdm)
     elif encoding == "xml":
         pass  # TODO
     elif encoding == "json":
@@ -56,7 +56,7 @@ def read(file_path_mdx, file_path_mdm, encoding="binary"):
     else:
         print("encoding option '{}' not supported".format(encoding))
 
-    mdi_model = _mdmmdx_mdi.ModelToMDI.convert(mdx_model, mdm_model)
+    mdi_model = mdmmdx_mdi.ModelToMDI.convert(mdx_model, mdm_model)
 
     return mdi_model
 
@@ -71,7 +71,7 @@ def write(mdi, file_path_mdx, file_path_mdm, encoding="binary"):
         encoding (str): encoding to use for MDS.
     """
 
-    mdx_model, mdm_model = _mdmmdx_mdi.ModelToMDI.convert(mdi)
+    mdx_model, mdm_model = mdmmdx_mdi.ModelToMDI.convert(mdi)
 
     if encoding == "binary":
         mdx_model.write(file_path_mdx)

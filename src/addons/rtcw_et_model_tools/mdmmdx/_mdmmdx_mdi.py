@@ -23,11 +23,12 @@
 
 import mathutils
 
-from rtcw_et_model_tools.mdmmdx import _mdm as mdm
-from rtcw_et_model_tools.mdmmdx import _mdx as mdx
-from rtcw_et_model_tools.mdi import mdi as mdi
-from rtcw_et_model_tools.mdi import mdi_util as mdi_util
+import rtcw_et_model_tools.mdmmdx._mdm as mdm
+import rtcw_et_model_tools.mdmmdx._mdx as mdx
+import rtcw_et_model_tools.mdi.mdi as mdi
+import rtcw_et_model_tools.mdi.mdi_util as mdi_util
 
+from
 
 class MDIToModel:
 
