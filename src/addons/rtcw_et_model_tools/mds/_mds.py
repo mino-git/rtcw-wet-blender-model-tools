@@ -383,14 +383,14 @@ class MDSWeight:
             vertex location given as index into the list of bone_infos.
         bone_weight (float): amount of influence from the bone over the vertex
             location.
-        location_offset (tuple): location coordinates given in bone space.
+        location (tuple): location coordinates given in bone space.
             TODO recheck with source code.
 
     File encodings:
 
         bone_index: UINT32.
         bone_weight: F32, IEEE-754.
-        location_offset: 3*F32, IEEE-754.
+        location: 3*F32, IEEE-754.
 
     Notes:
 
@@ -404,11 +404,11 @@ class MDSWeight:
     format = '<If3f'
     format_size = struct.calcsize(format)
 
-    def __init__(self, bone_index, bone_weight, location_offset):
+    def __init__(self, bone_index, bone_weight, location):
 
         self.bone_index = bone_index
         self.bone_weight = bone_weight
-        self.location_offset = location_offset
+        self.location = location
 
     @staticmethod
     def read(file, file_ofs):
@@ -426,11 +426,11 @@ class MDSWeight:
 
         file.seek(file_ofs)
 
-        bone_index, bone_weight, offset_x, offset_y, offset_z \
+        bone_index, bone_weight, location_x, location_y, location_z \
             = struct.unpack(MDSWeight.format, file.read(MDSWeight.format_size))
 
-        location_offset = (offset_x, offset_y, offset_z)
-        mds_weight = MDSWeight(bone_index, bone_weight, location_offset)
+        location = (location_x, location_y, location_z)
+        mds_weight = MDSWeight(bone_index, bone_weight, location)
 
         return mds_weight
 
@@ -448,9 +448,9 @@ class MDSWeight:
         file.write(struct.pack(MDSWeight.format,
                                self.bone_index,
                                self.bone_weight,
-                               self.location_offset[0],
-                               self.location_offset[1],
-                               self.location_offset[2]))
+                               self.location[0],
+                               self.location[1],
+                               self.location[2]))
 
 
 class MDSVertex:
@@ -927,8 +927,8 @@ class MDSBoneFrameCompressed:
     format = '<hhhhhh'
     format_size = struct.calcsize(format)
 
-    angle_scale = 360 / 65536.0  # TODO recheck with source
-    off_angle_scale = 360 / 4095.0  # TODO recheck with source
+    orientation_scale = 360 / 65536.0  # TODO recheck with source
+    location_dir_scale = 360 / 4095.0  # TODO recheck with source
 
     angle_none_default = 777
 
