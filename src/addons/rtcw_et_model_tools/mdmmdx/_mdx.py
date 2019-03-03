@@ -57,7 +57,7 @@ class MDXBoneInfo:
     File encodings:
 
         name: 64*ASCII (C-String).
-        parent_bone: UINT32.
+        parent_bone: INT32.
         torso_weight: F32, IEEE-754.
         parent_dist: F32, IEEE-754.
         flags: UINT32.
@@ -67,7 +67,7 @@ class MDXBoneInfo:
         See "skeletal animation".
     """
 
-    format = '<64sIffI'
+    format = '<64siffI'
     format_size = struct.calcsize(format)
 
     flags_default_value = 0

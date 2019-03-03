@@ -78,8 +78,8 @@ class MDMTag:
         parent_bone (int): bone that controls the tags location and
             orientation. Given as index into the list of bone_infos (from the
             referenced MDX file).
-        location_offset (tuple): location relative to its referenced bone as
-            tuple of floats. The values are given in parent bone space.
+        location (tuple): location in binding pose relative to its referenced
+            bone as tuple of floats. The values are given in parent bone space.
         num_bone_refs (int): number of bones this tag references.
         ofs_bone_refs (int): file offset to list of bone references.
         ofs_end (int): file offset to end of tag.
@@ -90,7 +90,7 @@ class MDMTag:
         name: 64*ASCII (C-String).
         orientation: 3*3*F32, IEEE-754.
         parent_bone: UINT32.
-        location_offset: 3*F32, IEEE-754.
+        location: 3*F32, IEEE-754.
         num_bone_refs: UINT32.
         ofs_bone_refs: UINT32.
         ofs_end: UINT32.
@@ -125,9 +125,9 @@ class MDMTag:
         Another example use case is that of a tank turret model attached to a
         tank model. Instead of having a shooting animation (rotate turret left,
         shoot, rotate turret right) be recorded as vertex positions across
-        several key-frames inside a single model, a tag can be used to control 
-        the shooting animation of a separated model. This safes memory, as the 
-        tags animation data most likely takes much less space compared to the 
+        several key-frames inside a single model, a tag can be used to control
+        the shooting animation of a separated model. This safes memory, as the
+        tags animation data most likely takes much less space compared to the
         animation data of the tank turret inside a single model.
 
         However, reuse and memory savings are traded against loss in
@@ -139,13 +139,13 @@ class MDMTag:
     format_size = struct.calcsize(format)
     name_len = 64
 
-    def __init__(self, name, orientation, parent_bone, location_offset,
+    def __init__(self, name, orientation, parent_bone, location,
                  num_bone_refs, ofs_bone_refs, ofs_end):
 
         self.name = name
         self.orientation = orientation
         self.parent_bone = parent_bone
-        self.location_offset = location_offset
+        self.location = location
         self.num_bone_refs = num_bone_refs
         self.ofs_bone_refs = ofs_bone_refs
         self.ofs_end = ofs_end
@@ -173,7 +173,7 @@ class MDMTag:
             orientation_y1, orientation_y2, orientation_y3, \
             orientation_z1, orientation_z2, orientation_z3, \
             parent_bone, \
-            location_off_x, location_off_y, location_off_z,\
+            location_x, location_y, location_z,\
             num_bone_refs, ofs_bone_refs, ofs_end \
             = struct.unpack(MDMTag.format, file.read(MDMTag.format_size))
 
@@ -181,9 +181,9 @@ class MDMTag:
                        orientation_y1, orientation_y2, orientation_y3,
                        orientation_z1, orientation_z2, orientation_z3)
 
-        location_offset = (location_off_x, location_off_y, location_off_z)
+        location = (location_x, location_y, location_z)
 
-        mdm_tag = MDMTag(name, orientation, parent_bone, location_offset,
+        mdm_tag = MDMTag(name, orientation, parent_bone, location,
                          num_bone_refs, ofs_bone_refs, ofs_end)
 
         # mdm_tag.bone_refs
@@ -213,9 +213,9 @@ class MDMTag:
                                self.orientation[6], self.orientation[7],
                                self.orientation[8],
                                self.parent_bone,
-                               self.location_offset[0],
-                               self.location_offset[1],
-                               self.location_offset[2],
+                               self.location[0],
+                               self.location[1],
+                               self.location[2],
                                self.num_bone_refs, self.ofs_bone_refs,
                                self.ofs_end))
 
@@ -447,14 +447,14 @@ class MDMWeight:
             vertex location given as index into the list of bone_infos.
         bone_weight (float): amount of influence from the bone over the vertex
             location.
-        location_offset (tuple): location coordinates given in bone space.
+        location (tuple): location coordinates given in bone space.
             TODO recheck with source code
 
     File encodings:
 
         bone_index: UINT32.
         bone_weight: F32, IEEE-754.
-        location_offset: 3*F32, IEEE-754.
+        location: 3*F32, IEEE-754.
 
     Notes:
 
@@ -468,11 +468,11 @@ class MDMWeight:
     format = '<If3f'
     format_size = struct.calcsize(format)
 
-    def __init__(self, bone_index, bone_weight, location_offset):
+    def __init__(self, bone_index, bone_weight, location):
 
         self.bone_index = bone_index
         self.bone_weight = bone_weight
-        self.location_offset = location_offset
+        self.location = location
 
     @staticmethod
     def read(file, file_ofs):
@@ -490,11 +490,11 @@ class MDMWeight:
 
         file.seek(file_ofs)
 
-        bone_index, bone_weight, offset_x, offset_y, offset_z \
+        bone_index, bone_weight, location_x, location_y, location_z \
             = struct.unpack(MDMWeight.format, file.read(MDMWeight.format_size))
 
-        location_offset = (offset_x, offset_y, offset_z)
-        mdm_weight = MDMWeight(bone_index, bone_weight, location_offset)
+        location = (location_x, location_y, location_z)
+        mdm_weight = MDMWeight(bone_index, bone_weight, location)
 
         return mdm_weight
 
