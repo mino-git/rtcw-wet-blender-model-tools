@@ -57,7 +57,7 @@ class ModelToMDI:
     def _calc_surface(mds_surface, mds_frames, mdi_skeleton,
                       bind_pose_frame = 0):
 
-        def calc_vertex_weighted(mdm_vertex, mdi_skeleton):
+        def calc_vertex_weighted(mds_vertex, mdi_skeleton):
 
             location_weighted = mathutils.Vector((0.0, 0.0, 0.0))
             orientation_weighted = mathutils.Matrix.Identity(3)
@@ -90,8 +90,12 @@ class ModelToMDI:
 
         mdi_surface.name = \
             mdi_util.c_string_to_utf_8_string(mds_surface.header.name)
+        mdi_surface.parent_skeleton = 0
 
-        # vertex_list
+        # vertices
+        animation = mdi.MDIRiggedVertices(parent_skeleton = 0)
+        mdi_surface.geometry.vertices.animation = animation
+
         for mds_vertex in mds_surface.vertices:
 
             location, normal = calc_vertex_weighted(mds_vertex, mdi_skeleton)
@@ -99,8 +103,8 @@ class ModelToMDI:
             mdi_surface.geometry.vertices.vertex_list.append(mdi_vertex)
 
             # animation
-            mdi_rigged_vertex = mdi.MDIRiggedVertex(parent_skeleton = 0)
-            mdi_vertex.animation = mdi_rigged_vertex
+            mdi_rigged_vertex = mdi.MDIRiggedVertex()
+            animation.vertex_list.append(mdi_rigged_vertex)
 
             for mds_weight in mds_vertex.weights:
 

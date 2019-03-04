@@ -28,8 +28,8 @@ import rtcw_et_model_tools.blender.scene as scene
 class MDIType:
 
     unknown = 0
-    morph_vertex_frames = 1
-    rigged_vertex = 2
+    morph_vertices = 1
+    rigged_vertices = 2
     shader_references = 3
     shader_reference = 4
     uv_map_surjective = 5
@@ -871,7 +871,7 @@ class MDIShaderReference(MDIShaderData):
         TODO
     """
 
-    def __init__(self, reference = None):
+    def __init__(self, reference = "Shader None"):
 
         super().__init__(MDIType.shader_reference)
 
@@ -1192,7 +1192,7 @@ class MDITriangles:
 # Vertices
 # ====================
 
-class MDIVertexAnimation:
+class MDIVerticesAnimation:
     """Vertex animation.
     """
 
@@ -1257,7 +1257,37 @@ class MDIRiggedVertexNav:
         pass
 
 
-class MDIRiggedVertex(MDIVertexAnimation):
+class MDIRiggedVertex:
+    """TODO
+
+    Attributes:
+
+        TODO
+
+    File encodings:
+
+        TODO
+
+    Background:
+
+        TODO
+
+    Notes:
+
+        TODO
+    """
+
+    def __init__(self, weights = None):
+
+        self.navigation_info = None
+
+        if weights is None:
+            self.weights = []
+        else:
+            self.weights = weights
+
+
+class MDIRiggedVertices(MDIVerticesAnimation):
     """TODO
 
     Attributes:
@@ -1277,18 +1307,16 @@ class MDIRiggedVertex(MDIVertexAnimation):
         TODO
     """
 
-    def __init__(self, parent_skeleton, weights = None):
+    def __init__(self, parent_skeleton, vertex_list = None):
 
-        super().__init__(MDIType.rigged_vertex)
+        super().__init__(MDIType.rigged_vertices)
 
         self.parent_skeleton = parent_skeleton
 
-        self.navigation_info = None
-
-        if weights is None:
-            self.weights = []
+        if vertex_list is None:
+            self.vertex_list = []
         else:
-            self.weights = weights
+            self.vertex_list = vertex_list
 
 
 class MDIMorphVertexInFrame:
@@ -1318,7 +1346,7 @@ class MDIMorphVertexInFrame:
         self.normal = normal
 
 
-class MDIMorphVertexFrames(MDIVertexAnimation):
+class MDIMorphVerticesInFrame:
     """TODO
 
     Attributes:
@@ -1338,14 +1366,42 @@ class MDIMorphVertexFrames(MDIVertexAnimation):
         TODO
     """
 
-    def __init__(self, frames = None):
+    def __init__(self, vertex_list = None):
 
-        super().__init__(MDIType.morph_vertex_frames)
-
-        if frames is None:
-            self.frames = []
+        if vertex_list is None:
+            self.vertex_list = []
         else:
-            self.frames = frames
+            self.vertex_list = vertex_list
+
+
+class MDIMorphVertices(MDIVerticesAnimation):
+    """TODO
+
+    Attributes:
+
+        TODO
+
+    File encodings:
+
+        TODO
+
+    Background:
+
+        TODO
+
+    Notes:
+
+        TODO
+    """
+
+    def __init__(self, frame_list = None):
+
+        super().__init__(MDIType.morph_vertices)
+
+        if frame_list is None:
+            self.frame_list = []
+        else:
+            self.frame_list = frame_list
 
 
 class MDIVertex:
@@ -1426,7 +1482,7 @@ class MDIVertices:
         TODO
     """
 
-    def __init__(self, vertex_list = None):
+    def __init__(self, vertex_list = None, animation = None):
 
         self.navigation_info = None
 
@@ -1434,6 +1490,8 @@ class MDIVertices:
             self.vertex_list = []
         else:
             self.vertex_list = vertex_list
+
+        self.animation = animation
 
 
 # ====================
@@ -1571,7 +1629,8 @@ class MDISurface:
         TODO
     """
 
-    def __init__(self, name = "MDISurface None", geometry = None, color = None, lod = None):
+    def __init__(self, name = "MDISurface None", geometry = None, color = None,
+                 lod = None):
 
         self.name = name
 

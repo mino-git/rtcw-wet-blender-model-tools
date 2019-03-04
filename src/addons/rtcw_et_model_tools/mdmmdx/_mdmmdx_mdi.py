@@ -28,7 +28,6 @@ import rtcw_et_model_tools.mdmmdx._mdx as mdx
 import rtcw_et_model_tools.mdi.mdi as mdi
 import rtcw_et_model_tools.mdi.mdi_util as mdi_util
 
-from
 
 class MDIToModel:
 
@@ -118,16 +117,21 @@ class ModelToMDI:
 
         mdi_surface.name = \
             mdi_util.c_string_to_utf_8_string(mdm_surface.header.name)
+        mdi_surface.parent_skeleton = 0
 
-        # vertex_list
+        # vertices
+        animation = mdi.MDIRiggedVertices(parent_skeleton = 0)
+        mdi_surface.geometry.vertices.animation = animation
+
         for mdm_vertex in mdm_surface.vertices:
 
             location, normal = calc_vertex_weighted(mdm_vertex, mdi_skeleton)
             mdi_vertex = mdi.MDIVertex(location, normal)
             mdi_surface.geometry.vertices.vertex_list.append(mdi_vertex)
 
-            mdi_rigged_vertex = mdi.MDIRiggedVertex(parent_skeleton = 0)
-            mdi_vertex.animation = mdi_rigged_vertex
+            # animation
+            mdi_rigged_vertex = mdi.MDIRiggedVertex()
+            animation.vertex_list.append(mdi_rigged_vertex)
 
             for mdm_weight in mdm_vertex.weights:
 
@@ -309,7 +313,7 @@ class ModelToMDI:
 
         mdi_model = mdi.MDI()
 
-        if mdm_model is not None:
+        if mdm_model:
             mdi_model.name = \
                 mdi_util.c_string_to_utf_8_string(mdm_model.header.name)
             mdi_model.lod_scale = mdm_model.header.lod_scale
@@ -319,7 +323,7 @@ class ModelToMDI:
         mdi_skeleton = ModelToMDI._calc_skeleton(mdx_model, bind_pose_frame)
         mdi_model.skeletons.skeleton_list.append(mdi_skeleton)
 
-        if mdm_model is not None:
+        if mdm_model:
 
             # surfaces
             for mdm_surface in mdm_model.surfaces:
