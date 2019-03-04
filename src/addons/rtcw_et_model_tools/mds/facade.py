@@ -22,7 +22,7 @@
 """
 
 import rtcw_et_model_tools.mds._mds as mds
-import rtcw_et_model_tools.mds_mds_mdi as mds_mdi
+import rtcw_et_model_tools.mds._mds_mdi as mds_mdi
 
 
 def read(file_path, encoding="binary"):
