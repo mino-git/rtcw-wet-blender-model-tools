@@ -81,7 +81,7 @@ class MDCCompFrameIndices:
 
     File encodings:
 
-        indices: num_frames*UINT16.
+        indices: num_frames*INT16.
 
     Notes:
 
@@ -91,7 +91,7 @@ class MDCCompFrameIndices:
         compressed, the retrieved value will be -1.
     """
 
-    format = '<H'
+    format = '<h'
     format_size = struct.calcsize(format)
 
     def __init__(self, indices):
@@ -237,6 +237,8 @@ class MDCCompFrameVertex:
     format = '<3B1B'
     format_size = struct.calcsize(format)
 
+    location_scale = 1 /20.0
+
     def __init__(self, location_offset, normal):
 
         self.location_offset = location_offset
@@ -306,6 +308,7 @@ class MDCBaseFrameVertex:
     format = '<3h2B'
     format_size = struct.calcsize(format)
     location_scale = 1.0 / 64
+    normal_scale = 360.0 / 255
 
     def __init__(self, location, normal):
 
@@ -574,7 +577,7 @@ class MDCSurfaceHeader:
 
     Attributes:
 
-        ident (bytes): magic number, ASCII encoded, length 4, latest known is 
+        ident (bytes): magic number, ASCII encoded, length 4, latest known is
             7.
         name (bytes): surface name, ASCII encoded, null-terminated, length 64.
         flags (int): not used.
@@ -972,9 +975,9 @@ class MDCFrameTag:
         Another example use case is that of a tank turret model attached to a
         tank model. Instead of having a shooting animation (rotate turret left,
         shoot, rotate turret right) be recorded as vertex positions across
-        several key-frames inside a single model, a tag can be used to control 
-        the shooting animation of a separated model. This safes memory, as the 
-        tags animation data most likely takes much less space compared to the 
+        several key-frames inside a single model, a tag can be used to control
+        the shooting animation of a separated model. This safes memory, as the
+        tags animation data most likely takes much less space compared to the
         animation data of the tank turret inside a single model.
 
         However, reuse and memory savings are traded against loss in
