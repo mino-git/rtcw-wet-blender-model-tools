@@ -270,8 +270,8 @@ class Armature:
                                                      index=3,
                                                      action_group=mdi_bone.name)
 
-            # frame_len = len(mdi_bone.animation.frames)
-            frame_len = 35
+            frame_len = len(mdi_bone.animation.frames)
+            # frame_len = 35
 
             fcurve_loc_x.keyframe_points.add(count=frame_len)
             fcurve_loc_z.keyframe_points.add(count=frame_len)
@@ -584,7 +584,7 @@ class Mesh:
         mod.use_vertex_groups = True
 
     @staticmethod
-    def _morph_vertices(mdi_morph_vertices, mesh_object):
+    def _morph_vertices(mdi_morph_vertices, mesh_object, bind_frame):
 
         for mdi_morph_vertices_in_frame in mdi_morph_vertices.frame_list:
 
@@ -601,11 +601,7 @@ class Mesh:
         if mesh_object.data.shape_keys:
 
             mesh_object.data.shape_keys.use_relative = False
-            mesh_object.active_shape_key_index = 0
-
-            bpy.context.view_layer.objects.active = \
-                bpy.data.objects[mesh_object.name]
-            bpy.ops.object.shape_key_retime()
+            mesh_object.active_shape_key_index = bind_frame
 
             for num_frame in range(len(mdi_morph_vertices.frame_list)):
 
@@ -627,7 +623,8 @@ class Mesh:
         pass
 
     @staticmethod
-    def write(collection, mdi_surface, mdi_skeletons, armature_objects):
+    def write(collection, mdi_surface, mdi_skeletons, armature_objects,
+              bind_frame):
         """TODO
 
         Args:
@@ -653,7 +650,8 @@ class Mesh:
 
         elif isinstance(mdi_vertices_animation, mdi.MDIMorphVertices):
 
-            Mesh._morph_vertices(mdi_vertices_animation, mesh_object)
+            Mesh._morph_vertices(mdi_vertices_animation, mesh_object,
+                                 bind_frame)
 
         # shaders
         mdi_shader_data = mdi_surface.color.shader_data
@@ -686,7 +684,7 @@ class Collection:
         pass
 
     @staticmethod
-    def write(mdi_model):
+    def write(mdi_model, bind_frame):
         """TODO
 
         Args:
@@ -706,7 +704,7 @@ class Collection:
         for mdi_surface in mdi_model.surfaces.surface_list:
 
             Mesh.write(collection, mdi_surface, mdi_model.skeletons,
-                       armature_objects)
+                       armature_objects, bind_frame)
 
         for mdi_socket in mdi_model.sockets.socket_list:
 
@@ -720,6 +718,6 @@ def read():
 
     return mdi_model
 
-def write(mdi_model):
+def write(mdi_model, bind_frame):
 
-    Collection.write(mdi_model)
+    Collection.write(mdi_model, bind_frame)

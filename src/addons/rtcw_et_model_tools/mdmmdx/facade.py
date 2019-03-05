@@ -26,13 +26,14 @@ import rtcw_et_model_tools.mdmmdx._mdx as mdx
 import rtcw_et_model_tools.mdmmdx._mdmmdx_mdi as mdmmdx_mdi
 
 
-def read(file_path_mdx, file_path_mdm, encoding="binary"):
+def read(file_path_mdx, file_path_mdm, bind_frame, encoding="binary"):
     """Reads MDM/MDX data from file, then converts it to MDI.
 
     Args:
 
         file_path_mdm (str): path to MDM file.
         file_path_mdx (str): path to MDX file.
+        bind_frame (int): bind frame used for skinning.
         encoding (str): encoding to use for MDM/MDX.
 
     Notes:
@@ -46,7 +47,6 @@ def read(file_path_mdx, file_path_mdm, encoding="binary"):
 
     if encoding == "binary":
         mdx_model = mdx.MDX.read(file_path_mdx)
-        mdm_model = None
         if file_path_mdm is not None:
             mdm_model = mdm.MDM.read(file_path_mdm)
     elif encoding == "xml":
@@ -56,30 +56,30 @@ def read(file_path_mdx, file_path_mdm, encoding="binary"):
     else:
         print("encoding option '{}' not supported".format(encoding))
 
-    mdi_model = mdmmdx_mdi.ModelToMDI.convert(mdx_model, mdm_model)
+    mdi_model = mdmmdx_mdi.ModelToMDI.convert(mdx_model, mdm_model, bind_frame)
 
     return mdi_model
 
 
-def write(mdi, file_path_mdx, file_path_mdm, encoding="binary"):
-    """Converts MDI data to MDM/MDX, then writes it back to file.
+# def write(mdi, file_path_mdx, file_path_mdm, encoding="binary"):
+#     """Converts MDI data to MDM/MDX, then writes it back to file.
 
-    Args:
-        mdi (MDI): model definition interchange format.
-        file_path_mdm (str): path to which MDM data is written to.
-        file_path_mdx (str): path to which MDX data is written to.
-        encoding (str): encoding to use for MDS.
-    """
+#     Args:
+#         mdi (MDI): model definition interchange format.
+#         file_path_mdm (str): path to which MDM data is written to.
+#         file_path_mdx (str): path to which MDX data is written to.
+#         encoding (str): encoding to use for MDS.
+#     """
 
-    mdx_model, mdm_model = mdmmdx_mdi.ModelToMDI.convert(mdi)
+#     mdx_model, mdm_model = mdmmdx_mdi.ModelToMDI.convert(mdi)
 
-    if encoding == "binary":
-        mdx_model.write(file_path_mdx)
-        mdm_model.write(file_path_mdm)
-        pass
-    elif encoding == "xml":
-        pass  # TODO
-    elif encoding == "json":
-        pass  # TODO
-    else:
-        print("encoding option '{}' not supported".format(encoding))
+#     if encoding == "binary":
+#         mdx_model.write(file_path_mdx)
+#         mdm_model.write(file_path_mdm)
+#         pass
+#     elif encoding == "xml":
+#         pass  # TODO
+#     elif encoding == "json":
+#         pass  # TODO
+#     else:
+#         print("encoding option '{}' not supported".format(encoding))

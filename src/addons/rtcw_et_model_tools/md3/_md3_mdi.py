@@ -45,6 +45,9 @@ class ModelToMDI:
 
         mdi_sockets = mdi.MDISockets()
 
+        if len(md3_tags) < 1:
+            return mdi_sockets
+
         md3_frame_tags = md3_tags[0]
 
         for num_tag in range(0, len(md3_frame_tags)):
@@ -111,34 +114,42 @@ class ModelToMDI:
         return mdi_sockets
 
     @staticmethod
-    def _calc_surface(md3_surface, md3_frame_infos):
+    def _calc_surface(md3_surface, md3_frame_infos, bind_frame):
 
         def calc_vertex_ln(md3_frame_vertex):
 
             location_x = \
-                md3_frame_vertex.location[0] * md3.MD3FrameVertex.location_scale
+                md3_frame_vertex.location[0] * \
+                md3.MD3FrameVertex.location_scale
             location_y = \
-                md3_frame_vertex.location[1] * md3.MD3FrameVertex.location_scale
+                md3_frame_vertex.location[1] * \
+                md3.MD3FrameVertex.location_scale
             location_z = \
-                md3_frame_vertex.location[2] * md3.MD3FrameVertex.location_scale
+                md3_frame_vertex.location[2] * \
+                md3.MD3FrameVertex.location_scale
 
             location = mathutils.Vector((location_x, location_y, location_z))
 
-            yaw = md3_frame_vertex.normal[1]
-            pitch = md3_frame_vertex.normal[0]
+            yaw = md3_frame_vertex.normal[1] * \
+                md3.MD3FrameVertex.normal_scale
+            pitch = md3_frame_vertex.normal[0] * \
+                md3.MD3FrameVertex.normal_scale
 
             normal = mdi_util.angles_to_vector(yaw, pitch)
 
             return (location, normal)
 
+        # TODO input check bind_frame
+
         mdi_surface = mdi.MDISurface()
 
-        mdi_surface.name = mdi_util.c_string_to_utf_8_string(md3_surface.header.name)
+        mdi_surface.name = \
+            mdi_util.c_string_to_utf_8_string(md3_surface.header.name)
 
         # vertex_list
-        for num_vertex in range(0, len(md3_surface.vertices[0])):
+        for num_vertex in range(0, len(md3_surface.vertices[bind_frame])):
 
-            md3_frame_vertex = md3_surface.vertices[0][num_vertex]
+            md3_frame_vertex = md3_surface.vertices[bind_frame][num_vertex]
 
             location, normal = calc_vertex_ln(md3_frame_vertex)
 
@@ -154,7 +165,7 @@ class ModelToMDI:
             mdi_morph_vertices_in_frame = mdi.MDIMorphVerticesInFrame()
             animation.frame_list.append(mdi_morph_vertices_in_frame)
 
-            for num_vertex in range(0, len(md3_surface.vertices[0])):
+            for num_vertex in range(0, len(md3_surface.vertices[bind_frame])):
 
                 md3_frame_vertex = md3_surface.vertices[num_frame][num_vertex]
                 location, normal = calc_vertex_ln(md3_frame_vertex)
@@ -166,7 +177,11 @@ class ModelToMDI:
         # triangles
         for md3_triangle in md3_surface.triangles:
 
-            mdi_triangle = mdi.MDITriangle(md3_triangle.indices)
+            index_1 = md3_triangle.indices[2]
+            index_2 = md3_triangle.indices[1]
+            index_3 = md3_triangle.indices[0]
+
+            mdi_triangle = mdi.MDITriangle((index_1, index_2, index_3))
             mdi_surface.geometry.triangles.triangle_list.append(mdi_triangle)
 
         # bounds
@@ -185,7 +200,7 @@ class ModelToMDI:
                                                        local_origin, radius)
             mdi_bounds.animation.frames.append(mdi_bounds_in_frame)
 
-            if num_frame == 0:
+            if num_frame == bind_frame:
 
                 mdi_bounds.min_bound = min_bound
                 mdi_bounds.max_bound = max_bound
@@ -218,7 +233,7 @@ class ModelToMDI:
         return mdi_surface
 
     @staticmethod
-    def convert(md3_model):
+    def convert(md3_model, bind_frame):
 
         mdi_model = mdi.MDI()
 
@@ -229,7 +244,8 @@ class ModelToMDI:
         for md3_surface in md3_model.surfaces:
 
             mdi_surface = ModelToMDI._calc_surface(md3_surface,
-                                                   md3_model.frame_infos)
+                                                   md3_model.frame_infos,
+                                                   bind_frame)
             mdi_model.surfaces.surface_list.append(mdi_surface)
 
         # sockets

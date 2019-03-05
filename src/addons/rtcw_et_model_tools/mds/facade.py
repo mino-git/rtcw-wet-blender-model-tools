@@ -25,13 +25,14 @@ import rtcw_et_model_tools.mds._mds as mds
 import rtcw_et_model_tools.mds._mds_mdi as mds_mdi
 
 
-def read(file_path, encoding="binary"):
+def read(file_path, bind_frame, encoding="binary"):
 
     """Reads MDS data from file, then converts it to MDI.
 
     Args:
 
         file_path (str): path to MDS file.
+        bind_frame (int): bind frame used for skinning.
         encoding (str): encoding to use for MDS.
 
     Returns:
@@ -48,28 +49,28 @@ def read(file_path, encoding="binary"):
     else:
         print("encoding option '{}' not supported".format(encoding))
 
-    mdi_model = mds_mdi.ModelToMDI.convert(mds_model)
+    mdi_model = mds_mdi.ModelToMDI.convert(mds_model, bind_frame)
 
     return mdi_model
 
 
-def write(mdi_model, file_path, encoding="binary"):
+# def write(mdi_model, file_path, encoding="binary"):
 
-    """Converts MDI data to MDS, then writes it back to file.
+#     """Converts MDI data to MDS, then writes it back to file.
 
-    Args:
-        mdi (MDI): model definition interchange format.
-        file_path (str): path to which MDS data is written to.
-        encoding (str): encoding to use for MDS.
-    """
+#     Args:
+#         mdi (MDI): model definition interchange format.
+#         file_path (str): path to which MDS data is written to.
+#         encoding (str): encoding to use for MDS.
+#     """
 
-    mds_model = mds_mdi.MDIToModel.convert(mdi_model)
+#     mds_model = mds_mdi.MDIToModel.convert(mdi_model)
 
-    if encoding == "binary":
-        mds_model.write(file_path)
-    elif encoding == "xml":
-        pass  # TODO
-    elif encoding == "json":
-        pass  # TODO
-    else:
-        print("encoding option '{}' not supported".format(encoding))
+#     if encoding == "binary":
+#         mds_model.write(file_path)
+#     elif encoding == "xml":
+#         pass  # TODO
+#     elif encoding == "json":
+#         pass  # TODO
+#     else:
+#         print("encoding option '{}' not supported".format(encoding))

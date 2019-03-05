@@ -25,13 +25,14 @@ import rtcw_et_model_tools.md3._md3 as md3
 import rtcw_et_model_tools.md3._md3_mdi as md3_mdi
 
 
-def read(file_path, encoding="binary"):
+def read(file_path, bind_frame, encoding="binary"):
 
     """Reads MD3 data from file, then converts it to MDI.
 
     Args:
 
         file_path (str): path to MD3 file.
+        bind_frame (int): bind frame used for morphing.
         encoding (str): encoding to use for MD3.
 
     Returns:
@@ -48,28 +49,28 @@ def read(file_path, encoding="binary"):
     else:
         print("encoding option '{}' not supported".format(encoding))
 
-    mdi_model = md3_mdi.ModelToMDI.convert(md3_model)
+    mdi_model = md3_mdi.ModelToMDI.convert(md3_model, bind_frame)
 
     return mdi_model
 
 
-def write(mdi, file_path, encoding="binary"):
+# def write(mdi, file_path, encoding="binary"):
 
-    """Converts MDI data to MD3, then writes it back to file.
+#     """Converts MDI data to MD3, then writes it back to file.
 
-    Args:
-        mdi (MDI): model definition interchange format.
-        file_path (str): path to which MD3 data is written to.
-        encoding (str): encoding to use for MD3.
-    """
+#     Args:
+#         mdi (MDI): model definition interchange format.
+#         file_path (str): path to which MD3 data is written to.
+#         encoding (str): encoding to use for MD3.
+#     """
 
-    md3_model = md3_mdi.convert_from_mdi(mdi_model)
+#     md3_model = md3_mdi.convert_from_mdi(mdi_model)
 
-    if encoding == "binary":
-        md3_model.write(file_path)
-    elif encoding == "xml":
-        pass  # TODO
-    elif encoding == "json":
-        pass  # TODO
-    else:
-        print("encoding option '{}' not supported".format(encoding))
+#     if encoding == "binary":
+#         md3_model.write(file_path)
+#     elif encoding == "xml":
+#         pass  # TODO
+#     elif encoding == "json":
+#         pass  # TODO
+#     else:
+#         print("encoding option '{}' not supported".format(encoding))

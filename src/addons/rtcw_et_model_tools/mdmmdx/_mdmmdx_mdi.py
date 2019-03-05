@@ -82,7 +82,7 @@ class ModelToMDI:
 
     @staticmethod
     def _calc_surface(mdm_surface, mdx_frames, mdi_skeleton,
-                      bind_pose_frame = 0):
+                      bind_frame = 0):
 
         def calc_vertex_weighted(mdm_vertex, mdi_skeleton):
 
@@ -144,7 +144,11 @@ class ModelToMDI:
         # triangles
         for mdm_triangle in mdm_surface.triangles:
 
-            mdi_triangle = mdi.MDITriangle(mdm_triangle.indices)
+            index_1 = mdm_triangle.indices[2]
+            index_2 = mdm_triangle.indices[1]
+            index_3 = mdm_triangle.indices[0]
+
+            mdi_triangle = mdi.MDITriangle((index_1, index_2, index_3))
             mdi_surface.geometry.triangles.triangle_list.append(mdi_triangle)
 
         # bounds
@@ -165,7 +169,7 @@ class ModelToMDI:
                                                        local_origin, radius)
             mdi_bounds.animation.frames.append(mdi_bounds_in_frame)
 
-            if num_frame == bind_pose_frame:
+            if num_frame == bind_frame:
 
                 mdi_bounds.min_bound = min_bound
                 mdi_bounds.max_bound = max_bound
@@ -194,7 +198,7 @@ class ModelToMDI:
         return mdi_surface
 
     @staticmethod
-    def _calc_skeleton(mdx_model, bind_pose_frame = 0):
+    def _calc_skeleton(mdx_model, bind_frame = 0):
 
         def calc_bone_location(mdx_model, mdi_skeleton, num_bone, num_frame):
 
@@ -286,9 +290,9 @@ class ModelToMDI:
             torso_weight = mdx_bone.torso_weight
             flags = mdx_bone.flags
             location = calc_bone_location(mdx_model, mdi_skeleton, num_bone,
-                                          bind_pose_frame)
+                                          bind_frame)
             orientation = calc_bone_orientation(mdx_model, mdi_skeleton,
-                                                num_bone, bind_pose_frame)
+                                                num_bone, bind_frame)
 
             mdi_bone = mdi.MDIBone(name, parent_bone, parent_dist,
                                    torso_weight, flags, location, orientation)
@@ -309,7 +313,7 @@ class ModelToMDI:
         return mdi_skeleton
 
     @staticmethod
-    def convert(mdx_model, mdm_model = None, bind_pose_frame = 0):
+    def convert(mdx_model, mdm_model = None, bind_frame = 0):
 
         mdi_model = mdi.MDI()
 
@@ -320,7 +324,7 @@ class ModelToMDI:
             mdi_model.lod_bias = mdm_model.header.lod_bias
 
         # skeleton
-        mdi_skeleton = ModelToMDI._calc_skeleton(mdx_model, bind_pose_frame)
+        mdi_skeleton = ModelToMDI._calc_skeleton(mdx_model, bind_frame)
         mdi_model.skeletons.skeleton_list.append(mdi_skeleton)
 
         if mdm_model:
@@ -331,7 +335,7 @@ class ModelToMDI:
                 mdi_surface = ModelToMDI._calc_surface(mdm_surface,
                                                        mdx_model.frames,
                                                        mdi_skeleton,
-                                                       bind_pose_frame)
+                                                       bind_frame)
                 mdi_model.surfaces.surface_list.append(mdi_surface)
 
             # sockets
