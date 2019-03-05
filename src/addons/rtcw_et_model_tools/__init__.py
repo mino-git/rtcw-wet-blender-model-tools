@@ -39,6 +39,18 @@ import logging
 import bpy
 
 
+def clear_scene():
+
+    for object in bpy.data.objects:
+        bpy.data.objects.remove(object)
+
+    for armature in bpy.data.armatures:
+        bpy.data.armatures.remove(armature)
+
+    for collection in bpy.data.collections:
+        bpy.data.collections.remove(collection)
+
+
 # Panels
 # ==============================
 
@@ -170,6 +182,8 @@ class MD3Importer(bpy.types.Operator):
 
     def execute(self, context):
 
+        clear_scene()
+
         import rtcw_et_model_tools.md3.facade as md3_facade
         import rtcw_et_model_tools.blender.scene as blender_scene
 
@@ -197,6 +211,8 @@ class MDCImporter(bpy.types.Operator):
     bl_description = "Import MDC file format into blender"
 
     def execute(self, context):
+
+        clear_scene()
 
         import rtcw_et_model_tools.mdc.facade as mdc_facade
         import rtcw_et_model_tools.blender.scene as blender_scene
@@ -226,6 +242,8 @@ class MDSImporter(bpy.types.Operator):
 
     def execute(self, context):
 
+        clear_scene()
+
         import rtcw_et_model_tools.mds.facade as mds_facade
         import rtcw_et_model_tools.blender.scene as blender_scene
 
@@ -253,6 +271,8 @@ class MDMMDXImporter(bpy.types.Operator):
     bl_description = "Import MDM/MDX file format into blender"
 
     def execute(self, context):
+
+        clear_scene()
 
         import rtcw_et_model_tools.mdmmdx.facade as mdmmdx_facade
         import rtcw_et_model_tools.blender.scene as blender_scene
@@ -293,12 +313,12 @@ class TestReadWrite(bpy.types.Operator):
 
     def execute(self, context):
 
-        import rtcw_et_model_tools.tests.unittests.runner
+        import rtcw_et_model_tools.tests.test_manager
 
         test_directory = context.scene.remt_test_directory
-        settings = rtcw_et_model_tools.tests.unittests.runner. \
+        settings = rtcw_et_model_tools.tests.test_manager. \
             TestParameters(test_directory)
-        rtcw_et_model_tools.tests.unittests.runner. \
+        rtcw_et_model_tools.tests.test_manager. \
             TestManager.run_test("test_binary_read_write", settings)
 
         return {'FINISHED'}
