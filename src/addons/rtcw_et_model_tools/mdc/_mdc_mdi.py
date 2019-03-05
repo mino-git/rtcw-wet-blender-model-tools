@@ -188,11 +188,11 @@ class ModelToMDI:
 
             return location
 
-        def calc_vertex_ln_comp(mdc_frame_infos, mdc_base_frame_vertex,
+        def calc_vertex_ln_comp(mdc_frame_info, mdc_base_frame_vertex,
                                 mdc_comp_frame_vertex, compressed_normals):
 
             # location
-            local_origin = mdc_frame_infos.local_origin
+            local_origin = mathutils.Vector(mdc_frame_info.local_origin)
 
             location_base = calc_vertex_location_base(mdc_base_frame_vertex)
 
@@ -256,8 +256,9 @@ class ModelToMDI:
                     mdc_surface.base_vertices[base_frame_index][num_vertex]
                 mdc_comp_frame_vertex = \
                     mdc_surface.comp_vertices[comp_frame_index][num_vertex]
+                mdc_frame_info = mdc_frame_infos[bind_frame]
 
-                location, normal = calc_vertex_ln_comp(mdc_frame_infos,
+                location, normal = calc_vertex_ln_comp(mdc_frame_info,
                                                        mdc_base_frame_vertex,
                                                        mdc_comp_frame_vertex,
                                                        compressed_normals)
@@ -281,7 +282,9 @@ class ModelToMDI:
         animation = mdi.MDIMorphVertices()
         mdi_surface.geometry.vertices.animation = animation
 
-        for num_frame in range(0, len(mdc_surface.base_vertices)):
+        num_frames = mdc_surface.header.num_base_frames + \
+            mdc_surface.header.num_comp_frames
+        for num_frame in range(0, num_frames):
 
             mdi_morph_vertices_in_frame = mdi.MDIMorphVerticesInFrame()
             animation.frame_list.append(mdi_morph_vertices_in_frame)
@@ -293,34 +296,39 @@ class ModelToMDI:
             if comp_frame_index >= 0:
                 frame_is_compressed = True
 
-        if frame_is_compressed:
+            if frame_is_compressed:
 
-            for num_vertex in range(0, num_vertices):
+                for num_vertex in range(0, num_vertices):
 
-                mdc_base_frame_vertex = \
-                    mdc_surface.base_vertices[base_frame_index][num_vertex]
-                mdc_comp_frame_vertex = \
-                    mdc_surface.comp_vertices[comp_frame_index][num_vertex]
+                    mdc_base_frame_vertex = \
+                        mdc_surface.base_vertices[base_frame_index][num_vertex]
+                    mdc_comp_frame_vertex = \
+                        mdc_surface.comp_vertices[comp_frame_index][num_vertex]
+                    mdc_frame_info = mdc_frame_infos[num_frame]
 
-                location, normal = calc_vertex_ln_comp(mdc_frame_infos,
-                                                       mdc_base_frame_vertex,
-                                                       mdc_comp_frame_vertex,
-                                                       compressed_normals)
+                    location, normal = calc_vertex_ln_comp(mdc_frame_info,
+                                                        mdc_base_frame_vertex,
+                                                        mdc_comp_frame_vertex,
+                                                        compressed_normals)
 
-                mdi_vertex = mdi.MDIVertex(location, normal)
-                mdi_surface.geometry.vertices.vertex_list.append(mdi_vertex)
+                    morph_vertex_in_frame = \
+                        mdi.MDIMorphVertexInFrame(location, normal)
+                    mdi_morph_vertices_in_frame.vertex_list. \
+                        append(morph_vertex_in_frame)
 
-        else:
+            else:
 
-            for num_vertex in range(0, num_vertices):
+                for num_vertex in range(0, num_vertices):
 
-                mdc_base_frame_vertex = \
-                    mdc_surface.base_vertices[base_frame_index][num_vertex]
+                    mdc_base_frame_vertex = \
+                        mdc_surface.base_vertices[base_frame_index][num_vertex]
 
-                location, normal = calc_vertex_ln_base(mdc_base_frame_vertex)
+                    location, normal = calc_vertex_ln_base(mdc_base_frame_vertex)
 
-                mdi_vertex = mdi.MDIVertex(location, normal)
-                mdi_surface.geometry.vertices.vertex_list.append(mdi_vertex)
+                    morph_vertex_in_frame = \
+                        mdi.MDIMorphVertexInFrame(location, normal)
+                    mdi_morph_vertices_in_frame.vertex_list. \
+                        append(morph_vertex_in_frame)
 
         # triangles
         for mdc_triangle in mdc_surface.triangles:
