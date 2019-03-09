@@ -41,75 +41,54 @@ class MDIToModel:
 class ModelToMDI:
 
     @staticmethod
-    def _calc_sockets(md3_tags):
+    def _calc_sockets(md3_tags, bind_frame):
 
         mdi_sockets = mdi.MDISockets()
 
         if len(md3_tags) < 1:
             return mdi_sockets
 
-        md3_frame_tags = md3_tags[0]
-
-        for num_tag in range(0, len(md3_frame_tags)):
-
-            md3_frame_tag = md3_frame_tags[num_tag]
+        md3_frame_tags = md3_tags[bind_frame]
+        for md3_frame_tag in md3_frame_tags:
 
             name = mdi_util.c_string_to_utf_8_string(md3_frame_tag.name)
 
-            location = mathutils.Vector(md3_frame_tag.location)
+            mdi_socket_free = mdi.MDISocketFree(name)
+            mdi_sockets.socket_list.append(mdi_socket_free)
 
-            forward_x = md3_frame_tag.orientation[0]
-            forward_y = md3_frame_tag.orientation[1]
-            forward_z = md3_frame_tag.orientation[2]
+        for num_frame, md3_frame_tags in enumerate(md3_tags):
 
-            left_x = md3_frame_tag.orientation[3]
-            left_y = md3_frame_tag.orientation[4]
-            left_z = md3_frame_tag.orientation[5]
+            for num_socket, md3_frame_tag in enumerate(md3_frame_tags):
 
-            up_x = md3_frame_tag.orientation[6]
-            up_y = md3_frame_tag.orientation[7]
-            up_z = md3_frame_tag.orientation[8]
+                location = mathutils.Vector(md3_frame_tag.location)
 
-            matrix = mathutils.Matrix().Identity(3)
-            matrix[0][0:3] = forward_x, left_x, up_x # first row
-            matrix[1][0:3] = forward_y, left_y, up_y # second row
-            matrix[2][0:3] = forward_z, left_z, up_z # third row
-            orientation = matrix.transposed()
+                forward_x = md3_frame_tag.orientation[0]
+                forward_y = md3_frame_tag.orientation[1]
+                forward_z = md3_frame_tag.orientation[2]
 
-            mdi_socket_free = mdi.MDISocketFree(name, location,
-                                                orientation)
+                left_x = md3_frame_tag.orientation[3]
+                left_y = md3_frame_tag.orientation[4]
+                left_z = md3_frame_tag.orientation[5]
 
-            # animation
-            for num_frame in range(0, len(md3_tags)):
+                up_x = md3_frame_tag.orientation[6]
+                up_y = md3_frame_tag.orientation[7]
+                up_z = md3_frame_tag.orientation[8]
 
-                md3_frame_tag_tmp = md3_tags[num_frame][num_tag]
+                orientation = mathutils.Matrix().Identity(3)
+                orientation[0][0:3] = forward_x, left_x, up_x # first row
+                orientation[1][0:3] = forward_y, left_y, up_y # second row
+                orientation[2][0:3] = forward_z, left_z, up_z # third row
 
-                location = mathutils.Vector(md3_frame_tag_tmp.location)
-
-                forward_x = md3_frame_tag_tmp.orientation[0]
-                forward_y = md3_frame_tag_tmp.orientation[1]
-                forward_z = md3_frame_tag_tmp.orientation[2]
-
-                left_x = md3_frame_tag_tmp.orientation[3]
-                left_y = md3_frame_tag_tmp.orientation[4]
-                left_z = md3_frame_tag_tmp.orientation[5]
-
-                up_x = md3_frame_tag_tmp.orientation[6]
-                up_y = md3_frame_tag_tmp.orientation[7]
-                up_z = md3_frame_tag_tmp.orientation[8]
-
-                matrix = mathutils.Matrix().Identity(3)
-                matrix[0][0:3] = forward_x, left_x, up_x # first row
-                matrix[1][0:3] = forward_y, left_y, up_y # second row
-                matrix[2][0:3] = forward_z, left_z, up_z # third row
-                orientation = matrix.transposed()
+                mdi_socket = mdi_sockets.socket_list[num_socket]
 
                 mdi_socket_free_in_frame = \
                     mdi.MDISocketFreeInFrame(location, orientation)
-                mdi_socket_free.animation.frames. \
-                    append(mdi_socket_free_in_frame)
+                mdi_socket.animation.frames.append(mdi_socket_free_in_frame)
 
-            mdi_sockets.socket_list.append(mdi_socket_free)
+                if num_frame == bind_frame:
+
+                    mdi_socket.location = location
+                    mdi_socket.orientation = orientation
 
         return mdi_sockets
 
@@ -139,8 +118,6 @@ class ModelToMDI:
 
             return (location, normal)
 
-        # TODO input check bind_frame
-
         mdi_surface = mdi.MDISurface()
 
         mdi_surface.name = \
@@ -168,7 +145,9 @@ class ModelToMDI:
             for num_vertex in range(0, len(md3_surface.vertices[bind_frame])):
 
                 md3_frame_vertex = md3_surface.vertices[num_frame][num_vertex]
+
                 location, normal = calc_vertex_ln(md3_frame_vertex)
+
                 morph_vertex_in_frame = \
                     mdi.MDIMorphVertexInFrame(location, normal)
                 mdi_morph_vertices_in_frame.vertex_list. \
@@ -249,6 +228,7 @@ class ModelToMDI:
             mdi_model.surfaces.surface_list.append(mdi_surface)
 
         # sockets
-        mdi_model.sockets = ModelToMDI._calc_sockets(md3_model.tags)
+        mdi_model.sockets = ModelToMDI._calc_sockets(md3_model.tags,
+                                                     bind_frame)
 
         return mdi_model

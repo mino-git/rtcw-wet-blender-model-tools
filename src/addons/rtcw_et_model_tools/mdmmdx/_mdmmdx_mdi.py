@@ -64,14 +64,16 @@ class ModelToMDI:
             orientation_offset[1][0:3] = forward_y, left_y, up_y # second row
             orientation_offset[2][0:3] = forward_z, left_z, up_z # third row
 
-            orientation = orientation_offset.transposed() @ mdi_bone.orientation
+            orientation = mdi_bone.orientation @ orientation_offset
 
             return orientation
 
         name = mdi_util.c_string_to_utf_8_string(mdm_tag.name)
         parent_skeleton = 0
         parent_bone = mdm_tag.parent_bone
-        location = mathutils.Vector(mdm_tag.location)
+
+        location = mdi_bone.location + \
+            (mdi_bone.orientation @ mathutils.Vector(mdm_tag.location))
         orientation = calc_orientation(mdm_tag, mdi_bone)
 
         mdi_socket = mdi.MDISocketParentBoneOffset(name, parent_skeleton,

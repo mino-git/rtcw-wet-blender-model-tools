@@ -69,7 +69,7 @@ class Arrows:
             collection.objects.link(empty_object)
             empty_object.name = mdi_socket.name
             empty_object.empty_display_type = 'ARROWS'
-            empty_object.rotation_mode = 'XYZ'
+            empty_object.rotation_mode = 'QUATERNION'
 
             matrix = mathutils.Matrix.Identity(4)
             matrix.translation = mdi_socket.location
@@ -82,14 +82,14 @@ class Arrows:
 
                     matrix = mathutils.Matrix.Identity(4)
                     matrix.translation = mdi_socket_free_in_frame.location
-                    matrix = \
-                        mdi_socket_free_in_frame.orientation.transposed().to_4x4()
+                    matrix = matrix @ \
+                        mdi_socket_free_in_frame.orientation.to_4x4()
                     empty_object.matrix_world = matrix
 
                     empty_object.keyframe_insert('location', \
                                               frame=num_frame, \
                                               group='LocRot')
-                    empty_object.keyframe_insert('rotation_euler', \
+                    empty_object.keyframe_insert('rotation_quaternion', \
                                               frame=num_frame, \
                                               group='LocRot')
 
@@ -123,16 +123,13 @@ class Arrows:
             empty_object.constraints["Child Of"].use_scale_y = True
             empty_object.constraints["Child Of"].use_scale_z = True
 
-            matrix = mathutils.Matrix.Identity(4)
-            empty_object.matrix_world = matrix
-
         elif isinstance(mdi_socket, mdi.MDISocketParentBoneOffset):
 
             armature_object = \
                 armature_objects[mdi_socket.parent_skeleton]
             mdi_bones = \
                 mdi_skeletons.skeleton_list[mdi_socket.parent_skeleton].bones
-            parent_bone_name = mdi_bones.bone_list[mdi_socket.parent_bone].name
+            parent_bone = mdi_bones.bone_list[mdi_socket.parent_bone]
 
             empty_object = bpy.data.objects.new("empty", None)
             collection.objects.link(empty_object)
@@ -142,7 +139,7 @@ class Arrows:
 
             empty_object.constraints.new(type="CHILD_OF")
             empty_object.constraints["Child Of"].target = armature_object
-            empty_object.constraints["Child Of"].subtarget = parent_bone_name
+            empty_object.constraints["Child Of"].subtarget = parent_bone.name
 
             empty_object.constraints["Child Of"].use_location_x = True
             empty_object.constraints["Child Of"].use_location_y = True
@@ -157,9 +154,12 @@ class Arrows:
             empty_object.constraints["Child Of"].use_scale_z = True
 
             matrix = mathutils.Matrix.Identity(4)
-            matrix.translation = mdi_socket.location
-            matrix = matrix @ mdi_socket.orientation.to_4x4()
-            empty_object.matrix_world = matrix
+
+            matrix.translation = parent_bone.orientation.transposed() @ (mdi_socket.location - parent_bone.location)
+
+            orientation = parent_bone.orientation.transposed() @ mdi_socket.orientation
+
+            empty_object.matrix_world = matrix @ orientation.to_4x4()
 
         return empty_object
 

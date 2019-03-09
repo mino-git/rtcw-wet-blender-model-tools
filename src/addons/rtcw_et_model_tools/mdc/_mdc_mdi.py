@@ -43,7 +43,7 @@ class MDIToModel:
 class ModelToMDI:
 
     @staticmethod
-    def _calc_sockets(mdc_tag_infos, mdc_tags):
+    def _calc_sockets(mdc_tag_infos, mdc_tags, bind_frame):
 
         mdi_sockets = mdi.MDISockets()
 
@@ -57,11 +57,9 @@ class ModelToMDI:
             mdi_socket_free = mdi.MDISocketFree(name)
             mdi_sockets.socket_list.append(mdi_socket_free)
 
-        for mdc_frame_tags in mdc_tags:
+        for num_frame, mdc_frame_tags in enumerate(mdc_tags):
 
             for num_socket, mdc_frame_tag in enumerate(mdc_frame_tags):
-
-                mdi_socket = mdi_sockets.socket_list[num_socket]
 
                 location_x = \
                     mdc_frame_tag.location[0] * mdc.MDCFrameTag.location_scale
@@ -69,9 +67,8 @@ class ModelToMDI:
                     mdc_frame_tag.location[1] * mdc.MDCFrameTag.location_scale
                 location_z = \
                     mdc_frame_tag.location[2] * mdc.MDCFrameTag.location_scale
-                mdi_socket.location = mathutils.Vector((location_x,
-                                                        location_y,
-                                                        location_z))
+                location = \
+                    mathutils.Vector((location_x, location_y, location_z))
 
                 yaw = mdc_frame_tag.orientation[1]
                 pitch = mdc_frame_tag.orientation[0]
@@ -81,8 +78,18 @@ class ModelToMDI:
                 pitch = pitch * mdc.MDCFrameTag.orientation_scale
                 roll = roll * mdc.MDCFrameTag.orientation_scale
 
-                mdi_socket.orientation = \
-                    mdi_util.euler_to_matrix(yaw, pitch, roll)
+                orientation = mdi_util.euler_to_matrix(yaw, pitch, roll)
+
+                mdi_socket = mdi_sockets.socket_list[num_socket]
+
+                mdi_socket_free_in_frame = \
+                    mdi.MDISocketFreeInFrame(location, orientation)
+                mdi_socket.animation.frames.append(mdi_socket_free_in_frame)
+
+                if num_frame == bind_frame:
+
+                    mdi_socket.location = location
+                    mdi_socket.orientation = orientation
 
         return mdi_sockets
 
@@ -406,6 +413,7 @@ class ModelToMDI:
 
         # sockets
         mdi_model.sockets = ModelToMDI._calc_sockets(mdc_model.tag_infos,
-                                                     mdc_model.tags)
+                                                     mdc_model.tags,
+                                                     bind_frame)
 
         return mdi_model

@@ -251,6 +251,9 @@ class ModelToMDI:
             # -
             orientation = mdi_util.euler_to_matrix(yaw, pitch, roll)
 
+            if mds_model.bone_infos[num_bone].flags == 1:
+                orientation = orientation.transposed()
+
             return orientation
 
         mdi_skeleton = mdi.MDISkeleton()
