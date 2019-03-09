@@ -140,6 +140,33 @@ class ImportPanel(bpy.types.Panel):
             pass
 
 
+class ToolsPanel(bpy.types.Panel):
+    """Panel for test operations.
+    """
+
+    bl_label = "Tools"
+    bl_space_type = 'VIEW_3D'
+    bl_region_type = 'UI'
+    bl_context = "objectmode"
+    bl_category = "RtCW/ET"
+
+    def draw(self, context):
+
+        layout = self.layout
+
+        row = layout.row()
+        box = row.box()
+
+        box.label(text="Attach To Tag:", icon="OUTLINER_OB_EMPTY")
+
+        box.prop(context.scene, "remt_attach_to_tag_options")
+
+        row = box.row()
+        row.operator("remt.attach_to_tag",
+                     text="Attach",
+                     icon="EMPTY_DATA")
+
+
 class TestsPanel(bpy.types.Panel):
     """Panel for test operations.
     """
@@ -182,7 +209,7 @@ class MD3Importer(bpy.types.Operator):
 
     def execute(self, context):
 
-        clear_scene()
+        # clear_scene()
 
         import rtcw_et_model_tools.md3.facade as md3_facade
         import rtcw_et_model_tools.blender.scene as blender_scene
@@ -194,6 +221,8 @@ class MD3Importer(bpy.types.Operator):
             self.report({'ERROR_INVALID_INPUT'},
                         '"MD3 Filepath" must end with ".md3".')
             return {'CANCELLED'}
+
+        md3_file_path = bpy.path.abspath(md3_file_path)
 
         mdi_model = md3_facade.read(md3_file_path, bind_frame,
                                     encoding = "binary")
@@ -212,7 +241,7 @@ class MDCImporter(bpy.types.Operator):
 
     def execute(self, context):
 
-        clear_scene()
+        # clear_scene()
 
         import rtcw_et_model_tools.mdc.facade as mdc_facade
         import rtcw_et_model_tools.blender.scene as blender_scene
@@ -224,6 +253,8 @@ class MDCImporter(bpy.types.Operator):
             self.report({'ERROR_INVALID_INPUT'},
                         '"MDC Filepath" must end with ".mdc".')
             return {'CANCELLED'}
+
+        mdc_file_path = bpy.path.abspath(mdc_file_path)
 
         mdi_model = mdc_facade.read(mdc_file_path, bind_frame,
                                     encoding="binary")
@@ -242,7 +273,7 @@ class MDSImporter(bpy.types.Operator):
 
     def execute(self, context):
 
-        clear_scene()
+        # clear_scene()
 
         import rtcw_et_model_tools.mds.facade as mds_facade
         import rtcw_et_model_tools.blender.scene as blender_scene
@@ -254,6 +285,8 @@ class MDSImporter(bpy.types.Operator):
             self.report({'ERROR_INVALID_INPUT'},
                         '"MDS Filepath" must end with ".mds".')
             return {'CANCELLED'}
+
+        mds_file_path = bpy.path.abspath(mds_file_path)
 
         mdi_model = mds_facade.read(mds_file_path, bind_frame,
                                     encoding="binary")
@@ -272,7 +305,7 @@ class MDMMDXImporter(bpy.types.Operator):
 
     def execute(self, context):
 
-        clear_scene()
+        # clear_scene()
 
         import rtcw_et_model_tools.mdmmdx.facade as mdmmdx_facade
         import rtcw_et_model_tools.blender.scene as blender_scene
@@ -291,12 +324,41 @@ class MDMMDXImporter(bpy.types.Operator):
                         '"MDX Filepath" must end with ".mdx".')
             return {'CANCELLED'}
 
+        mdm_file_path = bpy.path.abspath(mdm_file_path)
+        mdx_file_path = bpy.path.abspath(mdx_file_path)
+
         if not mdm_file_path:
             mdm_file_path = None
 
         mdi_model = mdmmdx_facade.read(mdx_file_path, mdm_file_path,
                                        bind_frame, encoding="binary")
         blender_scene.write(mdi_model, bind_frame)
+
+        return {'FINISHED'}
+
+
+class AttachToTag(bpy.types.Operator):
+    """Attach objects to a tag.
+    """
+
+    bl_idname = "remt.attach_to_tag"
+    bl_label = "Attach"
+    bl_description = "Attach a selection of objects to a tag. It works like" \
+        " parenting with CTRL + P. First select the objects, then the target" \
+        " empty, then press this button. Requirements: the target tag" \
+        " must be an object of type 'EMPTY', draw type 'ARROWS'. Its name" \
+        " must start with 'tag_' or have a property flag (not implemented yet)"
+
+    def execute(self, context):
+
+        import rtcw_et_model_tools.blender.tools as tools
+
+        status, msg = tools.attach_to_tag()
+
+        if status == 'CANCELLED':
+            self.report({'WARNING'},
+                        msg)
+            return {'CANCELLED'}
 
         return {'FINISHED'}
 
@@ -342,10 +404,12 @@ class TestExec(bpy.types.Operator):
 
 classes = (
     ImportPanel,
+    ToolsPanel,
     TestsPanel,
     MD3Importer,
     MDCImporter,
     MDSImporter,
+    AttachToTag,
     MDMMDXImporter,
     TestReadWrite,
     TestExec,
@@ -435,6 +499,15 @@ def register():
             max = 1000000
             )
 
+    bpy.types.Scene.remt_attach_to_tag_options = \
+        bpy.props.EnumProperty(
+            name = "Method",
+            description = "Choose to attach by selected objects or selected" \
+                          " collection",
+            items = [("Objects", "Objects", ""),
+                     ("Collection", "Collection", "")],
+            default = "Objects")
+
     bpy.types.Scene.remt_test_directory = \
         bpy.props.StringProperty(
             name="Test Directory",
@@ -479,6 +552,7 @@ def unregister():
     del bpy.types.Scene.remt_mdmmdx_bind_frame
 
     del bpy.types.Scene.remt_test_directory
+    del bpy.types.Scene.remt_attach_to_tag_options
 
     # logging
     logger = logging.getLogger('remt_logger')
