@@ -155,9 +155,11 @@ class Arrows:
 
             matrix = mathutils.Matrix.Identity(4)
 
-            matrix.translation = parent_bone.orientation.transposed() @ (mdi_socket.location - parent_bone.location)
+            matrix.translation = parent_bone.orientation.transposed() @ \
+                (mdi_socket.location - parent_bone.location)
 
-            orientation = parent_bone.orientation.transposed() @ mdi_socket.orientation
+            orientation = parent_bone.orientation.transposed() @ \
+                mdi_socket.orientation
 
             empty_object.matrix_world = matrix @ orientation.to_4x4()
 
@@ -297,7 +299,8 @@ class Armature:
                     z_pbl = mdi_parent_bone.location
                     z_pbo = mdi_parent_bone.orientation
                     z_pfl = mdi_parent_bone.animation.frames[num_frame].location
-                    z_pfo = mdi_parent_bone.animation.frames[num_frame].orientation
+                    z_pfo = \
+                        mdi_parent_bone.animation.frames[num_frame].orientation
 
                     # cbl_dash
                     diff_loc = z_cbl - z_pbl

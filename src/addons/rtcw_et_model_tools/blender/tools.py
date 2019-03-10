@@ -18,71 +18,27 @@
 
 # <pep8-80 compliant>
 
-"""TODO.
+"""Blender tools for dealing with the model formats.
 """
 
 import bpy
 import mathutils
 
 
-def attach_to_tag(method = "Objects"):
+class AttachToTag:
+    """Attach to tag operation. This operation mimics the games behavior of
+    attaching external meshes to a given mesh in Blender.
+    """
 
-    tag_object = bpy.context.view_layer.objects.active
+    @staticmethod
+    def _add_child_of_constraint(attach_object, tag_object):
+        """This uses a child of constraint to mimic attaching.
 
-    if tag_object is None:
+        Args:
 
-        status = 'CANCELLED'
-        msg = "No active objects found."
-        return (status, msg)
-
-    if not tag_object.empty_display_type == 'ARROWS':
-
-        status = 'CANCELLED'
-        msg = "Parent object must be tag (type='EMPTY', display_type='ARROWS'"
-        return (status, msg)
-
-    if not tag_object.name.startswith("tag_") or False:
-
-        status = 'CANCELLED'
-        msg = "Parent object must be tag (name starts with 'tag_' or has" \
-            " flag.)"
-        return (status, msg)
-
-    attach_objects = []
-
-    if method == "Collection":
-
-        for object in bpy.context.selected_objects:
-
-            if object is tag_object:
-                continue
-
-            # TODO check if already attached
-
-            attach_objects.append(object)
-
-    elif method == "Objects":
-
-        active_layer_collection = \
-            bpy.context.view_layer.active_layer_collection
-        for object in active_layer_collection.collection.objects:
-
-            if object is tag_object:
-                continue
-
-            # TODO check if already attached
-
-            attach_objects.append(object)
-
-    else:
-
-        status = 'CANCELLED'
-        msg = "Unknown method."
-        return (status, msg)
-
-    for attach_object in attach_objects:
-
-        # TODO check other constraints
+            attach_object: attach object.
+            tag_object: tag object.
+        """
 
         attach_object.constraints.new(type="CHILD_OF")
         attach_object.constraints["Child Of"].target = tag_object
@@ -99,6 +55,173 @@ def attach_to_tag(method = "Objects"):
         attach_object.constraints["Child Of"].use_scale_y = True
         attach_object.constraints["Child Of"].use_scale_z = True
 
-    status = 'SUCCESS'
-    msg = ""
-    return (status, msg)
+    @staticmethod
+    def _is_tag_object(tag_object, status):
+        """Checks if the object is a tag object.
+
+        Args:
+
+            tag_object: tag object.
+            status: status object.
+
+        Returns:
+
+            bool.
+        """
+
+        if tag_object is None:
+
+            status.was_canceled = True
+            status.cancel_msg = "active object not found"
+            return False
+
+        if not tag_object.type == 'EMPTY':
+
+            status.was_canceled = True
+            status.cancel_msg = "tag object not found. The tag object" \
+                " must be the active object of type 'EMPTY'"
+            return False
+
+        if not tag_object.empty_display_type == 'ARROWS':
+
+            status.was_canceled = True
+            status.cancel_msg = "tag object not found. The tag object" \
+                " must be the active object of type 'EMPTY' and display type" \
+                "'ARROWS'"
+            return False
+
+        if not tag_object.name.startswith("tag_") or False:
+
+            status.was_canceled = True
+            status.cancel_msg = "tag object not found. The tag object" \
+                " is of correct type, but its name must be prefixed with" \
+                " '_tag' or it must have a custom flag property (not" \
+                " implemented)"
+            return False
+
+    @staticmethod
+    def _is_attach_object(attach_object, tag_object, status):
+        """Checks if an object can be attached to a tag object.
+
+        Args:
+
+            attach_object: attach object.
+            tag_object: tag object.
+            status: status object.
+
+        Returns:
+
+            bool.
+        """
+
+        if attach_object is tag_object:
+            return False
+
+        correct_type = False
+
+        if attach_object.type == 'MESH':
+            correct_type = True
+
+        if attach_object.type == 'EMPTY' and \
+            attach_object.empty_display_type == 'ARROWS':
+            correct_type = True
+
+        if not correct_type:
+            return False
+
+        for constraint in attach_object.constraints:
+
+            if constraint.type == 'CHILD_OF' and \
+                constraint.target is tag_object:
+
+                status.warning_msgs.append("attach object with name '{}'" \
+                    " already attached and was filtered" \
+                    .format(attach_object.name))
+                return False
+
+        return True
+
+    @staticmethod
+    def exec(method, status):
+        """Attaches a selection of objects to the origin and orientation of a
+        tag object. A tag object is represented as an 'EMPTY' object with
+        display type 'ARROWS' inside Blender. It must be the active object
+        (usually the last object selected). This operation first does some
+        checks if attachment is possible, then attaches all valid objects by
+        setting a 'CHILD_OF' constraint.
+
+        Args:
+
+            method (str): defines how a user selects a number of attachable
+                objects.
+
+            Returns:
+
+                status (Status): status object for error reporting.
+        """
+
+        tag_object = bpy.context.view_layer.objects.active
+
+        if AttachToTag._is_tag_object(tag_object, status):
+
+            pass
+
+        else:
+
+            if status.was_canceled:
+                return status
+
+        attach_objects = []
+
+        if method == "Objects":
+
+            # use selected objects as method, this will collect all objects
+            # the user manually selected
+            for obj in bpy.context.selected_objects:
+
+                if AttachToTag._is_attach_object(obj, tag_object, \
+                                                 status):
+
+                    attach_objects.append(obj)
+
+                else:
+
+                    if status.was_canceled:
+                        return status
+
+        elif method == "Collection":
+
+            # use active collection as method, this will collect all objects
+            # inside a collection and its children collection
+            active_collection = \
+                bpy.context.view_layer.active_layer_collection.collection
+
+            for obj in active_collection.all_objects:
+
+                if AttachToTag._is_attach_object(obj, tag_object, \
+                                                status):
+
+                    attach_objects.append(obj)
+
+                else:
+
+                    if status.was_canceled:
+                        return status
+
+        else:
+
+            status.was_canceled = True
+            status.cancel_msg = "unkown method"
+            return status
+
+        if len(attach_objects) == 0:
+
+            status.was_canceled = True
+            status.cancel_msg = "no objects to attach or objects were filtered"
+            return status
+
+        for attach_object in attach_objects:
+
+            AttachToTag._add_child_of_constraint(attach_object, tag_object)
+
+        return status
