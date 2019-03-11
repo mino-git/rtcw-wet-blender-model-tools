@@ -24,39 +24,6 @@
 import bpy
 
 
-class Status:
-    """Used inside each operation for reporting back warnings and errors.
-    Calling operators will receive this object and print out reports to the
-    Blender user interface.
-
-    Attributes:
-
-        was_canceled (bool): if canceled, the operation ends.
-        cancel_msg (str): cancel message.
-        warning_msgs (list): a list of strings for warnings during the
-            operation.
-    """
-
-    def __init__(self):
-
-        self.was_canceled = False
-        self.cancel_msg = ""
-        self.warning_msgs = []
-
-    @staticmethod
-    def report(operator, status):
-
-        if status.was_canceled:
-            cancel_report = "Cancelled. Reason: {}.".format(status.cancel_msg)
-            operator.report({'ERROR'}, cancel_report)
-
-        warning_report = ""
-        for warning_msg in status.warning_msgs:
-            warning_report = "{} Warning: {}.".format(warning_report, warning_msg)
-        if warning_report:
-            operator.report({'WARNING'}, warning_report)
-
-
 class MD3Importer(bpy.types.Operator):
     """Import MD3 file format into blender.
     """
@@ -201,13 +168,18 @@ class AttachToTag(bpy.types.Operator):
 
     def execute(self, context):
 
-        import rtcw_et_model_tools.blender.tools as tools
+        import rtcw_et_model_tools.blender.attach_to_tag as attach_to_tag
+        import rtcw_et_model_tools.mdi.mdi_util as mdi_util
 
         method = context.scene.remt_attach_to_tag_method
+        status = mdi_util.Status()
+        attach_to_tag.execute(method, status)
 
-        status = Status()
-        tools.AttachToTag.exec(method, status)
-        Status.report(self, status)
+        cancel_report, warning_report = status.prepare_report()
+        if cancel_report:
+            self.report({'ERROR'}, cancel_report)
+        if warning_report:
+            self.report({'WARNING'}, warning_report)
 
         return {'FINISHED'}
 

@@ -22,6 +22,45 @@ import mathutils
 import math
 
 
+class Status:
+    """Used for reporting back warnings and errors.
+
+    Attributes:
+
+        was_canceled (bool): indicates an error.
+        cancel_msg (str): cancel message.
+        warning_msgs (list): a list of strings for warnings.
+    """
+
+    def __init__(self):
+
+        self.was_canceled = False
+        self.cancel_msg = ""
+        self.warning_msgs = []
+
+    def set_canceled(self, cancel_msg):
+
+        self.was_canceled = True
+        self.cancel_msg = cancel_msg
+
+    def add_warning_msg(self, warning_msg):
+
+        self.warning_msgs.append(warning_msg)
+
+    def prepare_report(self):
+
+        cancel_report = ""
+        if self.was_canceled:
+            cancel_report = "Cancelled. Reason: {}.".format(self.cancel_msg)
+
+        warning_report = ""
+        for warning_msg in self.warning_msgs:
+            warning_report = \
+                "{} Warning: {}.".format(warning_report, warning_msg)
+
+        return (cancel_report, warning_report)
+
+
 def angles_to_vector(yaw, pitch):
 
     yaw = math.radians(yaw)
