@@ -40,10 +40,12 @@ def register():
 
     import rtcw_et_model_tools.blender.imports as imports
     import rtcw_et_model_tools.blender.attach_to_tag as attach_to_tag
+    import rtcw_et_model_tools.blender.extract_pk3s as extract_pk3s
     import rtcw_et_model_tools.blender.tests as tests
 
     imports.register()
     attach_to_tag.register()
+    extract_pk3s.register()
     tests.register()
 
     logger = logging.getLogger('remt_logger')
@@ -62,10 +64,12 @@ def unregister():
 
     import rtcw_et_model_tools.blender.imports as imports
     import rtcw_et_model_tools.blender.attach_to_tag as attach_to_tag
+    import rtcw_et_model_tools.blender.extract_pk3s as extract_pk3s
     import rtcw_et_model_tools.blender.tests as tests
 
     imports.unregister()
     attach_to_tag.unregister()
+    extract_pk3s.unregister()
     tests.unregister()
 
     logger = logging.getLogger('remt_logger')
