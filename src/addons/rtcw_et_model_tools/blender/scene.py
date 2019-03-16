@@ -714,6 +714,8 @@ class Collection:
             Arrows.write(collection, mdi_socket, mdi_model.skeletons,
                          armature_objects)
 
+        return collection
+
 
 def read():
 
@@ -723,4 +725,6 @@ def read():
 
 def write(mdi_model, bind_frame):
 
-    Collection.write(mdi_model, bind_frame)
+    collection = Collection.write(mdi_model, bind_frame)
+
+    return collection

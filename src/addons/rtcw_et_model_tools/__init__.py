@@ -27,7 +27,7 @@ bl_info = {
     "description": "RtCW/ET Model Tools for Blender",
     "warning": "",
     "wiki_url": "",
-    "category": "Object",
+    "category": "Import-Export",
 }
 
 import sys
@@ -35,13 +35,16 @@ import logging
 
 import bpy
 
+
 def register():
 
-    import rtcw_et_model_tools.blender.ui as ui
-    import rtcw_et_model_tools.blender.ops as ops
+    import rtcw_et_model_tools.blender.imports as imports
+    import rtcw_et_model_tools.blender.attach_to_tag as attach_to_tag
+    import rtcw_et_model_tools.blender.tests as tests
 
-    ui.register()
-    ops.register()
+    imports.register()
+    attach_to_tag.register()
+    tests.register()
 
     logger = logging.getLogger('remt_logger')
 
@@ -57,11 +60,13 @@ def register():
 
 def unregister():
 
-    import rtcw_et_model_tools.blender.ui as ui
-    import rtcw_et_model_tools.blender.ops as ops
+    import rtcw_et_model_tools.blender.imports as imports
+    import rtcw_et_model_tools.blender.attach_to_tag as attach_to_tag
+    import rtcw_et_model_tools.blender.tests as tests
 
-    ui.unregister()
-    ops.unregister()
+    imports.unregister()
+    attach_to_tag.unregister()
+    tests.unregister()
 
     logger = logging.getLogger('remt_logger')
     for handler in logger.handlers[:]:
