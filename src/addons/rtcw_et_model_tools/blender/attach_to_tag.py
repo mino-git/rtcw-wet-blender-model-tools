@@ -146,26 +146,6 @@ class AttachToTag(bpy.types.Operator):
         return True
 
     @staticmethod
-    def _validate_input(method, status):
-        """Validate input.
-        """
-
-        if not method:
-            cancel_msg = "input failed: no method"
-            status.set_canceled(cancel_msg)
-
-        if not isinstance(method, str):
-            cancel_msg = "input failed: method must be string"
-            status.set_canceled(cancel_msg)
-
-        method_exists = False
-        if method == "Objects" or method == "Collection":
-            method_exists = True
-        if not method_exists:
-            cancel_msg = "input failed: method not found"
-            status.set_canceled(cancel_msg)
-
-    @staticmethod
     def _attach_by_objects(status):
         """Attach all selected objects to tag by setting a child-of constraint.
         """
@@ -215,6 +195,26 @@ class AttachToTag(bpy.types.Operator):
         for attach_object in attach_objects:
             AttachToTag._add_child_of_constraint(attach_object, tag_object,
                                                  status)
+
+    @staticmethod
+    def _validate_input(method, status):
+        """Validate input.
+        """
+
+        if not method:
+            cancel_msg = "input failed: no method"
+            status.set_canceled(cancel_msg)
+
+        if not isinstance(method, str):
+            cancel_msg = "input failed: method must be string"
+            status.set_canceled(cancel_msg)
+
+        method_exists = False
+        if method == "Objects" or method == "Collection":
+            method_exists = True
+        if not method_exists:
+            cancel_msg = "input failed: method not found"
+            status.set_canceled(cancel_msg)
 
     def execute(self, context):
         """Attach to tag operation.
