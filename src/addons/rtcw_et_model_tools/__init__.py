@@ -40,11 +40,22 @@ def register():
 
     import rtcw_et_model_tools.blender.imports as imports
     import rtcw_et_model_tools.blender.attach_to_tag as attach_to_tag
+    import rtcw_et_model_tools.blender.skin_files as skin_files
+    import rtcw_et_model_tools.blender.shading as shading
     import rtcw_et_model_tools.blender.extract_pk3s as extract_pk3s
     import rtcw_et_model_tools.blender.tests as tests
 
+    bpy.types.Scene.remt_data_path = \
+        bpy.props.StringProperty(
+            name="Datapath",
+            description="Path to game data (pk3s need to be extracted" \
+                " manually)",
+            subtype='DIR_PATH')
+
     imports.register()
     attach_to_tag.register()
+    skin_files.register()
+    shading.register()
     extract_pk3s.register()
     tests.register()
 
@@ -64,11 +75,17 @@ def unregister():
 
     import rtcw_et_model_tools.blender.imports as imports
     import rtcw_et_model_tools.blender.attach_to_tag as attach_to_tag
+    import rtcw_et_model_tools.blender.skin_files as skin_files
+    import rtcw_et_model_tools.blender.shading as shading
     import rtcw_et_model_tools.blender.extract_pk3s as extract_pk3s
     import rtcw_et_model_tools.blender.tests as tests
 
+    del bpy.types.Scene.remt_data_path
+
     imports.unregister()
     attach_to_tag.unregister()
+    skin_files.unregister()
+    shading.unregister()
     extract_pk3s.unregister()
     tests.unregister()
 
