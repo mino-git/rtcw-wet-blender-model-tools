@@ -57,6 +57,6 @@ class Status:
         warning_report = ""
         for warning_msg in self.warning_msgs:
             warning_report = \
-                "{} Warning: {}.".format(warning_report, warning_msg)
+                "{}[{}] ".format(warning_report, warning_msg)
 
         return (cancel_report, warning_report)
