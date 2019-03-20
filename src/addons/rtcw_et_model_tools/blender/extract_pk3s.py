@@ -68,7 +68,7 @@ class ExtractPK3s(bpy.types.Operator):
     bl_idname = "remt.remt_extract_pk3"
     bl_label = "Extract"
     bl_description = "Prepare game data by extracting all pk3s found in a" \
-        " directory and subdirectory."
+        " directory and subdirectory"
 
     @staticmethod
     def _validate_input(source_path, target_path, status):
@@ -148,13 +148,13 @@ def register():
     bpy.types.Scene.remt_extract_pk3_source_path = \
         bpy.props.StringProperty(
             name="Source Filepath",
-            description="Path to top level source directory",
+            description="Path to top level source directory (game data)",
             subtype='DIR_PATH')
 
     bpy.types.Scene.remt_extract_pk3_target_path = \
         bpy.props.StringProperty(
             name="Target Filepath",
-            description="Path to destination directory",
+            description="Path to destination directory for extraction",
             subtype='DIR_PATH')
 
 def unregister():
