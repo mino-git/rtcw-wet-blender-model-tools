@@ -41,6 +41,33 @@ class MDIToModel:
 class ModelToMDI:
 
     @staticmethod
+    def _calc_bounds(md3_frame_infos, bind_frame):
+
+        mdi_bounds = mdi.MDIBounds()
+
+        mdi_bounds.animation = mdi.MDIBoundsAnimation()
+
+        for num_frame, md3_frame_info in enumerate(md3_frame_infos):
+
+            min_bound = mathutils.Vector(md3_frame_info.min_bound)
+            max_bound = mathutils.Vector(md3_frame_info.max_bound)
+            local_origin = mathutils.Vector(md3_frame_info.local_origin)
+            radius = md3_frame_info.radius
+
+            mdi_bounds_in_frame = mdi.MDIBoundsInFrame(min_bound, max_bound,
+                                                       local_origin, radius)
+            mdi_bounds.animation.frames.append(mdi_bounds_in_frame)
+
+            if num_frame == bind_frame:
+
+                mdi_bounds.min_bound = min_bound
+                mdi_bounds.max_bound = max_bound
+                mdi_bounds.local_origin = local_origin
+                mdi_bounds.radius = radius
+
+        return mdi_bounds
+
+    @staticmethod
     def _calc_sockets(md3_tags, bind_frame):
 
         mdi_sockets = mdi.MDISockets()
@@ -93,7 +120,7 @@ class ModelToMDI:
         return mdi_sockets
 
     @staticmethod
-    def _calc_surface(md3_surface, md3_frame_infos, bind_frame):
+    def _calc_surface(md3_surface, bind_frame):
 
         def calc_vertex_ln(md3_frame_vertex):
 
@@ -163,29 +190,6 @@ class ModelToMDI:
             mdi_triangle = mdi.MDITriangle((index_1, index_2, index_3))
             mdi_surface.geometry.triangles.triangle_list.append(mdi_triangle)
 
-        # bounds
-        mdi_surface.geometry.bounds = mdi.MDIBounds()
-        mdi_bounds = mdi_surface.geometry.bounds
-        mdi_bounds.animation = mdi.MDIBoundsAnimation()
-
-        for num_frame, md3_frame_info in enumerate(md3_frame_infos):
-
-            min_bound = mathutils.Vector(md3_frame_info.min_bound)
-            max_bound = mathutils.Vector(md3_frame_info.max_bound)
-            local_origin = mathutils.Vector(md3_frame_info.local_origin)
-            radius = md3_frame_info.radius
-
-            mdi_bounds_in_frame = mdi.MDIBoundsInFrame(min_bound, max_bound,
-                                                       local_origin, radius)
-            mdi_bounds.animation.frames.append(mdi_bounds_in_frame)
-
-            if num_frame == bind_frame:
-
-                mdi_bounds.min_bound = min_bound
-                mdi_bounds.max_bound = max_bound
-                mdi_bounds.local_origin = local_origin
-                mdi_bounds.radius = radius
-
         # shaders
         mdi_surface.color.shader_data = mdi.MDIShaderReferences()
         shader_reference_list = \
@@ -223,12 +227,15 @@ class ModelToMDI:
         for md3_surface in md3_model.surfaces:
 
             mdi_surface = ModelToMDI._calc_surface(md3_surface,
-                                                   md3_model.frame_infos,
                                                    bind_frame)
             mdi_model.surfaces.surface_list.append(mdi_surface)
 
         # sockets
         mdi_model.sockets = ModelToMDI._calc_sockets(md3_model.tags,
                                                      bind_frame)
+
+        # bounds
+        mdi_model.bounds = ModelToMDI._calc_bounds(md3_model.frame_infos,
+                                                   bind_frame)
 
         return mdi_model

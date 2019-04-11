@@ -37,10 +37,40 @@ class MDIToModel:
 
         mdc_model = None
 
+        print("mdc_mdi.MDIToModel")
+
         return mdc_model
 
 
 class ModelToMDI:
+
+
+    @staticmethod
+    def _calc_bounds(mdc_frame_infos, bind_frame):
+
+        mdi_bounds = mdi.MDIBounds()
+
+        mdi_bounds.animation = mdi.MDIBoundsAnimation()
+
+        for num_frame, mdc_frame_info in enumerate(mdc_frame_infos):
+
+            min_bound = mathutils.Vector(mdc_frame_info.min_bound)
+            max_bound = mathutils.Vector(mdc_frame_info.max_bound)
+            local_origin = mathutils.Vector(mdc_frame_info.local_origin)
+            radius = mdc_frame_info.radius
+
+            mdi_bounds_in_frame = mdi.MDIBoundsInFrame(min_bound, max_bound,
+                                                       local_origin, radius)
+            mdi_bounds.animation.frames.append(mdi_bounds_in_frame)
+
+            if num_frame == bind_frame:
+
+                mdi_bounds.min_bound = min_bound
+                mdi_bounds.max_bound = max_bound
+                mdi_bounds.local_origin = local_origin
+                mdi_bounds.radius = radius
+
+        return mdi_bounds
 
     @staticmethod
     def _calc_sockets(mdc_tag_infos, mdc_tags, bind_frame):
@@ -347,29 +377,6 @@ class ModelToMDI:
             mdi_triangle = mdi.MDITriangle((index_1, index_2, index_3))
             mdi_surface.geometry.triangles.triangle_list.append(mdi_triangle)
 
-        # bounds
-        mdi_surface.geometry.bounds = mdi.MDIBounds()
-        mdi_bounds = mdi_surface.geometry.bounds
-        mdi_bounds.animation = mdi.MDIBoundsAnimation()
-
-        for num_frame, mdc_frame_info in enumerate(mdc_frame_infos):
-
-            min_bound = mathutils.Vector(mdc_frame_info.min_bound)
-            max_bound = mathutils.Vector(mdc_frame_info.max_bound)
-            local_origin = mathutils.Vector(mdc_frame_info.local_origin)
-            radius = mdc_frame_info.radius
-
-            mdi_bounds_in_frame = mdi.MDIBoundsInFrame(min_bound, max_bound,
-                                                       local_origin, radius)
-            mdi_bounds.animation.frames.append(mdi_bounds_in_frame)
-
-            if num_frame == bind_frame:
-
-                mdi_bounds.min_bound = min_bound
-                mdi_bounds.max_bound = max_bound
-                mdi_bounds.local_origin = local_origin
-                mdi_bounds.radius = radius
-
         # shaders
         mdi_surface.color.shader_data = mdi.MDIShaderReferences()
         shader_reference_list = \
@@ -415,5 +422,9 @@ class ModelToMDI:
         mdi_model.sockets = ModelToMDI._calc_sockets(mdc_model.tag_infos,
                                                      mdc_model.tags,
                                                      bind_frame)
+
+        # bounds
+        mdi_model.bounds = ModelToMDI._calc_bounds(mdc_model.frame_infos,
+                                                   bind_frame)
 
         return mdi_model

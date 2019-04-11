@@ -64,6 +64,103 @@ class MDIType:
         self.type_ = type_
 
 # ====================
+# Bounds
+# ====================
+
+class MDIBoundsInFrame:
+    """TODO
+
+    Attributes:
+
+        TODO
+
+    File encodings:
+
+        min_bound: 3*F32
+        max_bound: 3*F32
+        local_origin: 3*F32
+        radius: F32
+
+    Background:
+
+        TODO
+
+    Notes:
+
+        TODO
+    """
+
+    def __init__(self, min_bound = None, max_bound = None, local_origin = None,
+                 radius = 0.0):
+
+        self.min_bound = min_bound
+        self.max_bound = max_bound
+        self.local_origin = local_origin
+        self.radius = radius
+
+
+class MDIBoundsAnimation:
+    """TODO
+
+    Attributes:
+
+        TODO
+
+    File encodings:
+
+        TODO
+
+    Background:
+
+        TODO
+
+    Notes:
+
+        TODO
+    """
+
+    def __init__(self, frames = None):
+
+        if frames is None:
+            self.frames = []
+        else:
+            self.frames = frames
+
+
+class MDIBounds:
+    """TODO
+
+    Attributes:
+
+        TODO
+
+    File encodings:
+
+        min_bound: 3*F32
+        max_bound: 3*F32
+        local_origin: 3*F32
+        radius: F32
+
+    Background:
+
+        TODO
+
+    Notes:
+
+        TODO
+    """
+
+    def __init__(self, min_bound = None, max_bound = None, local_origin = None,
+                 radius = 0.0, animation = None):
+
+        self.min_bound = min_bound
+        self.max_bound = max_bound
+        self.local_origin = local_origin
+        self.radius = radius
+
+        self.animation = animation
+
+# ====================
 # Sockets
 # ====================
 
@@ -1003,104 +1100,6 @@ class MDIColor:
 
 
 # ====================
-# Bounds
-# ====================
-
-class MDIBoundsInFrame:
-    """TODO
-
-    Attributes:
-
-        TODO
-
-    File encodings:
-
-        min_bound: 3*F32
-        max_bound: 3*F32
-        local_origin: 3*F32
-        radius: F32
-
-    Background:
-
-        TODO
-
-    Notes:
-
-        TODO
-    """
-
-    def __init__(self, min_bound = None, max_bound = None, local_origin = None,
-                 radius = 0.0):
-
-        self.min_bound = min_bound
-        self.max_bound = max_bound
-        self.local_origin = local_origin
-        self.radius = radius
-
-
-class MDIBoundsAnimation:
-    """TODO
-
-    Attributes:
-
-        TODO
-
-    File encodings:
-
-        TODO
-
-    Background:
-
-        TODO
-
-    Notes:
-
-        TODO
-    """
-
-    def __init__(self, frames = None):
-
-        if frames is None:
-            self.frames = []
-        else:
-            self.frames = frames
-
-
-class MDIBounds:
-    """TODO
-
-    Attributes:
-
-        TODO
-
-    File encodings:
-
-        min_bound: 3*F32
-        max_bound: 3*F32
-        local_origin: 3*F32
-        radius: F32
-
-    Background:
-
-        TODO
-
-    Notes:
-
-        TODO
-    """
-
-    def __init__(self, min_bound = None, max_bound = None, local_origin = None,
-                 radius = 0.0, animation = None):
-
-        self.min_bound = min_bound
-        self.max_bound = max_bound
-        self.local_origin = local_origin
-        self.radius = radius
-
-        self.animation = animation
-
-
-# ====================
 # Triangles
 # ====================
 
@@ -1509,7 +1508,6 @@ class MDIGeometryNav:
 
         ofs_vertices: UINT32
         ofs_triangles: UINT32
-        ofs_bounds: UINT32
 
     Background:
 
@@ -1526,7 +1524,6 @@ class MDIGeometryNav:
         TODO
         self.ofs_vertices
         self.ofs_triangles
-        self.ofs_bounds
         '''
         pass
 
@@ -1551,7 +1548,7 @@ class MDIGeometry:
         TODO
     """
 
-    def __init__(self, vertices = None, triangles = None, bounds = None):
+    def __init__(self, vertices = None, triangles = None):
 
         self.navigation_info = None
 
@@ -1564,8 +1561,6 @@ class MDIGeometry:
             self.triangles = MDITriangles()
         else:
             self.triangles = triangles
-
-        self.bounds = bounds
 
 
 # ====================
@@ -1729,6 +1724,7 @@ class MDINav:
         ofs_surfaces: UINT32
         ofs_skeletons: UINT32
         ofs_sockets: UINT32
+        ofs_bounds: UINT32
         ofs_end: UINT32
 
     Background:
@@ -1750,6 +1746,7 @@ class MDINav:
         self.ofs_surfaces
         self.ofs_skeletons
         self.ofs_sockets
+        self.ofs_bounds
         self.ofs_end
         '''
 
@@ -1779,7 +1776,8 @@ class MDI:
     version = 1
 
     def __init__(self, name = "MDI None", lod_scale = 5, lod_bias = 0,
-                 surfaces = None, skeletons = None, sockets = None):
+                 surfaces = None, skeletons = None, sockets = None,
+                 bounds = None):
 
         self.name = name
         self.lod_scale = lod_scale
@@ -1801,3 +1799,5 @@ class MDI:
             self.sockets = MDISockets()
         else:
             self.sockets = sockets
+
+        self.bounds = bounds

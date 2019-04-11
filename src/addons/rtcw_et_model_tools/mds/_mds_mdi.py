@@ -35,10 +35,41 @@ class MDIToModel:
 
         mds_model = None
 
+        print("mds_mdi.MDIToModel")
+
         return mds_model
 
 
 class ModelToMDI:
+
+    @staticmethod
+    def _calc_bounds(mds_frames, bind_frame):
+
+        mdi_bounds = mdi.MDIBounds()
+
+        mdi_bounds.animation = mdi.MDIBoundsAnimation()
+
+        for num_frame, mds_frame in enumerate(mds_frames):
+
+            mds_frame_info = mds_frame.frame_info
+
+            min_bound = mathutils.Vector(mds_frame_info.min_bound)
+            max_bound = mathutils.Vector(mds_frame_info.max_bound)
+            local_origin = mathutils.Vector(mds_frame_info.local_origin)
+            radius = mds_frame_info.radius
+
+            mdi_bounds_in_frame = mdi.MDIBoundsInFrame(min_bound, max_bound,
+                                                       local_origin, radius)
+            mdi_bounds.animation.frames.append(mdi_bounds_in_frame)
+
+            if num_frame == bind_frame:
+
+                mdi_bounds.min_bound = min_bound
+                mdi_bounds.max_bound = max_bound
+                mdi_bounds.local_origin = local_origin
+                mdi_bounds.radius = radius
+
+        return mdi_bounds
 
     @staticmethod
     def _calc_socket(mds_tag):
@@ -320,5 +351,9 @@ class ModelToMDI:
 
             mdi_socket = ModelToMDI._calc_socket(mds_tag)
             mdi_model.sockets.socket_list.append(mdi_socket)
+
+        # bounds
+        mdi_model.bounds = \
+            ModelToMDI._calc_bounds(mds_model.frames, bind_frame)
 
         return mdi_model
