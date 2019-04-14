@@ -33,7 +33,33 @@ class MDIToModel:
     @staticmethod
     def convert(mdi_model):
 
-        md3_model = None
+        md3_model = md3.MD3()
+
+        # frame_infos
+
+        # tags
+
+        # surfaces
+
+        '''
+        # header
+        md3_model.header = md3.MD3Header()
+        md3_model.header.ident = md3.MD3Header.ident
+        md3_model.header.version = md3.MD3Header.version
+        md3_model.header.name = mdi_model.name
+        md3_model.header.flags = md3.MD3Header.flags
+
+        num_frames: UINT32
+        num_tags: UINT32
+        num_surfaces: UINT32
+        num_skins: UINT32
+        ofs_frame_infos: UINT32
+        ofs_tags: UINT32
+        ofs_surfaces: UINT32
+        ofs_end: UINT32
+        '''
+
+        print("md3_mdi.MDIToModel")
 
         return md3_model
 

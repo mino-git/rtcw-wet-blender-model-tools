@@ -37,7 +37,7 @@ def read(file_path, bind_frame, encoding="binary"):
 
     Returns:
 
-        mdi (MDI): converted MDS data as MDI.
+        mdi_model (MDI): converted MDS data as MDI.
     """
 
     if encoding == "binary":
@@ -54,23 +54,23 @@ def read(file_path, bind_frame, encoding="binary"):
     return mdi_model
 
 
-# def write(mdi_model, file_path, encoding="binary"):
+def write(mdi_model, file_path, encoding="binary"):
 
-#     """Converts MDI data to MDS, then writes it back to file.
+    """Converts MDI data to MDS, then writes it back to file.
 
-#     Args:
-#         mdi (MDI): model definition interchange format.
-#         file_path (str): path to which MDS data is written to.
-#         encoding (str): encoding to use for MDS.
-#     """
+    Args:
+        mdi (MDI): model definition interchange format.
+        file_path (str): path to which MDS data is written to.
+        encoding (str): encoding to use for MDS.
+    """
 
-#     mds_model = mds_mdi.MDIToModel.convert(mdi_model)
+    mds_model = mds_mdi.MDIToModel.convert(mdi_model)
 
-#     if encoding == "binary":
-#         mds_model.write(file_path)
-#     elif encoding == "xml":
-#         pass  # TODO
-#     elif encoding == "json":
-#         pass  # TODO
-#     else:
-#         print("encoding option '{}' not supported".format(encoding))
+    if encoding == "binary":
+        mds_model.write(file_path)
+    elif encoding == "xml":
+        pass  # TODO
+    elif encoding == "json":
+        pass  # TODO
+    else:
+        print("encoding option '{}' not supported".format(encoding))

@@ -42,7 +42,7 @@ def read(file_path_mdx, file_path_mdm, bind_frame, encoding="binary"):
 
     Returns:
 
-        mdi (MDI): converted MDM/MDX data as MDI.
+        mdi_model (MDI): converted MDM/MDX data as MDI.
     """
 
     if encoding == "binary":
@@ -61,25 +61,25 @@ def read(file_path_mdx, file_path_mdm, bind_frame, encoding="binary"):
     return mdi_model
 
 
-# def write(mdi, file_path_mdx, file_path_mdm, encoding="binary"):
-#     """Converts MDI data to MDM/MDX, then writes it back to file.
+def write(mdi_model, file_path_mdx, file_path_mdm, encoding="binary"):
+    """Converts MDI data to MDM/MDX, then writes it back to file.
 
-#     Args:
-#         mdi (MDI): model definition interchange format.
-#         file_path_mdm (str): path to which MDM data is written to.
-#         file_path_mdx (str): path to which MDX data is written to.
-#         encoding (str): encoding to use for MDS.
-#     """
+    Args:
+        mdi (MDI): model definition interchange format.
+        file_path_mdm (str): path to which MDM data is written to.
+        file_path_mdx (str): path to which MDX data is written to.
+        encoding (str): encoding to use for MDS.
+    """
 
-#     mdx_model, mdm_model = mdmmdx_mdi.ModelToMDI.convert(mdi)
+    mdx_model, mdm_model = mdmmdx_mdi.MDIToModel.convert(mdi_model)
 
-#     if encoding == "binary":
-#         mdx_model.write(file_path_mdx)
-#         mdm_model.write(file_path_mdm)
-#         pass
-#     elif encoding == "xml":
-#         pass  # TODO
-#     elif encoding == "json":
-#         pass  # TODO
-#     else:
-#         print("encoding option '{}' not supported".format(encoding))
+    if encoding == "binary":
+        mdx_model.write(file_path_mdx)
+        mdm_model.write(file_path_mdm)
+        pass
+    elif encoding == "xml":
+        pass  # TODO
+    elif encoding == "json":
+        pass  # TODO
+    else:
+        print("encoding option '{}' not supported".format(encoding))
