@@ -4,7 +4,7 @@
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>414</x>
+      <x>252</x>
       <y>0</y>
       <w>99</w>
       <h>27</h>
@@ -16,7 +16,7 @@
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>540</x>
+      <x>378</x>
       <y>0</y>
       <w>162</w>
       <h>207</h>
@@ -40,7 +40,7 @@ ofs_end: UINT32</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>729</x>
+      <x>567</x>
       <y>432</y>
       <w>171</w>
       <h>207</h>
@@ -65,7 +65,7 @@ ofs_end: UINT32
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>504</x>
+      <x>342</x>
       <y>0</y>
       <w>54</w>
       <h>45</h>
@@ -78,7 +78,7 @@ m2=1
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>540</x>
+      <x>378</x>
       <y>225</y>
       <w>162</w>
       <h>99</h>
@@ -97,7 +97,7 @@ name: 16*ASCII (C-String)
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>540</x>
+      <x>378</x>
       <y>342</y>
       <w>162</w>
       <h>72</h>
@@ -114,7 +114,7 @@ orientation: 3*3*F32
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>540</x>
+      <x>378</x>
       <y>432</y>
       <w>162</w>
       <h>27</h>
@@ -128,7 +128,7 @@ orientation: 3*3*F32
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>729</x>
+      <x>567</x>
       <y>657</y>
       <w>171</w>
       <h>45</h>
@@ -141,7 +141,7 @@ indices: 3*UINT32</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>729</x>
+      <x>567</x>
       <y>720</y>
       <w>171</w>
       <h>54</h>
@@ -155,7 +155,7 @@ shader_index: UINT32</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>729</x>
+      <x>567</x>
       <y>792</y>
       <w>171</w>
       <h>45</h>
@@ -168,7 +168,7 @@ tex_coords: 2*F32</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>729</x>
+      <x>567</x>
       <y>855</y>
       <w>171</w>
       <h>54</h>
@@ -182,7 +182,7 @@ normal: 2*UINT8</panel_attributes>
   <element>
     <id>UMLNote</id>
     <coordinates>
-      <x>729</x>
+      <x>567</x>
       <y>0</y>
       <w>207</w>
       <h>162</h>
@@ -203,7 +203,7 @@ ASCII: 8-bit ASCII character</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>450</x>
+      <x>288</x>
       <y>18</y>
       <w>108</w>
       <h>252</h>
@@ -216,7 +216,7 @@ m2=num_frames
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>387</x>
+      <x>225</x>
       <y>18</y>
       <w>171</w>
       <h>369</h>
@@ -229,7 +229,7 @@ m2=num_frames*num_tags
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>432</x>
+      <x>270</x>
       <y>18</y>
       <w>126</w>
       <h>459</h>
@@ -242,7 +242,7 @@ m2=num_surfaces
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>693</x>
+      <x>531</x>
       <y>432</y>
       <w>54</w>
       <h>45</h>
@@ -255,7 +255,7 @@ m2=1
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>630</x>
+      <x>468</x>
       <y>450</y>
       <w>117</w>
       <h>252</h>
@@ -268,7 +268,7 @@ m2=num_triangles
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>612</x>
+      <x>450</x>
       <y>450</y>
       <w>135</w>
       <h>315</h>
@@ -281,7 +281,7 @@ m2=num_shaders
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>594</x>
+      <x>432</x>
       <y>450</y>
       <w>153</w>
       <h>387</h>
@@ -294,7 +294,7 @@ m2=num_vertices
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>558</x>
+      <x>396</x>
       <y>450</y>
       <w>189</w>
       <h>450</h>
