@@ -237,7 +237,10 @@ class MDCCompFrameVertex:
     format = '<3B1B'
     format_size = struct.calcsize(format)
 
-    location_scale = 1 /20.0
+    location_scale = 1 / 20.0
+    max_ofs = 127
+    max_dist = max_ofs * location_scale  # 6,35
+    max_compression_delta = 0.1
 
     def __init__(self, location_offset, normal):
 
@@ -625,6 +628,7 @@ class MDCSurfaceHeader:
     format_size = struct.calcsize(format)
     ident = b'\x07\x00\x00\x00'
     name_len = 64
+    flags = 0  # TODO
 
     def __init__(self, ident, name, flags, num_comp_frames, num_base_frames,
                  num_shaders, num_vertices, num_triangles, ofs_triangles,
@@ -1234,6 +1238,7 @@ class MDCHeader:
     ident = b'IDPC'
     version = 2
     name_len = 64
+    flags = 0  # TODO
 
     def __init__(self, ident, version, name, flags, num_frames, num_tags,
                  num_surfaces, num_skins, ofs_frame_infos, ofs_tag_infos,

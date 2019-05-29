@@ -162,7 +162,7 @@ class MDXBoneFrameCompressed:
     orientation_scale = 360 / 65536.0  # TODO recheck with source
     location_dir_scale = 360 / 4095.0  # TODO recheck with source
 
-    angle_none_default_value = 777
+    angle_none_default = 777
 
     def __init__(self, orientation, location_dir):
 

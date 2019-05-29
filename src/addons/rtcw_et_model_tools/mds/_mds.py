@@ -488,6 +488,9 @@ class MDSVertex:
     format = '<3f2fIIf'
     format_size = struct.calcsize(format)
 
+    fixed_parent_default = 0
+    fixed_dist_default = 0.0
+
     def __init__(self, normal, tex_coords, num_weights, fixed_parent,
                  fixed_dist):
 
@@ -606,7 +609,7 @@ class MDSSurfaceHeader:
         Used mainly to navigate file data.
     """
 
-    format = '<4s64s64s11I'
+    format = '<4s64s64s2Ii8I'
     format_size = struct.calcsize(format)
     ident = b'\x09\x00\x00\x00'
     name_len = 64
@@ -994,7 +997,7 @@ class MDSFrameInfo:
             bounding box as tuple of floats.
         local_origin (tuple): TODO
         radius (float): TODO
-        root_bone_location (float): TODO
+        root_bone_location (tuple): TODO
 
     File encodings:
 

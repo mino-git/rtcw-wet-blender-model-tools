@@ -18,810 +18,659 @@
 
 # <pep8-80 compliant>
 
+"""Contains MDI format and utility functions.
+"""
+
+import math
+
 import mathutils
 
-import rtcw_et_model_tools.mdi.mdi_util as mdi_util
-import rtcw_et_model_tools.mdmmdx._mdx as mdx
-import rtcw_et_model_tools.blender.scene as scene
-
-
-class MDIType:
-
-    unknown = 0
-    morph_vertices = 1
-    rigged_vertices = 2
-    shader_references = 3
-    shader_reference = 4
-    uv_map_surjective = 5
-    uv_map_bijective = 6
-    lod_discrete = 7
-    lod_collapse_map = 8
-    socket_free = 9
-    socket_parent_bone = 10
-    socket_parent_bone_offset = 11
-
-    """TODO
-
-    Attributes:
-
-        TODO
-
-    File encodings:
-
-        type: 16*ASCII
-
-    Background:
-
-        TODO
-
-    Notes:
-
-        TODO
-    """
-
-    def __init__(self, type_ = unknown):
-
-        self.type_ = type_
-
 # ====================
-# Bounds
+# string
 # ====================
 
-class MDIBoundsInFrame:
+def to_c_string_padded(src_str, target_len):
+    """Converts to a padded c string.
+    """
+
+    if len(src_str) < target_len:
+
+        num_chars_to_pad = target_len - len(src_str)
+        zeros = '\0' * num_chars_to_pad
+        src_str += zeros
+
+    c_string_padded = src_str.encode(encoding = 'ascii', errors = 'strict')
+    return c_string_padded
+
+def from_c_string_padded(c_string_padded):
+    """Converts to a python string.
+    """
+
+    pad_start = c_string_padded.find(b"\x00")
+    if pad_start != -1:
+        c_string_padded = c_string_padded[0:pad_start]
+
+    return str(object = c_string_padded, encoding = 'utf-8', errors = 'strict')
+
+# ====================
+# direction
+# ====================
+
+def angles_to_vector(yaw, pitch):
+    """Apply pitch and yaw rotation to the forward vector.
+
+    TODO extrinsic vs intrinsic
+    """
+
+    yaw = math.radians(yaw)
+    pitch = math.radians(pitch)
+
+    sp = math.sin(pitch)
+    cp = math.cos(pitch)
+    sy = math.sin(yaw)
+    cy = math.cos(yaw)
+
+    x = cy * cp
+    y = sy * cp
+    z = -sp
+
+    return (x, y, z)
+
+def vector_to_angles(vec):
+    """Determine pitch and yaw rotation from forward vector to given
+    vector.
+
+    TODO extrinsic vs intrinsic
+    """
+
+    yaw = 0
+    pitch = 0
+
+    vec.normalize()
+
+    # we can read sin pitch directly from the direction vector
+    sp = -(vec[2])
+
+    # fp arithmetic can cause slight imprecision
+    if sp <= -1.0:
+
+        pitch = -math.pi / 2
+
+    elif sp >= 1.0:
+
+        pitch = math.pi / 2
+
+    else:
+
+        pitch = math.asin(sp)
+
+    # pitch is known, we can calculate cos pitch
+    cp = math.cos(pitch) # [0, 1]
+
+    # TODO math.fabs()
+    if cp > 0.00001: # catch fp arithmetic imprecision
+
+        # with known cos pitch, we can calculate yaw
+        off_x = vec[0]
+        off_y = vec[1]
+        # we can avoid division by cp by using properties of atan2
+        # and the given range of values el. [0, 1]
+        yaw = math.atan2(off_y, off_x) # yaw = math.atan2(offY/cp, offX/cp)
+
+    else: # because of division by zero we can not use cos pitch here
+
+        # if cp == 0 => pitch either +90 or -90
+        yaw = 0 # just set yaw to 0, since it does not affect the direction
+
+    yaw = math.degrees(yaw)
+    pitch = math.degrees(pitch)
+
+    # TODO
+    # normalize
+    # if yaw < 0:
+    #     yaw = 360 + yaw
+    # if pitch < 0:
+    #     pitch = 360 + pitch
+
+    return (yaw, pitch)
+
+# ====================
+# orientation
+# ====================
+
+def matrix_to_tuple(matrix):
+
+    forward_x = matrix[0][0]
+    forward_y = matrix[1][0]
+    forward_z = matrix[2][0]
+
+    left_x = matrix[0][1]
+    left_y = matrix[1][1]
+    left_z = matrix[2][1]
+
+    up_x = matrix[0][2]
+    up_y = matrix[1][2]
+    up_z = matrix[2][2]
+
+    return (forward_x, forward_y, forward_z,
+            left_x, left_y, left_z,
+            up_x, up_y, up_z)
+
+def tuple_to_matrix(orientation):
+
+    forward_x = orientation[0]
+    forward_y = orientation[1]
+    forward_z = orientation[2]
+
+    left_x = orientation[3]
+    left_y = orientation[4]
+    left_z = orientation[5]
+
+    up_x = orientation[6]
+    up_y = orientation[7]
+    up_z = orientation[8]
+
+    matrix = mathutils.Matrix.Identity(3)
+    matrix[0][0:3] = forward_x, left_x, up_x
+    matrix[1][0:3] = forward_y, left_y, up_y
+    matrix[2][0:3] = forward_z, left_z, up_z
+
+    return matrix
+
+def angles_to_matrix(yaw, pitch, roll):
     """TODO
+    """
+
+    yaw = math.radians(yaw)
+    pitch = math.radians(pitch)
+    roll = math.radians(roll)
+
+    sy = math.sin(yaw)
+    cy = math.cos(yaw)
+
+    sp = math.sin(pitch)
+    cp = math.cos(pitch)
+
+    sr = math.sin(roll)
+    cr = math.cos(roll)
+
+    # construct a rotation matrix
+    # first roll, then pitch, then yaw
+    # +x = forward, +y = left, +z = up, right handed
+    forward_x = cy * cp
+    forward_y = sy * cp
+    forward_z = -sp
+
+    left_x = cy * sp * sr + (-sy) * cr
+    left_y = sy * sp * sr + cy * cr
+    left_z = cp * sr
+
+    up_x = cy * sp * cr + (-sy) * (-sr)
+    up_y = sy * sp * cr + cy * (-sr)
+    up_z = cp * cr
+
+    matrix = mathutils.Matrix.Identity(3)
+    matrix[0][0:3] = forward_x, left_x, up_x # first row
+    matrix[1][0:3] = forward_y, left_y, up_y # second row
+    matrix[2][0:3] = forward_z, left_z, up_z # third row
+
+    # the angles are given extrinsically (rotation around fixed axis)
+    # so we need to reverse the order to account for the nature of matrix
+    # operations, which is intrinsic (rotation around body axis)
+    # the matrix is orthonormal, so its inverse is its transpose
+    # TODO recheck on that
+    matrix = matrix.transposed()
+
+    return matrix
+
+def matrix_to_angles(matrix):
+    """TODO
+
+    Huge thanks to Fletcher Dunn and Ian Parberry for their method
+    For a full explanation, see their book:
+    3D math primer for graphics and game development, 2nd edition, p. 278
+    """
+
+    roll = 0
+    pitch = 0
+    yaw = 0
+
+    # we can read sin pitch directly from the matrix
+    sp = -(matrix[0][2])
+
+    # fp arithmetic can cause slight imprecision
+    if sp <= -1.0:
+
+        pitch = -math.pi / 2
+
+    elif sp >= 1.0:
+
+        pitch = math.pi / 2
+
+    else:
+
+        pitch = math.asin(sp)
+
+    # pitch is known, we can calculate cos pitch
+    cp = math.cos(pitch) # [0, 1]
+
+    # TODO math.fabs()
+    if cp > 0.00001: # catch fp arithmetic imprecision
+
+        # with known cos pitch, we can calculate yaw
+        m00 = matrix[0][0]
+        m01 = matrix[0][1]
+        # we can avoid division by cp by using properties of atan2
+        # and the given range of values el. [0, 1]
+        yaw = math.atan2(m01, m00) # yaw = math.atan2(m01/cp, m00/cp)
+
+        # with known cos pitch, we can calculate roll
+        m12 = matrix[1][2]
+        m22 = matrix[2][2]
+        roll = math.atan2(m12, m22) # roll = math.atan2(m12/cp, m22/cp)
+
+    else: # because of division by zero we can not use cos pitch here
+
+        # if cp == 0 => pitch either +90 or - 90 => gimbal lock situation
+        roll = 0 # just set roll to 0
+
+        # sin yaw and cos yaw can be read directly from the matrix
+        # after the parameters are plugged in: cp == 0 => sr == 0, cr == 1
+        m10 = matrix[1][0]
+        m11 = matrix[1][1]
+        yaw = math.atan2(-m10, m11)
+
+    yaw = math.degrees(yaw)
+    pitch = math.degrees(pitch)
+    roll = math.degrees(roll)
+
+    return (yaw, pitch, roll)
+
+# ====================
+# normal
+# ====================
+
+# TODO
+
+
+class MDI:
+    """MDI (model definition interchange). An in-memory interchange format for
+    easier conversions.
 
     Attributes:
 
-        TODO
-
-    File encodings:
-
-        min_bound: 3*F32
-        max_bound: 3*F32
-        local_origin: 3*F32
-        radius: F32
-
-    Background:
-
-        TODO
-
-    Notes:
-
-        TODO
+        name (str): name of the model.
+        root_frame (int): frame of model in bind or base pose.
+        surfaces (list<MDISurface>[num_surfaces]): surfaces (if present).
+        skeleton (MDISkeleton): skeleton (if present).
+        tags (list<MDITag>[num_tags]): tags of the model (if present).
+        bounding_volume (MDIBoundingVolume): bounding info.
+        lod (MDILOD): level of detail.
     """
 
-    def __init__(self, min_bound = None, max_bound = None, local_origin = None,
-                 radius = 0.0):
+    def __init__(self, name = "unknown name", root_frame = 0, surfaces = None,
+                 skeleton = None, tags = None, bounding_volume = None,
+                 lod = None):
 
-        self.min_bound = min_bound
-        self.max_bound = max_bound
-        self.local_origin = local_origin
-        self.radius = radius
+        self.name = name
+        self.root_frame = root_frame
 
-
-class MDIBoundsAnimation:
-    """TODO
-
-    Attributes:
-
-        TODO
-
-    File encodings:
-
-        TODO
-
-    Background:
-
-        TODO
-
-    Notes:
-
-        TODO
-    """
-
-    def __init__(self, frames = None):
-
-        if frames is None:
-            self.frames = []
+        if surfaces:
+            self.surfaces = surfaces
         else:
-            self.frames = frames
+            self.surfaces = []
+
+        self.skeleton = skeleton
+
+        if tags:
+            self.tags = tags
+        else:
+            self.tags = []
+
+        self.bounding_volume = bounding_volume
+        self.lod = lod
+
+    def tags_to_type(self, target_type):
+
+        tags = []
+        for tag in self.tags:
+
+            new_tag = tag.to_type(target_type, self)
+            tags.append(new_tag)
+
+        self.tags = tags
+
+    def lod_to_type(self, target_type):
+
+        # TODO
+        return True
 
 
-class MDIBounds:
+class MDISurface:
     """TODO
 
     Attributes:
 
-        TODO
-
-    File encodings:
-
-        min_bound: 3*F32
-        max_bound: 3*F32
-        local_origin: 3*F32
-        radius: F32
-
-    Background:
-
-        TODO
-
-    Notes:
-
-        TODO
+        name (str)
+        vertices (list<MDIVertex>[num_vertices])
+        triangles (list<MDITriangle>[num_triangles])
+        shader (MDIShader)
+        uv_map (MDIUVMap)
     """
 
-    def __init__(self, min_bound = None, max_bound = None, local_origin = None,
-                 radius = 0.0, animation = None):
-
-        self.min_bound = min_bound
-        self.max_bound = max_bound
-        self.local_origin = local_origin
-        self.radius = radius
-
-        self.animation = animation
-
-# ====================
-# Sockets
-# ====================
-
-class MDISocket:
-    """TODO
-
-    Attributes:
-
-        TODO
-
-    File encodings:
-
-        name: 64*ASCII (C-String)
-
-    Background:
-
-        TODO
-
-    Notes:
-
-        TODO
-    """
-
-    def __init__(self, name, type_ = MDIType.unknown):
+    def __init__(self, name = "unknown name", vertices = None,
+                 triangles = None, shader = None, uv_map = None):
 
         self.name = name
 
-        self.type_ = MDIType(type_)
+        if vertices:
+            self.vertices = vertices
+        else:
+            self.vertices = []
+
+        if triangles:
+            self.triangles = triangles
+        else:
+            self.triangles = []
+
+        self.shader = shader
+        self.uv_map = uv_map
+
+    def uv_map_to_type(self, target_type):
+
+        return True
+
+    def shader_to_type(self, target_type):
+
+        new_shader = self.shader.to_type(target_type)
+
+        self.shader = new_shader
+
+    def vertices_to_type(self, target_type, mdi_model = None):
+
+        vertices = []
+        for vertex in self.vertices:
+
+            new_vertex = vertex.to_type(target_type, mdi_model)
+            vertices.append(new_vertex)
+
+        self.vertices = vertices
+
+    def calc_bone_refs(self, mdi_skeleton):
+
+        bone_refs = []
+
+        bone_indices = set()
+        for mdi_rigged_vertex in self.vertices:
+
+            for mdi_weight in mdi_rigged_vertex.weights:
+
+                bone_index = mdi_weight.parent_bone
+                bone_indices.add(bone_index)
+                while bone_index != -1:
+
+                    bone_indices.add(bone_index)
+                    bone_index = mdi_skeleton.bones[bone_index].parent_bone
+
+        for bone_index in bone_indices:
+
+            # exclude torso parent bone
+            # TODO why?
+            if bone_index == mdi_skeleton.torso_parent_bone:
+                continue
+
+            bone_refs.append(bone_index)
+
+        bone_refs = sorted(bone_refs)
+
+        return bone_refs
 
 
-class MDISocketParentBoneOffset(MDISocket):
+class MDIMorphVertex:
     """TODO
 
     Attributes:
 
-        TODO
-
-    File encodings:
-
-        parent_skeleton: UINT32
-        parent_bone: UINT32
-        location: 3*F32
-        orientation: 3*3*F32
-
-    Background:
-
-        TODO
-
-    Notes:
-
-        TODO
+        locations (list<Vector>[num_frames])
+        normals (list<Vector>[num_frames])
     """
 
-    def __init__(self, name, parent_skeleton, parent_bone, location,
-                 orientation):
+    def __init__(self, locations = None, normals = None):
 
-        super().__init__(name, MDIType.socket_parent_bone_offset)
+        if locations:
+            self.locations = locations
+        else:
+            self.locations = []
 
-        self.parent_skeleton = parent_skeleton
+        if normals:
+            self.normals = normals
+        else:
+            self.normals = []
+
+    def to_type(self, target_type, mdi_model = None):
+
+        if target_type == MDIMorphVertex:
+            return self
+        elif target_type == MDIRiggedVertex:
+            # TODO not supported
+            pass
+
+        return None
+
+
+class MDIRiggedVertex:
+    """TODO
+
+    Attributes:
+
+        normal (Vector)
+        weights (list<MDIVertexWeight>[num_weights])
+    """
+
+    def __init__(self, normal = None, weights = None):
+
+        self.normal = normal
+
+        if weights:
+            self.weights = weights
+        else:
+            self.weights = []
+
+    def to_type(self, target_type, mdi_model = None):
+
+        if target_type == MDIMorphVertex:
+
+            mdi_skeleton = mdi_model.skeleton
+
+            locations = []
+            normals = []
+            for num_frame in range(len(mdi_model.bounding_volume.aabbs)):
+
+                location, normal = self.calc_model_space_coords(mdi_skeleton,
+                                                                num_frame)
+                locations.append(location)
+                normals.append(normal)
+
+            mdi_morph_vertex = MDIMorphVertex(locations, normals)
+
+            return mdi_morph_vertex
+
+        elif target_type == MDIRiggedVertex:
+
+            return self
+
+        return None
+
+    def calc_model_space_coords(self, mdi_skeleton, num_frame):
+
+        location_ms = mathutils.Vector((0.0, 0.0, 0.0))
+        orientation_weighted = mathutils.Matrix.Identity(3)
+
+        for mdi_weight in self.weights:
+
+            mdi_bone = mdi_skeleton.bones[mdi_weight.parent_bone]
+
+            bone_weight = mdi_weight.weight_value
+
+            # to object space
+            tmp = mdi_bone.orientations[num_frame] @ mdi_weight.location
+            object_space_coords = mdi_bone.locations[num_frame] + tmp
+
+            # weight it against bone
+            object_space_coords_weighted = object_space_coords * bone_weight
+
+            location_ms += object_space_coords_weighted
+            orientation_weighted += \
+                mdi_bone.orientations[num_frame] * bone_weight
+
+        normal = mathutils.Vector(self.normal)
+        normal_ms = orientation_weighted @ normal
+
+        return (location_ms, normal_ms)
+
+
+class MDIVertexWeight:
+    """TODO
+
+    Attributes:
+
+        parent_bone (int)
+        weight_value (float)
+        location (Vector)
+    """
+
+    def __init__(self, parent_bone = 0, weight_value = 0.0, location = None):
+
         self.parent_bone = parent_bone
+        self.weight_value = weight_value
         self.location = location
-        self.orientation = orientation
 
 
-class MDISocketParentBone(MDISocket):
+class MDITriangle:
     """TODO
 
     Attributes:
 
-        TODO
-
-    File encodings:
-
-        parent_skeleton: UINT32
-        parent_bone: UINT32
-        torso_weight: F32
-
-    Background:
-
-        TODO
-
-    Notes:
-
-        TODO
+        indices (list<int>[3])
     """
 
-    def __init__(self, name, parent_skeleton, parent_bone, torso_weight = 0.0):
+    def __init__(self, indices = None):
 
-        super().__init__(name, MDIType.socket_parent_bone)
-
-        self.parent_skeleton = parent_skeleton
-        self.parent_bone = parent_bone
-        self.torso_weight = torso_weight
-
-
-class MDISocketFreeInFrame:
-    """TODO
-
-    Attributes:
-
-        TODO
-
-    File encodings:
-
-        location: 3*F32
-        orientation: 3*3*F32
-
-    Background:
-
-        TODO
-
-    Notes:
-
-        TODO
-    """
-
-    def __init__(self, location = None, orientation = None):
-
-        self.location = location
-        self.orientation = orientation
-
-
-class MDISocketFreeAnimation:
-    """TODO
-
-    Attributes:
-
-        TODO
-
-    File encodings:
-
-        TODO
-
-    Background:
-
-        TODO
-
-    Notes:
-
-        TODO
-    """
-
-    def __init__(self, frames = None):
-
-        if frames is None:
-            self.frames = []
+        if indices:
+            self.indices = indices
         else:
-            self.frames = frames
+            self.indices = []
 
 
-class MDISocketFree(MDISocket):
+class MDIShaderPaths:
     """TODO
 
     Attributes:
 
-        TODO
-
-    File encodings:
-
-        location: 3*F32
-        orientation: 3*3*F32
-
-    Background:
-
-        TODO
-
-    Notes:
-
-        TODO
+        paths (list<MDIShaderPath>[num_shaders])
     """
 
-    def __init__(self, name, location = None, orientation = None,
-                 animation = None):
+    def __init__(self, paths = None):
 
-        super().__init__(name, MDIType.socket_free)
-
-        self.location = location
-        self.orientation = orientation
-
-        if animation is None:
-            self.animation = MDISocketFreeAnimation()
+        if paths:
+            self.paths = paths
         else:
-            self.animation = animation
+            self.paths = []
+
+    def to_type(self, target_type):
+
+        if target_type == MDIShaderPaths:
+
+            return self
+
+        elif target_type == MDIShaderPath:
+
+            # TODO warning message
+            mdi_shader_path = self.paths[0]  # TODO we just assume it exists
+            return mdi_shader_path
+
+        return None
 
 
-class MDISocketsNav:
+class MDIShaderPath:
     """TODO
 
     Attributes:
 
-        TODO
-
-    File encodings:
-
-        num_sockets: UINT32
-
-    Background:
-
-        TODO
-
-    Notes:
-
-        TODO
+        path (str)
     """
 
-    def __init__(self, mdi_sockets):
+    def __init__(self, path = "unknown path"):
 
-        '''
-        TODO
-        num_sockets
-        '''
-        pass
+        self.path = path
+
+    def to_type(self, target_type):
+
+        if target_type == MDIShaderPaths:
+
+            paths = [self]
+            mdi_shader_paths = MDIShaderPaths(paths)
+
+            return mdi_shader_paths
+
+        elif target_type == MDIShaderPath:
+
+            return self
+
+        return None
 
 
-class MDISockets:
+class MDIUVMapSurjective:
     """TODO
 
     Attributes:
 
-        TODO
-
-    File encodings:
-
-        TODO
-
-    Background:
-
-        TODO
-
-    Notes:
-
-        TODO
+        uvs (list<MDIUV>[num_vertices][num_mappings])
     """
 
-    def __init__(self, socket_list = None):
+    def __init__(self, uvs = None):
 
-        self.navigation_info = None
-
-        if socket_list is None:
-            self.socket_list = []
+        if uvs:
+            self.uvs = uvs
         else:
-            self.socket_list = socket_list
+            self.uvs = []
+
+    def to_type(self, target_type):
+
+        # TODO
+
+        return None
 
 
-# ====================
-# Skeletons
-# ====================
-
-class MDIBoneInFrame:
+class MDIUVMapBijective:
     """TODO
 
     Attributes:
 
-        TODO
-
-    File encodings:
-
-        location: 3*F32
-        orientation: 3*3*F32
-
-    Background:
-
-        TODO
-
-    Notes:
-
-        TODO
+        uvs (list<MDIUV>[num_vertices])
     """
 
-    def __init__(self, location = None, orientation = None):
+    def __init__(self, uvs = None):
 
-        self.location = location
-        self.orientation = orientation
-
-
-class MDIBoneAnimation:
-    """TODO
-
-    Attributes:
-
-        TODO
-
-    File encodings:
-
-        TODO
-
-    Background:
-
-        TODO
-
-    Notes:
-
-        TODO
-    """
-
-    def __init__(self, frames = None):
-
-        if frames is None:
-            self.frames = []
+        if uvs:
+            self.uvs = uvs
         else:
-            self.frames = frames
+            self.uvs = []
+
+    def to_type(self, target_type):
+
+        # TODO
+
+        return None
 
 
-class MDIBone:
+class MDIUV:
     """TODO
 
     Attributes:
 
-        TODO
-
-    File encodings:
-
-        name: 64*ASCII (C-String)
-        parent_bone: UINT32
-        parent_dist: F32
-        torso_weight: F32
-        flags: UINT32
-        location: 3*F32
-        orientation: 3*3*F32
-
-    Background:
-
-        TODO
-
-    Notes:
-
-        TODO
-    """
-
-    def __init__(self, name, parent_bone = -1, parent_dist = 0,
-                 torso_weight = 0, flags = 0, location = None,
-                 orientation = None, animation = None):
-
-        self.name = name
-        self.parent_bone = parent_bone
-        self.parent_dist = parent_dist
-        self.torso_weight = torso_weight
-        self.flags = flags
-        self.location = location
-        self.orientation = orientation
-
-        if animation is None:
-            self.animation = MDIBoneAnimation()
-        else:
-            self.animation = animation
-
-
-class MDIBonesNav:
-    """TODO
-
-    Attributes:
-
-        TODO
-
-    File encodings:
-
-        num_bones: UINT32
-
-    Background:
-
-        TODO
-
-    Notes:
-
-        TODO
-    """
-
-    def __init__(self):
-
-        '''
-        TODO
-        num_bones
-        '''
-        pass
-
-
-class MDIBones:
-    """TODO
-
-    Attributes:
-
-        TODO
-
-    File encodings:
-
-        torso_parent_bone: INT32
-
-    Background:
-
-        TODO
-
-    Notes:
-
-        TODO
-    """
-
-    def __init__(self, torso_parent_bone = None, bone_list = None):
-
-        self.torso_parent_bone = torso_parent_bone
-
-        self.navigation_info = None
-
-        if bone_list is None:
-            self.bone_list = []
-        else:
-            self.bone_list = bone_list
-
-
-class MDISkeleton:
-    """TODO
-
-    Attributes:
-
-        TODO
-
-    File encodings:
-
-        name: 64*ASCII (C-String)
-
-    Background:
-
-        TODO
-
-    Notes:
-
-        TODO
-    """
-
-    def __init__(self, name = "MDISkeleton None", bones = None):
-
-        self.name = name
-
-        if bones is None:
-            self.bones = MDIBones()
-        else:
-            self.bones = bones
-
-
-class MDISkeletonsNav:
-    """TODO
-
-    Attributes:
-
-        TODO
-
-    File encodings:
-
-        num_skeletons: UINT32
-
-    Background:
-
-        TODO
-
-    Notes:
-
-        TODO
-    """
-
-    def __init__(self, mdi_skeletons):
-
-        '''
-        TODO
-        '''
-        pass
-
-
-class MDISkeletons:
-    """TODO
-
-    Attributes:
-
-        TODO
-
-    File encodings:
-
-        TODO
-
-    Background:
-
-        TODO
-
-    Notes:
-
-        TODO
-    """
-
-    def __init__(self, skeleton_list = None):
-
-        self.navigation_info = None
-
-        if skeleton_list is None:
-            self.skeleton_list = []
-        else:
-            self.skeleton_list = skeleton_list
-
-
-# ====================
-# LOD
-# ====================
-
-class MDILOD:
-    """TODO
-
-    Attributes:
-
-        TODO
-
-    File encodings:
-
-        TODO
-
-    Background:
-
-        TODO
-
-    Notes:
-
-        TODO
-    """
-
-    def __init__(self, type_ = MDIType.unknown):
-
-        self.type_ = MDIType(type_)
-
-
-class MDILODCollapseMap(MDILOD):
-    """TODO
-
-    Attributes:
-
-        TODO
-
-    File encodings:
-
-        min_lod: UINT32
-        mappings: num_vertices*UINT32
-
-    Background:
-
-        TODO
-
-    Notes:
-
-        TODO
-    """
-
-    def __init__(self, min_lod = 0, mappings = None):
-
-        super().__init__(MDIType.lod_collapse_map)
-
-        self.min_lod = min_lod
-
-        if mappings is None:
-            self.mappings = []
-        else:
-            self.mappings = mappings
-
-
-class MDILODDiscrete(MDILOD):
-    """TODO
-
-    Attributes:
-
-        TODO
-
-    File encodings:
-
-        TODO
-
-    Background:
-
-        TODO
-
-    Notes:
-
-        TODO
-    """
-
-    def __init__(self):
-
-        super().__init__(MDIType.lod_discrete)
-
-
-# ====================
-# UVMap
-# ====================
-
-class MDIUVMap:
-    """TODO
-
-    Attributes:
-
-        TODO
-
-    File encodings:
-
-        TODO
-
-    Background:
-
-        TODO
-
-    Notes:
-
-        TODO
-    """
-
-    def __init__(self, type_ = MDIType.unknown):
-
-        self.type_ = MDIType(type_)
-
-
-class MDIUVMapBijective(MDIUVMap):
-    """TODO
-
-    Attributes:
-
-        TODO
-
-    File encodings:
-
-        TODO
-
-    Background:
-
-        TODO
-
-    Notes:
-
-        TODO
-    """
-
-    def __init__(self, tex_coords_list = None):
-
-        super().__init__(MDIType.uv_map_bijective)
-
-        if tex_coords_list is None:
-            self.tex_coords_list = []
-        else:
-            self.tex_coords_list = tex_coords_list
-
-
-class MDITexCoords:
-    """TODO
-
-    Attributes:
-
-        TODO
-
-    File encodings:
-
-        u: F32
-        v: F32
-
-    Background:
-
-        TODO
-
-    Notes:
-
-        TODO
+        u (float)
+        v (float)
     """
 
     def __init__(self, u = 0.0, v = 0.0):
@@ -830,974 +679,424 @@ class MDITexCoords:
         self.v = v
 
 
-class MDITexCoordsMappingsNav:
+class MDISkeleton:
     """TODO
+    - fixed distance note
 
     Attributes:
 
-        TODO
-
-    File encodings:
-
-        TODO
-
-    Background:
-
-        TODO
-
-    Notes:
-
-        TODO
+        name (str)
+        torso_parent_bone (int)
+        root_bone_locations (list<Vector>[num_frames])
+        bones (list<MDIBone>[num_bones])
     """
 
-    def __init__(self, mdi_tex_coords_mappings):
+    def __init__(self, name = "unknown name", torso_parent_bone = 0,
+                 root_bone_locations = None, bones = None):
 
-        '''
-        TODO
-        num_mappings
-        '''
-        pass
+        self.name = name
+        self.torso_parent_bone = torso_parent_bone
 
-
-class MDITexCoordsMappings:
-    """TODO
-
-    Attributes:
-
-        TODO
-
-    File encodings:
-
-        TODO
-
-    Background:
-
-        TODO
-
-    Notes:
-
-        TODO
-    """
-
-    def __init__(self, tex_coords_list = None):
-
-        self.navigation_info = None
-
-        if tex_coords_list is None:
-            self.tex_coords_list = []
+        if root_bone_locations:
+            self.root_bone_locations = root_bone_locations
         else:
-            self.tex_coords_list = tex_coords_list
+            self.root_bone_locations = []
 
-
-class MDIUVMapSurjective(MDIUVMap):
-    """TODO
-
-    Attributes:
-
-        TODO
-
-    File encodings:
-
-        TODO
-
-    Background:
-
-        TODO
-
-    Notes:
-
-        TODO
-    """
-
-    def __init__(self, tex_coords_mappings_list = None):
-
-        super().__init__(MDIType.uv_map_surjective)
-
-        if tex_coords_mappings_list is None:
-            self.tex_coords_mappings_list = []
+        if bones:
+            self.bones = bones
         else:
-            self.tex_coords_mappings_list = tex_coords_mappings_list
+            self.bones = []
 
 
-# ====================
-# Shaders
-# ====================
-
-class MDIShaderData:
+class MDIBone:
     """TODO
 
     Attributes:
 
-        TODO
-
-    File encodings:
-
-        TODO
-
-    Background:
-
-        TODO
-
-    Notes:
-
-        TODO
+        name (str)
+        parent_bone (int)
+        parent_dist (float)
+        torso_weight (float)
+        locations (list<Vector>[num_frames])
+        orientations (list<Matrix>[num_frames])
     """
 
-    def __init__(self, type_ = MDIType.unknown):
-
-        self.type_ = MDIType(type_)
-
-
-class MDIShaderReference(MDIShaderData):
-    """TODO
-
-    Attributes:
-
-        TODO
-
-    File encodings:
-
-        reference: 64*ASCII (C-String)
-
-    Background:
-
-        TODO
-
-    Notes:
-
-        TODO
-    """
-
-    def __init__(self, reference = "Shader None"):
-
-        super().__init__(MDIType.shader_reference)
-
-        self.reference = reference
-
-
-class MDIShaderReferencesNav:
-    """TODO
-
-    Attributes:
-
-        TODO
-
-    File encodings:
-
-        num_shaders: UINT32
-
-    Background:
-
-        TODO
-
-    Notes:
-
-        TODO
-    """
-
-    def __init__(self, mdi_shader_references):
-
-        '''
-        TODO
-        num_shaders
-        '''
-        pass
-
-
-class MDIShaderReferences(MDIShaderData):
-    """TODO
-
-    Attributes:
-
-        TODO
-
-    File encodings:
-
-        TODO
-
-    Background:
-
-        TODO
-
-    Notes:
-
-        TODO
-    """
-
-    def __init__(self, shader_reference_list = None):
-
-        super().__init__(MDIType.shader_references)
-
-        self.navigation_info = None
-
-        if shader_reference_list is None:
-            self.shader_reference_list = []
-        else:
-            self.shader_reference_list = shader_reference_list
-
-
-# ====================
-# Color
-# ====================
-
-class MDIColorNav:
-    """TODO
-
-    Attributes:
-
-        TODO
-
-    File encodings:
-
-        ofs_shaders: UINT32
-        ofs_uv_map: UINT32
-
-    Background:
-
-        TODO
-
-    Notes:
-
-        TODO
-    """
-
-    def __init__(self, mdi_color):
-
-        '''
-        TODO
-        ofs_shaders
-        ofs_uv_map
-        '''
-        pass
-
-
-class MDIColor:
-    """TODO
-
-    Attributes:
-
-        TODO
-
-    File encodings:
-
-        TODO
-
-    Background:
-
-        TODO
-
-    Notes:
-
-        TODO
-    """
-
-    def __init__(self, shader_data = None, uv_map = None):
-
-        self.navigation_info = None
-
-        self.shader_data = shader_data
-        self.uv_map = uv_map
-
-
-# ====================
-# Triangles
-# ====================
-
-class MDITriangle:
-    """TODO
-
-    Attributes:
-
-        TODO
-
-    File encodings:
-
-        indices: 3*UINT32
-
-    Background:
-
-        TODO
-
-    Notes:
-
-        TODO
-    """
-
-    def __init__(self, indices):
-
-        self.indices = indices
-
-
-class MDITrianglesNav:
-    """TODO
-
-    Attributes:
-
-        TODO
-
-    File encodings:
-
-        num_triangles: UINT32
-
-    Background:
-
-        TODO
-
-    Notes:
-
-        TODO
-    """
-
-    def __init__(self, mdi_triangles):
-
-        '''
-        TODO
-        self.num_triangles
-        '''
-        pass
-
-
-class MDITriangles:
-    """TODO
-
-    Attributes:
-
-        TODO
-
-    File encodings:
-
-        TODO
-
-    Background:
-
-        TODO
-
-    Notes:
-
-        TODO
-    """
-
-    def __init__(self, triangle_list = None):
-
-        self.navigation_info = None
-
-        if triangle_list is None:
-            self.triangle_list = []
-        else:
-            self.triangle_list = triangle_list
-
-
-# ====================
-# Vertices
-# ====================
-
-class MDIVerticesAnimation:
-    """Vertex animation.
-    """
-
-    def __init__(self, type_):
-
-        self.type_ = MDIType(type_)
-
-
-class MDIVertexWeight:
-    """TODO
-
-    Attributes:
-
-        TODO
-
-    File encodings:
-
-        parent_bone: UINT32
-        weight: UINT32
-
-    Background:
-
-        TODO
-
-    Notes:
-
-        TODO
-    """
-
-    def __init__(self, parent_bone, weight = 0.0):
-
+    def __init__(self, name = "unknown name", parent_bone = 0,
+                 parent_dist = 0.0, torso_weight = 0.0, locations = None,
+                 orientations = None):
+
+        self.name = name
         self.parent_bone = parent_bone
-        self.weight = weight
+        self.parent_dist = parent_dist
+        self.torso_weight = torso_weight
 
-
-class MDIRiggedVertexNav:
-    """TODO
-
-    Attributes:
-
-        TODO
-
-    File encodings:
-
-        num_weights: UINT32
-
-    Background:
-
-        TODO
-
-    Notes:
-
-        TODO
-    """
-
-    def __init__(self, mdi_weights):
-
-        '''
-        TODO
-        self.num_weights
-        '''
-        pass
-
-
-class MDIRiggedVertex:
-    """TODO
-
-    Attributes:
-
-        TODO
-
-    File encodings:
-
-        TODO
-
-    Background:
-
-        TODO
-
-    Notes:
-
-        TODO
-    """
-
-    def __init__(self, weights = None):
-
-        self.navigation_info = None
-
-        if weights is None:
-            self.weights = []
+        if locations:
+            self.locations = locations
         else:
-            self.weights = weights
+            self.locations = []
 
-
-class MDIRiggedVertices(MDIVerticesAnimation):
-    """TODO
-
-    Attributes:
-
-        TODO
-
-    File encodings:
-
-        parent_skeleton: UINT32
-
-    Background:
-
-        TODO
-
-    Notes:
-
-        TODO
-    """
-
-    def __init__(self, parent_skeleton, vertex_list = None):
-
-        super().__init__(MDIType.rigged_vertices)
-
-        self.parent_skeleton = parent_skeleton
-
-        if vertex_list is None:
-            self.vertex_list = []
+        if orientations:
+            self.orientations = orientations
         else:
-            self.vertex_list = vertex_list
+            self.orientations = []
 
 
-class MDIMorphVertexInFrame:
+class MDIFreeTag:
     """TODO
 
     Attributes:
 
-        TODO
-
-    File encodings:
-
-        location: 3*F32
-        normal: 3*F32
-
-    Background:
-
-        TODO
-
-    Notes:
-
-        TODO
+        name (str)
+        locations (list<Vector>[num_frames])
+        orientations (list<Matrix>[num_frames])
     """
 
-    def __init__(self, location = None, normal = None):
-
-        self.location = location
-        self.normal = normal
-
-
-class MDIMorphVerticesInFrame:
-    """TODO
-
-    Attributes:
-
-        TODO
-
-    File encodings:
-
-        TODO
-
-    Background:
-
-        TODO
-
-    Notes:
-
-        TODO
-    """
-
-    def __init__(self, vertex_list = None):
-
-        if vertex_list is None:
-            self.vertex_list = []
-        else:
-            self.vertex_list = vertex_list
-
-
-class MDIMorphVertices(MDIVerticesAnimation):
-    """TODO
-
-    Attributes:
-
-        TODO
-
-    File encodings:
-
-        TODO
-
-    Background:
-
-        TODO
-
-    Notes:
-
-        TODO
-    """
-
-    def __init__(self, frame_list = None):
-
-        super().__init__(MDIType.morph_vertices)
-
-        if frame_list is None:
-            self.frame_list = []
-        else:
-            self.frame_list = frame_list
-
-
-class MDIVertex:
-    """TODO
-
-    Attributes:
-
-        TODO
-
-    File encodings:
-
-        location: 3*F32
-        normal: 3*F32
-
-    Background:
-
-        TODO
-
-    Notes:
-
-        TODO
-    """
-
-    def __init__(self, location = None, normal = None, animation = None):
-
-        self.location = location
-        self.normal = normal
-
-        self.animation = animation
-
-
-class MDIVerticesNav:
-    """TODO
-
-    Attributes:
-
-        TODO
-
-    File encodings:
-
-        num_vertices: UINT32
-
-    Background:
-
-        TODO
-
-    Notes:
-
-        TODO
-    """
-
-    def __init__(self, mdi_vertices):
-
-        '''
-        TODO
-        self.num_vertices
-        '''
-        pass
-
-
-class MDIVertices:
-    """TODO
-
-    Attributes:
-
-        TODO
-
-    File encodings:
-
-        TODO
-
-    Background:
-
-        TODO
-
-    Notes:
-
-        TODO
-    """
-
-    def __init__(self, vertex_list = None, animation = None):
-
-        self.navigation_info = None
-
-        if vertex_list is None:
-            self.vertex_list = []
-        else:
-            self.vertex_list = vertex_list
-
-        self.animation = animation
-
-
-# ====================
-# Geometry
-# ====================
-
-class MDIGeometryNav:
-    """TODO
-
-    Attributes:
-
-        TODO
-
-    File encodings:
-
-        ofs_vertices: UINT32
-        ofs_triangles: UINT32
-
-    Background:
-
-        TODO
-
-    Notes:
-
-        TODO
-    """
-
-    def __init__(self, mdi_geometry):
-
-        '''
-        TODO
-        self.ofs_vertices
-        self.ofs_triangles
-        '''
-        pass
-
-
-class MDIGeometry:
-    """TODO
-
-    Attributes:
-
-        TODO
-
-    File encodings:
-
-        TODO
-
-    Background:
-
-        TODO
-
-    Notes:
-
-        TODO
-    """
-
-    def __init__(self, vertices = None, triangles = None):
-
-        self.navigation_info = None
-
-        if vertices is None:
-            self.vertices = MDIVertices()
-        else:
-            self.vertices = vertices
-
-        if triangles is None:
-            self.triangles = MDITriangles()
-        else:
-            self.triangles = triangles
-
-
-# ====================
-# Surfaces
-# ====================
-
-class MDISurfaceNav:
-    """TODO
-
-    Attributes:
-
-        TODO
-
-    File encodings:
-
-        num_frames: UINT32
-        ofs_geometry: UINT32
-        ofs_color: UINT32
-        ofs_lod: UINT32
-        ofs_end: UINT32
-
-    Background:
-
-        TODO
-
-    Notes:
-
-        TODO
-    """
-
-    def __init__(self, mdi_surface):
-
-        '''
-        TODO
-        self.num_frames
-        self.ofs_geometry
-        self.ofs_color
-        self.ofs_lod
-        self.ofs_end
-        '''
-        pass
-
-
-class MDISurface:
-    """TODO
-
-    Attributes:
-
-        TODO
-
-    File encodings:
-
-        name: 64*ASCII (C-String)
-
-    Background:
-
-        TODO
-
-    Notes:
-
-        TODO
-    """
-
-    def __init__(self, name = "MDISurface None", geometry = None, color = None,
-                 lod = None):
+    def __init__(self, name = "unknown name", locations = None,
+                 orientations = None):
 
         self.name = name
 
-        self.navigation_info = None
-
-        if geometry is None:
-            self.geometry = MDIGeometry()
+        if locations:
+            self.locations = locations
         else:
-            self.geometry = geometry
+            self.locations = []
 
-        if color is None:
-            self.color = MDIColor()
+        if orientations:
+            self.orientations = orientations
         else:
-            self.color = color
+            self.orientations = []
 
-        self.lod = lod
+    def to_type(self, target_type, mdi_model = None):
+
+        if target_type == MDIFreeTag:
+
+            return self
+
+        elif target_type == MDIBoneTag:
+            # TODO possible, but it will fail on vertices conversion
+            pass
+
+        elif target_type == MDIBoneTagOff:
+            # TODO possible, but it will fail on vertices conversion
+            pass
+
+        return None
 
 
-class MDISurfacesNav:
+class MDIBoneTag:
     """TODO
 
     Attributes:
 
-        TODO
-
-    File encodings:
-
-        num_surfaces: UINT32
-
-    Background:
-
-        TODO
-
-    Notes:
-
-        TODO
+        name (str)
+        parent_bone (int)
+        torso_weight (float)
     """
 
-    def __init__(self, mdi_surfaces):
-
-        '''
-        TODO
-        self.num_surfaces
-        '''
-        pass
-
-
-class MDISurfaces:
-    """TODO
-
-    Attributes:
-
-        TODO
-
-    File encodings:
-
-        TODO
-
-    Background:
-
-        TODO
-
-    Notes:
-
-        TODO
-    """
-
-    def __init__(self, surface_list = None):
-
-        self.navigation_info = None
-
-        if surface_list is None:
-            self.surface_list = []
-        else:
-            self.surface_list = surface_list
-
-
-# ====================
-# MDI
-# ====================
-
-class MDINav:
-
-    magic = b"MDIW"
-
-    """TODO
-
-    Attributes:
-
-        TODO
-
-    File encodings:
-
-        magic: 4*ASCII
-        version: UINT32
-        ofs_surfaces: UINT32
-        ofs_skeletons: UINT32
-        ofs_sockets: UINT32
-        ofs_bounds: UINT32
-        ofs_end: UINT32
-
-    Background:
-
-        TODO
-
-    Notes:
-
-        TODO
-    """
-
-    def __init__(self, mdi_model):
-
-        self.magic = MDINav.magic
-        self.version = MDI.version
-
-        '''
-        TODO
-        self.ofs_surfaces
-        self.ofs_skeletons
-        self.ofs_sockets
-        self.ofs_bounds
-        self.ofs_end
-        '''
-
-
-class MDI:
-    """TODO
-
-    Attributes:
-
-        TODO
-
-    File encodings:
-
-        name: 64*ASCII (C-String)
-        lod_scale: F32
-        lod_bias: F32
-
-    Background:
-
-        TODO
-
-    Notes:
-
-        TODO
-    """
-
-    version = 1
-
-    def __init__(self, name = "MDI None", lod_scale = 5, lod_bias = 0,
-                 surfaces = None, skeletons = None, sockets = None,
-                 bounds = None):
+    def __init__(self, name = "unknown name", parent_bone = 0,
+                 torso_weight = 0.0):
 
         self.name = name
+        self.parent_bone = parent_bone
+        self.torso_weight = torso_weight
+
+    def to_type(self, target_type, mdi_model = None):
+
+        if target_type == MDIFreeTag:
+
+            mdi_parent_bone = mdi_model.skeleton.bones[self.parent_bone]
+
+            name = self.name
+
+            locations = []
+            orientations = []
+            for num_frame in range(len(mdi_parent_bone.locations)):
+
+                location = mdi_parent_bone.locations[num_frame]
+                orientation = mdi_parent_bone.orientations[num_frame]
+
+                locations.append(location)
+                orientations.append(orientation)
+
+            mdi_free_tag = MDIFreeTag(name, locations, orientations)
+
+            return mdi_free_tag
+
+        elif target_type == MDIBoneTag:
+
+            return self
+
+        elif target_type == MDIBoneTagOff:
+
+            root_frame = mdi_model.root_frame
+            mdi_parent_bone = mdi_model.skeleton.bones[self.parent_bone]
+
+            name = self.name
+            parent_bone = self.parent_bone
+            location = mdi_parent_bone.locations[root_frame]
+            orientation = mdi_parent_bone.orientations[root_frame]
+            mdi_bone_tag_off = MDIBoneTagOff(name, parent_bone, location,
+                                             orientation)
+
+            return mdi_bone_tag_off
+
+        return None
+
+
+class MDIBoneTagOff:
+    """TODO
+
+    Attributes:
+
+        name (str)
+        parent_bone (int)
+        location (Vector)
+        orientation (Matrix)
+    """
+
+    def __init__(self, name = "unknown name", parent_bone = 0, location = None,
+                 orientation = None):
+
+        self.name = name
+        self.parent_bone = parent_bone
+        self.location = location
+        self.orientation = orientation
+
+    def to_type(self, target_type, mdi_model = None):
+
+        if target_type == MDIFreeTag:
+
+            mdi_parent_bone = mdi_model.skeleton.bones[self.parent_bone]
+
+            name = self.name
+
+            locations = []
+            orientations = []
+            for num_frame in range(len(mdi_parent_bone.locations)):
+
+                location = self.calc_tag_location(mdi_model, num_frame)
+                orientation = self.calc_tag_orientation(mdi_model, num_frame)
+
+                locations.append(location)
+                orientations.append(orientation)
+
+            mdi_free_tag = MDIFreeTag(name, locations, orientations)
+
+            return mdi_free_tag
+
+        elif target_type == MDIBoneTag:
+
+            root_frame = mdi_model.root_frame
+            mdi_parent_bone = mdi_model.skeleton.bones[self.parent_bone]
+
+            parent_location = mdi_parent_bone.locations[root_frame]
+            parent_orientation = mdi_parent_bone.orientations[root_frame]
+
+            tag_name = self.name
+            tag_parent_bone = self.parent_bone
+
+            needs_new_bone = False
+            if parent_location == self.location and \
+                parent_orientation == self.orientation:  # TODO check with imprecison
+                pass
+            else:
+                needs_new_bone = True
+
+            if needs_new_bone:
+
+                # bone params
+                name = self.name
+                parent_bone = self.parent_bone
+                parent_dist = 0.0  # calculated later
+                torso_weight = 0.0  # TODO
+
+                locations = []
+                orientations = []
+
+                for num_frame in range(len(mdi_parent_bone.locations)):
+
+                    location = self.calc_tag_location(mdi_model, num_frame)
+                    orientation = \
+                        self.calc_tag_orientation(mdi_model, num_frame)
+
+                    locations.append(location)
+                    orientations.append(orientation)
+
+                parent_dist = (locations[root_frame] - \
+                    mdi_parent_bone.locations[root_frame]).length
+
+                new_bone = MDIBone(name, parent_bone, parent_dist,
+                                   torso_weight, locations, orientations)
+                mdi_model.skeleton.bones.append(new_bone)
+
+                tag_parent_bone = len(mdi_model.skeleton.bones) - 1
+
+            mdi_bone_tag = MDIBoneTag(tag_name, tag_parent_bone, torso_weight)
+
+            return mdi_bone_tag
+
+        elif target_type == MDIBoneTagOff:
+
+            return self
+
+        return None
+
+    def calc_tag_location(self, mdi_model, num_frame):
+
+        root_frame = mdi_model.root_frame
+        mdi_parent_bone = mdi_model.skeleton.bones[self.parent_bone]
+
+        # p = parent, t = tag
+        # b = bind, f = frame
+        # l = location, o = orientation
+        # _ps = parent space, _ws = world space
+        pbl = mdi_parent_bone.locations[root_frame]
+        pbo = mdi_parent_bone.orientations[root_frame]
+        pfl = mdi_parent_bone.locations[num_frame]
+        pfo = mdi_parent_bone.orientations[num_frame]
+
+        tbl_ps = pbo.transposed() @ (self.location - pbl)
+        tfl_ws = pfl + (pfo @ tbl_ps)
+
+        return tfl_ws
+
+    def calc_tag_orientation(self, mdi_model, num_frame):
+
+        root_frame = mdi_model.root_frame
+        mdi_parent_bone = mdi_model.skeleton.bones[self.parent_bone]
+
+        # p = parent, t = tag
+        # b = bind, f = frame
+        # l = location, o = orientation
+        # _ps = parent space, _ws = world space
+        pbo = mdi_parent_bone.orientations[root_frame]
+        pfo = mdi_parent_bone.orientations[num_frame]
+        tfo_ws = pfo @ pbo.transposed() @ self.orientation
+
+        return tfo_ws
+
+    def calc_bone_refs(self, mdi_skeleton):
+
+        bone_indices = set()
+
+        bone_index = self.parent_bone
+        bone_indices.add(bone_index)
+        while bone_index != -1:
+
+            bone_indices.add(bone_index)
+            bone_index = mdi_skeleton.bones[bone_index].parent_bone
+
+        bone_refs = sorted(bone_indices)
+
+        return bone_refs
+
+class MDIBoundingVolume:
+    """TODO
+
+    Attributes:
+
+        aabbs (list<MDIAABB>[num_frames])
+        spheres (list<MDIBoundingSphere>[num_frames])
+    """
+
+    def __init__(self, aabbs = None, spheres = None):
+
+        if aabbs:
+            self.aabbs = aabbs
+        else:
+            self.aabbs = []
+
+        if spheres:
+            self.spheres = spheres
+        else:
+            self.spheres = []
+
+
+class MDIAABB:
+    """TODO
+
+    Attributes:
+
+        min_bound (Vector)
+        max_bound (Vector)
+    """
+
+    def __init__(self, min_bound = None, max_bound = None):
+
+        if min_bound:
+            self.min_bound = min_bound
+        else:
+            self.min_bound = mathutils.Vector((0, 0, 0))
+
+        if max_bound:
+            self.max_bound = max_bound
+        else:
+            self.max_bound = mathutils.Vector((0, 0, 0))
+
+
+class MDIBoundingSphere:
+    """TODO
+
+    Attributes:
+
+        origin (Vector)
+        radius (float)
+    """
+
+    def __init__(self, origin = None, radius = 0.0):
+
+        self.origin = origin
+        self.radius = radius
+
+
+class MDIDiscreteLOD:
+    """Currently empty.
+
+    Attributes:
+
+        TODO
+    """
+
+    def __init__(self):
+
+        pass
+
+    def to_type(self, target_type):
+
+        # TODO
+        return None
+
+
+class MDICollapseMap:
+    """TODO
+
+    Attributes:
+
+        lod_scale (float)
+        lod_bias (float)
+        min_lods (list<int>[num_surfaces])
+        collapses (list<int>[num_surfaces][num_vertices])
+    """
+
+    def __init__(self, collapse_frame = None, lod_scale = 5, lod_bias = 0,
+                 min_lods = None, collapses = None):
+
+        self.collapse_frame = collapse_frame
+
         self.lod_scale = lod_scale
         self.lod_bias = lod_bias
 
-        self.navigation_info = None
-
-        if surfaces is None:
-            self.surfaces = MDISurfaces()
+        if min_lods:
+            self.min_lods = min_lods
         else:
-            self.surfaces = surfaces
+            self.min_lods = []
 
-        if skeletons is None:
-            self.skeletons = MDISkeletons()
+        if collapses:
+            self.collapses = collapses
         else:
-            self.skeletons = skeletons
+            self.collapses = []
 
-        if sockets is None:
-            self.sockets = MDISockets()
-        else:
-            self.sockets = sockets
+    def to_type(self, target_type):
 
-        self.bounds = bounds
+        # TODO
+        return None

@@ -512,9 +512,9 @@ class MDMWeight:
         file.write(struct.pack(MDMWeight.format,
                                self.bone_index,
                                self.bone_weight,
-                               self.location_offset[0],
-                               self.location_offset[1],
-                               self.location_offset[2]))
+                               self.location[0],
+                               self.location[1],
+                               self.location[2]))
 
 
 class MDMVertex:
@@ -660,7 +660,7 @@ class MDMSurfaceHeader:
         Used mainly to navigate file data.
     """
 
-    format = '<4s64s64s11I'
+    format = '<4s64s64s2Ii8I'
     format_size = struct.calcsize(format)
     ident = b'\x09\x00\x00\x00'
     name_len = 64

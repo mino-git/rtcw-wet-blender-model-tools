@@ -111,7 +111,7 @@ class ImportPanel(bpy.types.Panel):
         else:
 
             pass
-            
+
 
 # Operators
 # ==============================
@@ -141,7 +141,7 @@ class MD3Importer(bpy.types.Operator):
 
         mdi_model = md3_facade.read(md3_file_path, bind_frame,
                                     encoding = "binary")
-        blender_scene.write(mdi_model, bind_frame)
+        blender_scene.write(mdi_model)
 
         return {'FINISHED'}
 
@@ -171,7 +171,7 @@ class MDCImporter(bpy.types.Operator):
 
         mdi_model = mdc_facade.read(mdc_file_path, bind_frame,
                                     encoding="binary")
-        blender_scene.write(mdi_model, bind_frame)
+        blender_scene.write(mdi_model)
 
         return {'FINISHED'}
 
@@ -201,7 +201,7 @@ class MDSImporter(bpy.types.Operator):
 
         mdi_model = mds_facade.read(mds_file_path, bind_frame,
                                     encoding="binary")
-        blender_scene.write(mdi_model, bind_frame)
+        blender_scene.write(mdi_model)
 
         return {'FINISHED'}
 
@@ -241,9 +241,9 @@ class MDMMDXImporter(bpy.types.Operator):
 
         mdi_model = mdmmdx_facade.read(mdx_file_path, mdm_file_path,
                                        bind_frame, encoding="binary")
-        blender_scene.write(mdi_model, bind_frame)
+        blender_scene.write(mdi_model)
 
-        return {'FINISHED'}  
+        return {'FINISHED'}
 
 
 # Registration
@@ -254,7 +254,7 @@ classes = (
     MD3Importer,
     MDCImporter,
     MDSImporter,
-    MDMMDXImporter,    
+    MDMMDXImporter,
 )
 
 def register():
@@ -353,4 +353,3 @@ def unregister():
     del bpy.types.Scene.remt_mdc_bind_frame
     del bpy.types.Scene.remt_mds_bind_frame
     del bpy.types.Scene.remt_mdmmdx_bind_frame
-        
