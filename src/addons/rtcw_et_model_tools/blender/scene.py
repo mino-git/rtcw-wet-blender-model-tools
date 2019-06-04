@@ -586,57 +586,65 @@ class Armature:
             # animate
             for num_frame in range(0, frame_len):
 
-                z_cbl = mdi_bone.locations[bind_pose_frame]
-                z_cbo = mdi_bone.orientations[bind_pose_frame]
-                z_cfl = mdi_bone.locations[num_frame]
-                z_cfo = mdi_bone.orientations[num_frame]
+                # c = child, p = parent
+                # b = find frame, f = current frame
+                # l = location, o = orientation
+                # _ms = model space, _ps = parent space
+                cbl_ms = mdi_bone.locations[bind_pose_frame]
+                cbo_ms = mdi_bone.orientations[bind_pose_frame]
+                cfl_ms = mdi_bone.locations[num_frame]
+                cfo_ms = mdi_bone.orientations[num_frame]
 
                 if mdi_bone.parent_bone >= 0:
 
                     mdi_parent_bone = mdi_bones[mdi_bone.parent_bone]
 
-                    z_pbl = mdi_parent_bone.locations[bind_pose_frame]
-                    z_pbo = mdi_parent_bone.orientations[bind_pose_frame]
-                    z_pfl = mdi_parent_bone.locations[num_frame]
-                    z_pfo = mdi_parent_bone.orientations[num_frame]
+                    pbl_ms = mdi_parent_bone.locations[bind_pose_frame]
+                    pbo_ms = mdi_parent_bone.orientations[bind_pose_frame]
+                    pfl_ms = mdi_parent_bone.locations[num_frame]
+                    pfo_ms = mdi_parent_bone.orientations[num_frame]
 
-                    # cbl_dash
-                    diff_loc = z_cbl - z_pbl
-                    diff_rot = z_pfo @ z_pbo.transposed()
-                    tmp = diff_rot @ diff_loc
-                    cbl_dash = tmp + z_pfl
+                    # blenders bone animations (as we defined them in our
+                    # settings) are relative to its bind pose space, the bind
+                    # pose space is nested within parent space, so we need to
+                    # transform our data which is given in model space
 
-                    # cbo_dash
-                    cbo_dash = z_pfo @ z_pbo.transposed() @ z_cbo
+                    # express the childs bind pose in parent space
+                    cbl_ps = pbo_ms.transposed() @ (cbl_ms - pbl_ms)
+                    cbo_ps = pbo_ms.transposed() @ cbo_ms
 
-                    # location
-                    location = cbo_dash.transposed() @ (z_cfl - cbl_dash)
+                    # calculate the model space coordinates of the child in
+                    # blenders bind pose
+                    cbl_dash_ms = pfl_ms + pfo_ms @ cbl_ps
+                    cbo_dash_ms = pfo_ms @ cbo_ps
 
-                    # orientation
-                    orientation = cbo_dash.transposed() @ z_cfo
+                    # offset from blenders bind pose to our wished model space
+                    # values
+                    location_off = cbo_dash_ms.transposed() @ (cfl_ms - cbl_dash_ms)
+                    orientation_off = cbo_dash_ms.transposed() @ cfo_ms
 
                 else:
 
-                    orientation = z_cbo.transposed() @ z_cfo
-                    location = z_cbo.transposed() @ (z_cfl - z_cbl)
+                    orientation_off = cbo_ms.transposed() @ cfo_ms
+                    location_off = cbo_ms.transposed() @ (cfl_ms - cbl_ms)
 
-                orientation = orientation.to_quaternion()
+                orientation_off = orientation_off.to_quaternion()
 
                 fcurve_loc_x.keyframe_points[num_frame].co = \
-                    num_frame, location.x
+                    num_frame, location_off.x
                 fcurve_loc_y.keyframe_points[num_frame].co = \
-                    num_frame, location.y
+                    num_frame, location_off.y
                 fcurve_loc_z.keyframe_points[num_frame].co = \
-                    num_frame, location.z
+                    num_frame, location_off.z
 
                 fcurve_quaternion_w.keyframe_points[num_frame].co = \
-                    num_frame, orientation.w
+                    num_frame, orientation_off.w
                 fcurve_quaternion_x.keyframe_points[num_frame].co = \
-                    num_frame, orientation.x
+                    num_frame, orientation_off.x
                 fcurve_quaternion_y.keyframe_points[num_frame].co = \
-                    num_frame, orientation.y
+                    num_frame, orientation_off.y
                 fcurve_quaternion_z.keyframe_points[num_frame].co = \
-                    num_frame, orientation.z
+                    num_frame, orientation_off.z
 
         bpy.ops.object.mode_set(mode='OBJECT')
 
