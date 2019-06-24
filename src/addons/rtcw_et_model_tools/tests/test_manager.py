@@ -25,6 +25,7 @@ import unittest
 import sys
 
 import rtcw_et_model_tools.tests.test_read_write
+import rtcw_et_model_tools.tests.test_direct_conversion
 
 
 class TestParameters:
@@ -33,9 +34,14 @@ class TestParameters:
 
     parameters = None
 
-    def __init__(self, test_directory=None):
+    def __init__(self, test_directory=None, to_md3=False, to_mdc=False,
+                 to_mds=False, to_mdmmdx=False):
 
         self.test_directory = test_directory
+        self.to_md3 = to_md3
+        self.to_mdc = to_mdc
+        self.to_mds = to_mds
+        self.to_mdmmdx = to_mdmmdx
 
 
 class TestManager:
@@ -60,6 +66,13 @@ class TestManager:
             suite.addTest(
                rtcw_et_model_tools.tests.test_read_write. \
                    TestReadWrite('test_binary_read_write')
+            )
+
+        elif test_name == "test_direct_conversion":
+
+            suite.addTest(
+               rtcw_et_model_tools.tests.test_direct_conversion. \
+                   TestDirectConversion('test_direct_conversion')
             )
 
         else:
