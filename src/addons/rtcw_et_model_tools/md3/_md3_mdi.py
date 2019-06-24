@@ -231,8 +231,8 @@ class MDIToModel:
         """TODO
         """
 
-        mdi_aabb = mdi_model.bounding_volume.aabbs[num_frame]
-        mdi_bounding_sphere = mdi_model.bounding_volume.spheres[num_frame]
+        mdi_aabb = mdi_model.bounds.aabbs[num_frame]
+        mdi_bounding_sphere = mdi_model.bounds.spheres[num_frame]
 
         min_bound = mdi_aabb.min_bound.to_tuple()
         max_bound = mdi_aabb.max_bound.to_tuple()
@@ -264,7 +264,7 @@ class MDIToModel:
         mdi_model.lod_to_type(mdi.MDIDiscreteLOD)
 
         # md3 frame infos
-        for num_frame in range(len(mdi_model.bounding_volume.aabbs)):
+        for num_frame in range(len(mdi_model.bounds.aabbs)):
 
             md3_frame_info = MDIToModel._to_md3_frame_info(mdi_model,
                                                            num_frame)
@@ -298,11 +298,11 @@ class ModelToMDI:
     """
 
     @staticmethod
-    def _to_mdi_bounding_volume(md3_model):
+    def _to_mdi_bounds(md3_model):
         """TODO
         """
 
-        mdi_bounding_volume = mdi.MDIBoundingVolume()
+        mdi_bounds = mdi.MDIBoundingVolume()
 
         for md3_frame_info in md3_model.frame_infos:
 
@@ -310,15 +310,15 @@ class ModelToMDI:
             min_bound = mathutils.Vector(md3_frame_info.min_bound)
             max_bound = mathutils.Vector(md3_frame_info.max_bound)
             mdi_aabb = mdi.MDIAABB(min_bound, max_bound)
-            mdi_bounding_volume.aabbs.append(mdi_aabb)
+            mdi_bounds.aabbs.append(mdi_aabb)
 
             # sphere
             origin = mathutils.Vector(md3_frame_info.local_origin)
             radius = md3_frame_info.radius
             mdi_bounding_sphere = mdi.MDIBoundingSphere(origin, radius)
-            mdi_bounding_volume.spheres.append(mdi_bounding_sphere)
+            mdi_bounds.spheres.append(mdi_bounding_sphere)
 
-        return mdi_bounding_volume
+        return mdi_bounds
 
     @staticmethod
     def _to_mdi_tag(md3_model, num_tag):
@@ -498,8 +498,7 @@ class ModelToMDI:
             break
 
         # mdi bounding volume
-        mdi_model.bounding_volume = \
-            ModelToMDI._to_mdi_bounding_volume(md3_model)
+        mdi_model.bounds = ModelToMDI._to_mdi_bounds(md3_model)
 
         # mdi lod
         mdi_model.lod = mdi.MDIDiscreteLOD()

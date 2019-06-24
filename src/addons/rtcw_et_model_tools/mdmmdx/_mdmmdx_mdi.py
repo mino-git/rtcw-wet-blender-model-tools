@@ -136,22 +136,14 @@ class MDIToModel:
 
         mdi_bone_tag_off = mdi_model.tags[num_tag]
 
-        mdi_parent_bone = \
-            mdi_model.skeleton.bones[mdi_bone_tag_off.parent_bone]
-        root_frame = mdi_model.root_frame
-
         name = mdi.to_c_string_padded(mdi_bone_tag_off.name,
                                       mdm.MDMTag.name_len)
 
-        orientation = mdi_parent_bone.orientations[root_frame].transposed() @ \
-            mdi_bone_tag_off.orientation
-        orientation = mdi.matrix_to_tuple(orientation)
+        orientation = mdi.matrix_to_tuple(mdi_bone_tag_off.orientation)
 
         parent_bone = mdi_bone_tag_off.parent_bone
 
-        location = mdi_parent_bone.orientations[root_frame].transposed() @ \
-            (mdi_bone_tag_off.location - mdi_parent_bone.locations[root_frame])
-        location = location.to_tuple()
+        location = mdi_bone_tag_off.location.to_tuple()
 
         # bone refs
         bone_refs = mdi_bone_tag_off.calc_bone_refs(mdi_model.skeleton)
@@ -358,8 +350,8 @@ class MDIToModel:
         """TODO
         """
 
-        mdi_aabb = mdi_model.bounding_volume.aabbs[num_frame]
-        mdi_bounding_sphere = mdi_model.bounding_volume.spheres[num_frame]
+        mdi_aabb = mdi_model.bounds.aabbs[num_frame]
+        mdi_bounding_sphere = mdi_model.bounds.spheres[num_frame]
 
         min_bound = mdi_aabb.min_bound.to_tuple()
         max_bound = mdi_aabb.max_bound.to_tuple()
@@ -406,10 +398,10 @@ class MDIToModel:
             mdi_surface.vertices_to_type(mdi.MDIRiggedVertex, mdi_model)
 
         mdi_model.tags_to_type(mdi.MDIBoneTagOff)
-        mdi_model.lod_to_type(mdi.MDIDiscreteLOD)
+        mdi_model.lod_to_type(mdi.MDICollapseMap)
 
         # mdx frames
-        for num_frame in range(len(mdi_model.bounding_volume.aabbs)):
+        for num_frame in range(len(mdi_model.bounds.aabbs)):
 
             mdx_frame = MDIToModel._to_mdx_frame(mdi_model, num_frame)
             mdx_model.frames.append(mdx_frame)
@@ -465,11 +457,11 @@ class ModelToMDI:
         return mdi_collapse_map
 
     @staticmethod
-    def _to_mdi_bounding_volume(mdx_model):
+    def _to_mdi_bounds(mdx_model):
         """TODO
         """
 
-        mdi_bounding_volume = mdi.MDIBoundingVolume()
+        mdi_bounds = mdi.MDIBoundingVolume()
 
         for mdx_frame in mdx_model.frames:
 
@@ -479,15 +471,15 @@ class ModelToMDI:
             min_bound = mathutils.Vector(mdx_frame_info.min_bound)
             max_bound = mathutils.Vector(mdx_frame_info.max_bound)
             mdi_aabb = mdi.MDIAABB(min_bound, max_bound)
-            mdi_bounding_volume.aabbs.append(mdi_aabb)
+            mdi_bounds.aabbs.append(mdi_aabb)
 
             # sphere
             origin = mathutils.Vector(mdx_frame_info.local_origin)
             radius = mdx_frame_info.radius
             mdi_bounding_sphere = mdi.MDIBoundingSphere(origin, radius)
-            mdi_bounding_volume.spheres.append(mdi_bounding_sphere)
+            mdi_bounds.spheres.append(mdi_bounding_sphere)
 
-        return mdi_bounding_volume
+        return mdi_bounds
 
     @staticmethod
     def _to_mdi_tag(mdm_model, num_tag, mdi_model):
@@ -501,19 +493,23 @@ class ModelToMDI:
         mdi_bone_tag_off.name = mdi.from_c_string_padded(mdm_tag.name)
         mdi_bone_tag_off.parent_bone = mdm_tag.parent_bone
 
-        mdi_parent_bone = mdi_model.skeleton.bones[mdm_tag.parent_bone]
+        # mdi_parent_bone = mdi_model.skeleton.bones[mdm_tag.parent_bone]
 
-        # location
-        mdi_bone_tag_off.location = \
-            mdi_parent_bone.locations[mdi_model.root_frame] + \
-            (mdi_parent_bone.orientations[mdi_model.root_frame] @ \
-            mathutils.Vector(mdm_tag.location))
+        # # location
+        # mdi_bone_tag_off.location = \
+        #     mdi_parent_bone.locations[mdi_model.root_frame] + \
+        #     (mdi_parent_bone.orientations[mdi_model.root_frame] @ \
+        #     mathutils.Vector(mdm_tag.location))
 
-        # orientation
-        orientation_offset = mdi.tuple_to_matrix(mdm_tag.orientation)
-        mdi_bone_tag_off.orientation = \
-            mdi_parent_bone.orientations[mdi_model.root_frame] @ \
-            orientation_offset
+        # # orientation
+        # orientation_offset = mdi.tuple_to_matrix(mdm_tag.orientation)
+        # mdi_bone_tag_off.orientation = \
+        #     mdi_parent_bone.orientations[mdi_model.root_frame] @ \
+        #     orientation_offset
+
+        mdi_bone_tag_off.location = mathutils.Vector(mdm_tag.location)
+
+        mdi_bone_tag_off.orientation = mdi.tuple_to_matrix(mdm_tag.orientation)
 
         return mdi_bone_tag_off
 
@@ -750,8 +746,7 @@ class ModelToMDI:
             mdi_model.tags.append(mdi_tag)
 
         # mdi bounding volume
-        mdi_model.bounding_volume = \
-            ModelToMDI._to_mdi_bounding_volume(mdx_model)
+        mdi_model.bounds = ModelToMDI._to_mdi_bounds(mdx_model)
 
         # mdi lod
         mdi_model.lod = ModelToMDI._to_mdi_lod(mdm_model)

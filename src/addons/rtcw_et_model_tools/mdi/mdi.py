@@ -22,8 +22,11 @@
 """
 
 import math
+import sys
 
 import mathutils
+
+import rtcw_et_model_tools.mdi.collapse_map as collapse_map
 
 # ====================
 # string
@@ -304,13 +307,12 @@ class MDI:
         surfaces (list<MDISurface>[num_surfaces]): surfaces (if present).
         skeleton (MDISkeleton): skeleton (if present).
         tags (list<MDITag>[num_tags]): tags of the model (if present).
-        bounding_volume (MDIBoundingVolume): bounding info.
+        bounds (MDIBoundingVolume): bounding info.
         lod (MDILOD): level of detail.
     """
 
     def __init__(self, name = "unknown name", root_frame = 0, surfaces = None,
-                 skeleton = None, tags = None, bounding_volume = None,
-                 lod = None):
+                 skeleton = None, tags = None, bounds = None, lod = None):
 
         self.name = name
         self.root_frame = root_frame
@@ -327,7 +329,7 @@ class MDI:
         else:
             self.tags = []
 
-        self.bounding_volume = bounding_volume
+        self.bounds = bounds
         self.lod = lod
 
     def tags_to_type(self, target_type):
@@ -340,10 +342,9 @@ class MDI:
 
         self.tags = tags
 
-    def lod_to_type(self, target_type):
+    def lod_to_type(self, target_type, collapse_frame = 0):
 
-        # TODO
-        return True
+        self.lod = self.lod.to_type(self, target_type, collapse_frame)
 
 
 class MDISurface:
@@ -425,6 +426,41 @@ class MDISurface:
 
         return bone_refs
 
+    def get_vertices_ms(self, mdi_skeleton = None, num_frame = 0):
+        """Returns a list of tuples representing model space coordinates for
+        the locations of vertices in a specific frame"""
+
+        vertices_ms = []
+
+        for mdi_vertex in self.vertices:
+
+            if isinstance(mdi_vertex, MDIMorphVertex):
+
+                location = mdi_vertex.locations[num_frame]
+                vertices_ms.append(location)
+
+            elif isinstance(mdi_vertex, MDIRiggedVertex):
+
+                location = mdi_vertex.calc_location_ms(mdi_skeleton, num_frame)
+                vertices_ms.append((location[0], location[1], location[2]))
+
+            else:
+
+                pass  # TODO
+
+        return vertices_ms
+
+    def get_triangles(self):
+
+        triangles = []
+        for mdi_triangle in self.triangles:
+            i1 = mdi_triangle.indices[0]
+            i2 = mdi_triangle.indices[1]
+            i3 = mdi_triangle.indices[2]
+            triangles.append((i1, i2, i3))
+
+        return triangles
+
 
 class MDIMorphVertex:
     """TODO
@@ -484,7 +520,7 @@ class MDIRiggedVertex:
 
             locations = []
             normals = []
-            for num_frame in range(len(mdi_model.bounding_volume.aabbs)):
+            for num_frame in range(len(mdi_model.bounds.aabbs)):
 
                 location, normal = self.calc_model_space_coords(mdi_skeleton,
                                                                 num_frame)
@@ -500,6 +536,27 @@ class MDIRiggedVertex:
             return self
 
         return None
+
+    def calc_location_ms(self, mdi_skeleton, num_frame):
+
+        location_ms = mathutils.Vector((0.0, 0.0, 0.0))
+
+        for mdi_weight in self.weights:
+
+            mdi_bone = mdi_skeleton.bones[mdi_weight.parent_bone]
+
+            bone_weight = mdi_weight.weight_value
+
+            # to object space
+            tmp = mdi_bone.orientations[num_frame] @ mdi_weight.location
+            object_space_coords = mdi_bone.locations[num_frame] + tmp
+
+            # weight it against bone
+            object_space_coords_weighted = object_space_coords * bone_weight
+
+            location_ms += object_space_coords_weighted
+
+        return location_ms
 
     def calc_model_space_coords(self, mdi_skeleton, num_frame):
 
@@ -523,7 +580,7 @@ class MDIRiggedVertex:
             orientation_weighted += \
                 mdi_bone.orientations[num_frame] * bone_weight
 
-        normal = mathutils.Vector(self.normal)
+        normal = mathutils.Vector((0, 0, 0))  # TODO
         normal_ms = orientation_weighted @ normal
 
         return (location_ms, normal_ms)
@@ -828,13 +885,12 @@ class MDIBoneTag:
 
         elif target_type == MDIBoneTagOff:
 
-            root_frame = mdi_model.root_frame
             mdi_parent_bone = mdi_model.skeleton.bones[self.parent_bone]
 
             name = self.name
             parent_bone = self.parent_bone
-            location = mdi_parent_bone.locations[root_frame]
-            orientation = mdi_parent_bone.orientations[root_frame]
+            location = mathutils.Vector((0, 0, 0))
+            orientation = mathutils.Matrix.Identity(3)
             mdi_bone_tag_off = MDIBoneTagOff(name, parent_bone, location,
                                              orientation)
 
@@ -874,8 +930,8 @@ class MDIBoneTagOff:
             orientations = []
             for num_frame in range(len(mdi_parent_bone.locations)):
 
-                location = self.calc_tag_location(mdi_model, num_frame)
-                orientation = self.calc_tag_orientation(mdi_model, num_frame)
+                location = self.calc_frame_location_ms(mdi_model, num_frame)
+                orientation = self.calc_frame_orientation_ms(mdi_model, num_frame)
 
                 locations.append(location)
                 orientations.append(orientation)
@@ -913,17 +969,18 @@ class MDIBoneTagOff:
                 locations = []
                 orientations = []
 
-                for num_frame in range(len(mdi_parent_bone.locations)):
+                num_frames = len(mdi_parent_bone.locations)
+                for num_frame in range(num_frames):
 
-                    location = self.calc_tag_location(mdi_model, num_frame)
+                    location = \
+                        self.calc_frame_location_ms(mdi_model, num_frame)
                     orientation = \
-                        self.calc_tag_orientation(mdi_model, num_frame)
+                        self.calc_frame_orientation_ms(mdi_model, num_frame)
 
                     locations.append(location)
                     orientations.append(orientation)
 
-                parent_dist = (locations[root_frame] - \
-                    mdi_parent_bone.locations[root_frame]).length
+                parent_dist = self.location.length
 
                 new_bone = MDIBone(name, parent_bone, parent_dist,
                                    torso_weight, locations, orientations)
@@ -941,39 +998,25 @@ class MDIBoneTagOff:
 
         return None
 
-    def calc_tag_location(self, mdi_model, num_frame):
+    def calc_frame_location_ms(self, mdi_model, num_frame):
 
-        root_frame = mdi_model.root_frame
         mdi_parent_bone = mdi_model.skeleton.bones[self.parent_bone]
 
-        # p = parent, t = tag
-        # b = bind, f = frame
-        # l = location, o = orientation
-        # _ps = parent space, _ws = world space
-        pbl = mdi_parent_bone.locations[root_frame]
-        pbo = mdi_parent_bone.orientations[root_frame]
-        pfl = mdi_parent_bone.locations[num_frame]
-        pfo = mdi_parent_bone.orientations[num_frame]
+        pfl_ms = mdi_parent_bone.locations[num_frame]
+        pfo_ms = mdi_parent_bone.orientations[num_frame]
 
-        tbl_ps = pbo.transposed() @ (self.location - pbl)
-        tfl_ws = pfl + (pfo @ tbl_ps)
+        tfl_ms = pfl_ms + (pfo_ms @ self.location)
 
-        return tfl_ws
+        return tfl_ms
 
-    def calc_tag_orientation(self, mdi_model, num_frame):
+    def calc_frame_orientation_ms(self, mdi_model, num_frame):
 
-        root_frame = mdi_model.root_frame
         mdi_parent_bone = mdi_model.skeleton.bones[self.parent_bone]
 
-        # p = parent, t = tag
-        # b = bind, f = frame
-        # l = location, o = orientation
-        # _ps = parent space, _ws = world space
-        pbo = mdi_parent_bone.orientations[root_frame]
-        pfo = mdi_parent_bone.orientations[num_frame]
-        tfo_ws = pfo @ pbo.transposed() @ self.orientation
+        pfo_ms = mdi_parent_bone.orientations[num_frame]
+        tfo_ms = pfo_ms @ self.orientation
 
-        return tfo_ws
+        return tfo_ms
 
     def calc_bone_refs(self, mdi_skeleton):
 
@@ -991,7 +1034,8 @@ class MDIBoneTagOff:
         return bone_refs
 
 class MDIBoundingVolume:
-    """TODO
+    """Contains axially aligned bounding box and bound sphere used for (TODO
+    basic collision tests? and) culling.
 
     Attributes:
 
@@ -1011,6 +1055,151 @@ class MDIBoundingVolume:
         else:
             self.spheres = []
 
+    @staticmethod
+    def calc_num_frames(mdi_model):
+        '''Find out the maximum number frames across all surfaces.  If no
+        surfaces are present, use tags to find out max frame count. The number
+        of frames can also be determined by the skeleton. A model should never
+        have no frames at all.
+        '''
+
+        num_frames = 0
+        for mdi_surface in mdi_model.surfaces:
+
+            mdi_sample_morph_vertex = None
+            rigged_vertex_found = False
+
+            for mdi_vertex in mdi_surface.vertices:
+
+                if isinstance(mdi_vertex, MDIMorphVertex):
+
+                    mdi_sample_morph_vertex = mdi_vertex
+
+                elif isinstance(mdi_vertex, MDIRiggedVertex):
+
+                    rigged_vertex_found = True
+
+                else:
+
+                    pass
+
+            if mdi_sample_morph_vertex:
+
+                # all morph vertices should have equal frame count
+                num_frames = max(num_frames,
+                                 len(mdi_sample_morph_vertex.locations))
+
+            if rigged_vertex_found:
+
+                # all bones should have equal frame count
+                mdi_sample_bone = mdi_model.skeleton.bones[0]
+
+                num_frames = max(num_frames, len(mdi_sample_bone.locations))
+
+        if num_frames == 0:  # use tags to determine frame count
+
+            mdi_sample_free_tag = None
+            mdi_sample_bone_tag = None
+            mdi_sample_bone_tag_off = None
+
+            for mdi_tag in mdi_model.tags:
+
+                if isinstance(mdi_tag, MDIFreeTag):
+
+                    mdi_sample_free_tag = mdi_tag
+
+                elif isinstance(mdi_tag, MDIBoneTag):
+
+                    mdi_sample_bone_tag = mdi_tag
+
+                elif isinstance(mdi_tag, MDIBoneTagOff):
+
+                    mdi_sample_bone_tag_off = mdi_tag
+
+            if mdi_sample_free_tag:
+
+                num_frames = \
+                    max(num_frames, len(mdi_sample_free_tag.locations))
+
+            if mdi_sample_bone_tag or mdi_sample_bone_tag_off:
+
+                parent_bone = mdi_sample_bone_tag.parent_bone
+                mdi_sample_bone = mdi_model.skeleton.bones[parent_bone]
+
+                num_frames = max(num_frames, len(mdi_sample_bone.locations))
+
+        return num_frames
+
+    @staticmethod
+    def calc(mdi_model):
+        '''Calculates the bounding volume which is used for culling.
+        '''
+
+        bounds = MDIBoundingVolume()
+
+        num_frames = MDIBoundingVolume.calc_num_frames(mdi_model)
+
+        if mdi_model.surfaces:
+
+            for num_frame in range(num_frames):
+
+                min_x, min_y, min_z = [sys.float_info.max] * 3
+                max_x, max_y, max_z = [sys.float_info.min] * 3
+
+                for mdi_surface in mdi_model.surfaces:
+
+                    for mdi_vertex in mdi_surface.vertices:
+
+                        location = None
+
+                        if isinstance(mdi_vertex, MDIMorphVertex):
+
+                            location = mdi_vertex.locations[num_frame]
+
+                        elif isinstance(mdi_vertex, MDIRiggedVertex):
+
+                            location = \
+                                mdi_vertex.calc_location_ms(mdi_model.skeleton,
+                                                            num_frame)
+
+                        else:
+
+                            pass
+
+                        min_x, min_y, min_z = \
+                            min(location[0], min_x), \
+                            min(location[1], min_y), \
+                            min(location[2], min_z)
+
+                        max_x, max_y, max_z = \
+                            max(location[0], max_x), \
+                            max(location[1], max_y), \
+                            max(location[2], max_z)
+
+                min_bound = mathutils.Vector((min_x, min_y, min_z))
+                max_bound = mathutils.Vector((max_x, max_y, max_z))
+                mdi_aabb = MDIAABB(min_bound, max_bound)
+
+                mdi_bounding_sphere = \
+                    MDIBoundingSphere.calc_from_bounds(min_bound, max_bound)
+
+                #mdi_aabb.scale(1.5)
+
+                bounds.aabbs.append(mdi_aabb)
+                bounds.spheres.append(mdi_bounding_sphere)
+
+        else:
+
+            mdi_aabb = MDIAABB()
+            mdi_bounding_sphere = MDIBoundingSphere()
+
+            for num_frame in range(num_frames):
+
+                bounds.aabbs.append(mdi_aabb)
+                bounds.spheres.append(mdi_bounding_sphere)
+
+        return bounds
+
 
 class MDIAABB:
     """TODO
@@ -1020,6 +1209,11 @@ class MDIAABB:
         min_bound (Vector)
         max_bound (Vector)
     """
+
+    def scale(self, scale_factor):
+
+        self.min_bound *= scale_factor
+        self.max_bound *= scale_factor
 
     def __init__(self, min_bound = None, max_bound = None):
 
@@ -1045,8 +1239,69 @@ class MDIBoundingSphere:
 
     def __init__(self, origin = None, radius = 0.0):
 
-        self.origin = origin
+        if origin:
+            self.origin = origin
+        else:
+            self.origin = mathutils.Vector((0, 0, 0))
+
         self.radius = radius
+
+    @staticmethod
+    def calc_from_bounds(min_bound, max_bound):
+
+        # make a cube to calc the values
+        distance_x = math.fabs(min_bound[0] - max_bound[0])
+        distance_y = math.fabs(min_bound[1] - max_bound[1])
+        distance_z = math.fabs(min_bound[2] - max_bound[2])
+        cube_edge_len = max(distance_x, distance_y, distance_z)
+
+        if distance_x < cube_edge_len:
+
+            len_to_add = (cube_edge_len - distance_x) / 2
+
+            min_bound_x = min_bound[0] - len_to_add
+            max_bound_x = max_bound[0] + len_to_add
+
+        else:
+
+            min_bound_x = min_bound[0]
+            max_bound_x = max_bound[0]
+
+        if distance_y < cube_edge_len:
+
+            len_to_add = (cube_edge_len - distance_y) / 2
+
+            min_bound_y = min_bound[1] - len_to_add
+            max_bound_y = max_bound[1] + len_to_add
+
+        else:
+
+            min_bound_y = min_bound[1]
+            max_bound_y = max_bound[1]
+
+        if distance_z < cube_edge_len:
+
+            len_to_add = (cube_edge_len - distance_z) / 2
+
+            min_bound_z = min_bound[2] - len_to_add
+            max_bound_z = max_bound[2] + len_to_add
+
+        else:
+
+            min_bound_z = min_bound[2]
+            max_bound_z = max_bound[2]
+
+        # calc values from cube
+        origin = mathutils.Vector((0, 0, 0))
+        origin[0] = min_bound_x + ((max_bound_x - min_bound_x) / 2)
+        origin[1] = min_bound_y + ((max_bound_y - min_bound_y) / 2)
+        origin[2] = min_bound_z + ((max_bound_z - min_bound_z) / 2)
+
+        radius = (min_bound + origin).length
+
+        mdi_bounding_sphere = MDIBoundingSphere(origin, radius)
+
+        return mdi_bounding_sphere
 
 
 class MDIDiscreteLOD:
@@ -1061,9 +1316,18 @@ class MDIDiscreteLOD:
 
         pass
 
-    def to_type(self, target_type):
+    def to_type(self, mdi_model, target_type, collapse_frame = 0):
 
-        # TODO
+        if target_type == MDIDiscreteLOD:
+
+            return self
+
+        elif target_type == MDICollapseMap:
+
+            mdi_collapse_map = MDICollapseMap._calc(mdi_model, collapse_frame)
+
+            return mdi_collapse_map
+
         return None
 
 
@@ -1096,7 +1360,77 @@ class MDICollapseMap:
         else:
             self.collapses = []
 
-    def to_type(self, target_type):
+    @staticmethod
+    def _calc(mdi_model, collapse_frame = 0):
 
-        # TODO
+        mdi_collapse_map = MDICollapseMap()
+
+        mdi_collapse_map.collapse_frame = collapse_frame
+        mdi_collapse_map.lod_scale = 5 # TODO
+        mdi_collapse_map.lod_bias = 0 # TODO
+
+        min_lods = []
+        collapses = []
+
+        for mdi_surface in mdi_model.surfaces:
+
+            vertices_ms = mdi_surface.get_vertices_ms(mdi_model.skeleton,
+                                                      collapse_frame)
+
+            triangles = mdi_surface.get_triangles()
+
+            collapses_, permutation, min_lod = \
+                collapse_map.calculate(vertices_ms, triangles)
+
+            # TODO explain
+            min_lod = int(min_lod + 0.05 * len(mdi_surface.vertices))
+            min_lods.append(min_lod)
+
+            collapses.append(collapses_)
+
+            # permute vertices based on the collapseMap calculation
+            tmp_array = []
+            if len(permutation) != len(mdi_surface.vertices):
+                pass  # TODO print warning
+
+            for mdi_vertex in mdi_surface.vertices:
+                tmp_array.append(mdi_vertex)
+
+            for j in range(0, len(mdi_surface.vertices)):
+                mdi_surface.vertices[permutation[j]] = tmp_array[j]
+
+            # update the changes in the entries in the triangle Array
+            for j in range(0, len(mdi_surface.triangles)):
+
+                i0 = permutation[mdi_surface.triangles[j].indices[0]]
+                i1 = permutation[mdi_surface.triangles[j].indices[1]]
+                i2 = permutation[mdi_surface.triangles[j].indices[2]]
+                mdi_surface.triangles[j] = MDITriangle((i0, i1, i2))
+
+            # reorder uvMap
+            tmp_array = []
+            if len(permutation) != len(mdi_surface.uv_map.uvs):
+                pass # TODO print warning
+
+            for uv in mdi_surface.uv_map.uvs:
+                tmp_array.append(uv)
+
+            for j in range(0, len(mdi_surface.uv_map.uvs)):
+                mdi_surface.uv_map.uvs[permutation[j]] = tmp_array[j]
+
+        mdi_collapse_map.min_lods = min_lods
+        mdi_collapse_map.collapses = collapses
+
+        return mdi_collapse_map
+
+    def to_type(self, mdi_model, target_type, collapse_frame = 0):
+
+        if target_type == MDIDiscreteLOD:
+
+            return MDIDiscreteLOD()
+
+        elif target_type == MDICollapseMap:
+
+            return self
+
         return None

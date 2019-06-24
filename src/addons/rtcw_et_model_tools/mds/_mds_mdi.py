@@ -14,7 +14,7 @@
 #  along with this program; if not, write to the Free Software Foundation,
 #  Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #
-# ##### _to_mds_collapse_map(mdi_model, num_surface)END GPL LICENSE BLOCK #####
+# ##### END GPL LICENSE BLOCK #####
 
 # <pep8-80 compliant>
 
@@ -132,7 +132,7 @@ class MDIToModel:
         """TODO
         """
 
-        mdi_surface = mdi_model.surfaces[num_surface]
+        mdi_surface = mdi_model.surfaces[num_surface]  # TODO
 
         # bone_refs = mdi_surface._calc_bone_refs(mdi_model.skeleton)
         bone_refs = [0]
@@ -321,8 +321,8 @@ class MDIToModel:
         """TODO
         """
 
-        mdi_aabb = mdi_model.bounding_volume.aabbs[num_frame]
-        mdi_bounding_sphere = mdi_model.bounding_volume.spheres[num_frame]
+        mdi_aabb = mdi_model.bounds.aabbs[num_frame]
+        mdi_bounding_sphere = mdi_model.bounds.spheres[num_frame]
 
         min_bound = mdi_aabb.min_bound.to_tuple()
         max_bound = mdi_aabb.max_bound.to_tuple()
@@ -368,10 +368,10 @@ class MDIToModel:
             mdi_surface.vertices_to_type(mdi.MDIRiggedVertex, mdi_model)
 
         mdi_model.tags_to_type(mdi.MDIBoneTag)
-        mdi_model.lod_to_type(mdi.MDIDiscreteLOD)
+        mdi_model.lod_to_type(mdi.MDICollapseMap)  # TODO collapse frame
 
         # mds frames
-        for num_frame in range(len(mdi_model.bounding_volume.aabbs)):
+        for num_frame in range(len(mdi_model.bounds.aabbs)):
 
             mds_frame = MDIToModel._to_mds_frame(mdi_model, num_frame)
             mds_model.frames.append(mds_frame)
@@ -427,11 +427,11 @@ class ModelToMDI:
         return mdi_collapse_map
 
     @staticmethod
-    def _to_mdi_bounding_volume(mds_model):
+    def _to_mdi_bounds(mds_model):
         """TODO
         """
 
-        mdi_bounding_volume = mdi.MDIBoundingVolume()
+        mdi_bounds = mdi.MDIBoundingVolume()
 
         for mds_frame in mds_model.frames:
 
@@ -441,15 +441,15 @@ class ModelToMDI:
             min_bound = mathutils.Vector(mds_frame_info.min_bound)
             max_bound = mathutils.Vector(mds_frame_info.max_bound)
             mdi_aabb = mdi.MDIAABB(min_bound, max_bound)
-            mdi_bounding_volume.aabbs.append(mdi_aabb)
+            mdi_bounds.aabbs.append(mdi_aabb)
 
             # sphere
             origin = mathutils.Vector(mds_frame_info.local_origin)
             radius = mds_frame_info.radius
             mdi_bounding_sphere = mdi.MDIBoundingSphere(origin, radius)
-            mdi_bounding_volume.spheres.append(mdi_bounding_sphere)
+            mdi_bounds.spheres.append(mdi_bounding_sphere)
 
-        return mdi_bounding_volume
+        return mdi_bounds
 
     @staticmethod
     def _to_mdi_tag(mds_model, num_tag):
@@ -699,8 +699,7 @@ class ModelToMDI:
             mdi_model.tags.append(mdi_tag)
 
         # mdi bounding volume
-        mdi_model.bounding_volume = \
-            ModelToMDI._to_mdi_bounding_volume(mds_model)
+        mdi_model.bounds = ModelToMDI._to_mdi_bounds(mds_model)
 
         # mdi lod
         mdi_model.lod = ModelToMDI._to_mdi_lod(mds_model)

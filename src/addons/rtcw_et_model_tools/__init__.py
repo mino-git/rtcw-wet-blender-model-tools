@@ -39,6 +39,7 @@ import bpy
 def register():
 
     import rtcw_et_model_tools.blender.imports as imports
+    import rtcw_et_model_tools.blender.exports as exports
     import rtcw_et_model_tools.blender.direct_conversion as direct_conversion
     import rtcw_et_model_tools.blender.attach_to_tag as attach_to_tag
     import rtcw_et_model_tools.blender.skin_files as skin_files
@@ -54,6 +55,7 @@ def register():
             subtype='DIR_PATH')
 
     imports.register()
+    exports.register()
     direct_conversion.register()
     attach_to_tag.register()
     skin_files.register()
@@ -76,6 +78,7 @@ def register():
 def unregister():
 
     import rtcw_et_model_tools.blender.imports as imports
+    import rtcw_et_model_tools.blender.exports as exports
     import rtcw_et_model_tools.blender.direct_conversion as direct_conversion
     import rtcw_et_model_tools.blender.attach_to_tag as attach_to_tag
     import rtcw_et_model_tools.blender.skin_files as skin_files
@@ -86,6 +89,7 @@ def unregister():
     del bpy.types.Scene.remt_data_path
 
     imports.unregister()
+    exports.unregister()
     direct_conversion.unregister()
     attach_to_tag.unregister()
     skin_files.unregister()
