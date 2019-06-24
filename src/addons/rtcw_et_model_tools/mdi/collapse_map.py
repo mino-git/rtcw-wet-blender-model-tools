@@ -1,6 +1,8 @@
 
 # this code was ported to python from:
 # https://github.com/melax/sandbox/blob/master/bunnylod/progmesh.cpp
+# the algorithm was slightly modified to prioritize certain vertices in
+# non-sealed surfaces
 # complete algorithm is explained, search "A simple, Fast, and Effective
 # Polygon Reduction Algorithm"
 
