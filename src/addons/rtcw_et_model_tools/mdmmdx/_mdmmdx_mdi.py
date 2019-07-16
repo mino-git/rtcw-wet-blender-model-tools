@@ -23,54 +23,61 @@
 
 import mathutils
 
-import rtcw_et_model_tools.mdmmdx._mdm as mdm
-import rtcw_et_model_tools.mdmmdx._mdx as mdx
-import rtcw_et_model_tools.mdi.mdi as mdi
+import rtcw_et_model_tools.mdmmdx._mdm as mdm_m
+import rtcw_et_model_tools.mdmmdx._mdx as mdx_m
+import rtcw_et_model_tools.mdi.mdi as mdi_m
+import rtcw_et_model_tools.mdi.util as mdi_util_m
+import rtcw_et_model_tools.common.timer as timer_m
+import rtcw_et_model_tools.common.reporter as reporter_m
 
 
 class MDIToModel:
+    """MDI to MDM/MDX conversion.
+    """
 
     @staticmethod
     def _calc_mdmmdx_headers(mdx_model, mdm_model, mdi_model):
-        """TODO
-        """
 
         # mdx_model.header
-        ident = mdx.MDXHeader.ident
-        version = mdx.MDXHeader.version
-        name = mdi.to_c_string_padded(mdi_model.skeleton.name,
-                                      mdx.MDXHeader.name_len)
+        ident = mdx_m.MDXHeader.ident
+        version = mdx_m.MDXHeader.version
+        name = mdi_util_m.to_c_string_padded(mdi_model.skeleton.name,
+                                             mdx_m.MDXHeader.name_len)
         num_frames = len(mdx_model.frames)
         num_bones = len(mdx_model.bone_infos)
-        ofs_frames = 0 + mdx.MDXHeader.format_size
+        ofs_frames = 0 + mdx_m.MDXHeader.format_size
         ofs_bone_infos = ofs_frames + num_frames * \
-            (mdx.MDXFrameInfo.format_size + \
-            num_bones * mdx.MDXBoneFrameCompressed.format_size)
+            (mdx_m.MDXFrameInfo.format_size + \
+            num_bones * mdx_m.MDXBoneFrameCompressed.format_size)
         torso_parent_bone = mdi_model.skeleton.torso_parent_bone
-        ofs_end = ofs_bone_infos + num_bones * mdx.MDXBoneInfo.format_size
+        ofs_end = ofs_bone_infos + num_bones * mdx_m.MDXBoneInfo.format_size
 
-        mdx_model.header = mdx.MDXHeader(ident, version, name, num_frames,
-                                         num_bones, ofs_frames, ofs_bone_infos,
-                                         torso_parent_bone, ofs_end)
+        mdx_model.header = mdx_m.MDXHeader(ident, version, name, num_frames,
+                                           num_bones, ofs_frames,
+                                           ofs_bone_infos, torso_parent_bone,
+                                           ofs_end)
 
         # mdm_model.header
-        ident = mdm.MDMHeader.ident
-        version = mdm.MDMHeader.version
-        name = mdi.to_c_string_padded(mdi_model.name, mdm.MDMHeader.name_len)
+        ident = mdm_m.MDMHeader.ident
+        version = mdm_m.MDMHeader.version
+        name = \
+            mdi_util_m.to_c_string_padded(mdi_model.name,
+                                          mdm_m.MDMHeader.name_len)
         lod_scale = mdi_model.lod.lod_scale
         lod_bias = mdi_model.lod.lod_bias
         num_surfaces = len(mdm_model.surfaces)
-        ofs_surfaces = 0 + mdm.MDMHeader.format_size
+        ofs_surfaces = 0 + mdm_m.MDMHeader.format_size
         num_tags = len(mdm_model.tags)
         ofs_tags = None  # calculated later
         ofs_end = None  # calculated later
 
-        mdm_model.header = mdm.MDMHeader(ident, version, name, lod_scale,
-                                         lod_bias, num_surfaces, ofs_surfaces,
-                                         num_tags, ofs_tags, ofs_end)
+        mdm_model.header = mdm_m.MDMHeader(ident, version, name, lod_scale,
+                                           lod_bias, num_surfaces,
+                                           ofs_surfaces, num_tags, ofs_tags,
+                                           ofs_end)
 
         # mdm_surface.header
-        cur_ofs_header = -mdm.MDMHeader.format_size # used for ofs_header
+        cur_ofs_header = -mdm_m.MDMHeader.format_size # used for ofs_header
 
         for num_surface, mdm_surface in enumerate(mdm_model.surfaces):
 
@@ -79,34 +86,36 @@ class MDIToModel:
             for mdm_vertex in mdm_surface.vertices:
                 num_weights = num_weights + len(mdm_vertex.weights)
 
-            ident = mdm.MDMSurfaceHeader.ident
+            ident = mdm_m.MDMSurfaceHeader.ident
             name = mdi_model.surfaces[num_surface].name
-            name = mdi.to_c_string_padded(name, mdm.MDMSurfaceHeader.name_len)
+            name = \
+                mdi_util_m.to_c_string_padded(name,
+                                              mdm_m.MDMSurfaceHeader.name_len)
             path = mdi_model.surfaces[num_surface].shader.path
             shader = \
-                mdi.to_c_string_padded(path,
-                                       mdm.MDMSurfaceHeader.shader_name_len)
-            shader_index = mdm.MDMSurfaceHeader.shader_index
+                mdi_util_m.to_c_string_padded(path,
+                                        mdm_m.MDMSurfaceHeader.shader_name_len)
+            shader_index = mdm_m.MDMSurfaceHeader.shader_index
             min_lod = mdi_model.lod.min_lods[num_surface]
             ofs_header = cur_ofs_header
             num_vertices = len(mdm_surface.vertices)
-            ofs_vertices = 0 + mdm.MDMSurfaceHeader.format_size
+            ofs_vertices = 0 + mdm_m.MDMSurfaceHeader.format_size
             num_triangles = len(mdm_surface.triangles)
             ofs_triangles = ofs_vertices + \
-                num_vertices * mdm.MDMVertex.format_size + \
-                num_weights * mdm.MDMWeight.format_size
+                num_vertices * mdm_m.MDMVertex.format_size + \
+                num_weights * mdm_m.MDMWeight.format_size
             ofs_collapse_map = ofs_triangles + \
-                num_triangles * mdm.MDMTriangle.format_size
+                num_triangles * mdm_m.MDMTriangle.format_size
             num_bone_refs = len(mdm_surface.bone_refs.bone_refs)
             ofs_bone_refs = ofs_collapse_map + num_vertices * 4
             ofs_end = ofs_bone_refs + num_bone_refs * 4
 
             mdm_surface.header = \
-                mdm.MDMSurfaceHeader(ident, name, shader, shader_index,
-                                     min_lod, ofs_header, num_vertices,
-                                     ofs_vertices, num_triangles,
-                                     ofs_triangles, ofs_collapse_map,
-                                     num_bone_refs, ofs_bone_refs, ofs_end)
+                mdm_m.MDMSurfaceHeader(ident, name, shader, shader_index,
+                                       min_lod, ofs_header, num_vertices,
+                                       ofs_vertices, num_triangles,
+                                       ofs_triangles, ofs_collapse_map,
+                                       num_bone_refs, ofs_bone_refs, ofs_end)
 
             cur_ofs_header -= ofs_end
 
@@ -123,7 +132,7 @@ class MDIToModel:
                                   len(mdm_tag.bone_refs.bone_refs)
 
         ofs_end = ofs_tags + \
-            (num_tags * mdm.MDMTag.format_size + \
+            (num_tags * mdm_m.MDMTag.format_size + \
             bone_refs_field_len * 4)
 
         mdm_model.header.ofs_tags = ofs_tags
@@ -131,15 +140,13 @@ class MDIToModel:
 
     @staticmethod
     def _to_mdm_tag(mdi_model, num_tag):
-        """TODO
-        """
 
         mdi_bone_tag_off = mdi_model.tags[num_tag]
 
-        name = mdi.to_c_string_padded(mdi_bone_tag_off.name,
-                                      mdm.MDMTag.name_len)
+        name = mdi_util_m.to_c_string_padded(mdi_bone_tag_off.name,
+                                             mdm_m.MDMTag.name_len)
 
-        orientation = mdi.matrix_to_tuple(mdi_bone_tag_off.orientation)
+        orientation = mdi_util_m.matrix_to_tuple(mdi_bone_tag_off.orientation)
 
         parent_bone = mdi_bone_tag_off.parent_bone
 
@@ -147,46 +154,40 @@ class MDIToModel:
 
         # bone refs
         bone_refs = mdi_bone_tag_off.calc_bone_refs(mdi_model.skeleton)
-        mdm_bone_refs = mdm.MDMBoneRefs(bone_refs)
+        mdm_bone_refs = mdm_m.MDMBoneRefs(bone_refs)
         num_bone_refs = len(mdm_bone_refs.bone_refs)
-        ofs_bone_refs = mdm.MDMTag.format_size
+        ofs_bone_refs = mdm_m.MDMTag.format_size
         ofs_end = ofs_bone_refs + num_bone_refs * 4
 
-        mdm_tag = mdm.MDMTag(name, orientation, parent_bone, location,
-                             num_bone_refs, ofs_bone_refs, ofs_end)
-        mdm_tag.bone_refs = mdm.MDMBoneRefs(bone_refs)
+        mdm_tag = mdm_m.MDMTag(name, orientation, parent_bone, location,
+                               num_bone_refs, ofs_bone_refs, ofs_end)
+        mdm_tag.bone_refs = mdm_m.MDMBoneRefs(bone_refs)
 
         return mdm_tag
 
     @staticmethod
     def _to_mdm_bone_refs(mdi_model, num_surface):
-        """TODO
-        """
 
         mdi_surface = mdi_model.surfaces[num_surface]
 
         bone_refs = mdi_surface.calc_bone_refs(mdi_model.skeleton)
-        mdm_bone_refs = mdm.MDMBoneRefs(bone_refs)
+        mdm_bone_refs = mdm_m.MDMBoneRefs(bone_refs)
 
         return mdm_bone_refs
 
     @staticmethod
     def _to_mdm_collapse_map(mdi_model, num_surface):
-        """TODO
-        """
 
         # TODO check if present, if not calc
 
         collapse_map = mdi_model.lod.collapses[num_surface]
 
-        mdm_collapse_map = mdm.MDMCollapseMap(collapse_map)
+        mdm_collapse_map = mdm_m.MDMCollapseMap(collapse_map)
 
         return mdm_collapse_map
 
     @staticmethod
     def _to_mdm_triangle(mdi_model, num_surface, num_triangle):
-        """TODO
-        """
 
         mdi_triangle = mdi_model.surfaces[num_surface].triangles[num_triangle]
 
@@ -194,14 +195,12 @@ class MDIToModel:
         index_2 = mdi_triangle.indices[2]
         index_3 = mdi_triangle.indices[1]
         indices = (index_1, index_2, index_3)
-        mdm_triangle = mdm.MDMTriangle(indices)
+        mdm_triangle = mdm_m.MDMTriangle(indices)
 
         return mdm_triangle
 
     @staticmethod
     def _to_mdm_weight(mdi_model, num_surface, num_vertex, num_weight):
-        """TODO
-        """
 
         mdi_rigged_vertex = \
             mdi_model.surfaces[num_surface].vertices[num_vertex]
@@ -210,14 +209,12 @@ class MDIToModel:
         bone_index = mdi_vertex_weight.parent_bone
         bone_weight = mdi_vertex_weight.weight_value
         location = mdi_vertex_weight.location.to_tuple()
-        mdm_weight = mdm.MDMWeight(bone_index, bone_weight, location)
+        mdm_weight = mdm_m.MDMWeight(bone_index, bone_weight, location)
 
         return mdm_weight
 
     @staticmethod
     def _to_mdm_vertex(mdi_model, num_surface, num_vertex):
-        """TODO
-        """
 
         mdi_rigged_vertex = \
             mdi_model.surfaces[num_surface].vertices[num_vertex]
@@ -228,7 +225,7 @@ class MDIToModel:
                       1 - mdi_uv_map.uvs[num_vertex].v)
         num_weights = 0  # calculated later
 
-        mdm_vertex = mdm.MDMVertex(normal, tex_coords, num_weights)
+        mdm_vertex = mdm_m.MDMVertex(normal, tex_coords, num_weights)
 
         # weights
         for num_weight in range(len(mdi_rigged_vertex.weights)):
@@ -244,10 +241,8 @@ class MDIToModel:
 
     @staticmethod
     def _to_mdm_surface(mdi_model, num_surface):
-        """TODO
-        """
 
-        mdm_surface = mdm.MDMSurface()
+        mdm_surface = mdm_m.MDMSurface()
 
         mdi_surface = mdi_model.surfaces[num_surface]
 
@@ -277,42 +272,39 @@ class MDIToModel:
 
     @staticmethod
     def _to_mdx_bone_info(mdi_model, num_bone):
-        """TODO
-        """
 
         mdi_bone = mdi_model.skeleton.bones[num_bone]
 
-        name = mdi.to_c_string_padded(mdi_bone.name, mdx.MDXBoneInfo.name_len)
+        name = \
+            mdi_util_m.to_c_string_padded(mdi_bone.name,
+                                          mdx_m.MDXBoneInfo.name_len)
         parent_bone = mdi_bone.parent_bone
         torso_weight = mdi_bone.torso_weight
         parent_dist = mdi_bone.parent_dist
-        flags = mdx.MDXBoneInfo.flags_default_value
+        flags = mdx_m.MDXBoneInfo.flags_default_value
 
-        mdx_bone_info = mdx.MDXBoneInfo(name, parent_bone, torso_weight,
-                                        parent_dist, flags)
+        mdx_bone_info = mdx_m.MDXBoneInfo(name, parent_bone, torso_weight,
+                                          parent_dist, flags)
 
         return mdx_bone_info
 
     @staticmethod
     def _to_mdx_bone_frame_compressed(mdi_model, num_frame, num_bone):
-        """TODO
-        """
 
         mdi_bone = mdi_model.skeleton.bones[num_bone]
 
         # orientation
         orientation = mdi_bone.orientations[num_frame]
 
-        yaw, pitch, roll = \
-            mdi.matrix_to_angles(orientation)
+        yaw, pitch, roll = mdi_util_m.matrix_to_angles(orientation)
 
-        scale = mdx.MDXBoneFrameCompressed.orientation_scale
+        scale = mdx_m.MDXBoneFrameCompressed.orientation_scale
         yaw = int(yaw / scale)
         pitch = int(pitch / scale)
         roll = int(roll / scale)
 
         orientation = (pitch, yaw, roll,
-                       mdx.MDXBoneFrameCompressed.angle_none_default)
+                       mdx_m.MDXBoneFrameCompressed.angle_none_default)
 
         # location dir
         has_bone_parent = True
@@ -328,27 +320,28 @@ class MDIToModel:
 
             location_diff = mdi_bone.locations[num_frame] - \
                 mdi_parent_bone.locations[num_frame]
-            yaw, pitch = mdi.vector_to_angles(location_diff.normalized())
+            yaw, pitch = mdi_util_m.angles_from_forward_vector \
+                         (
+                             location_diff.normalized()
+                         )
 
-            scale = mdx.MDXBoneFrameCompressed.location_dir_scale
-            yaw = int(yaw / scale) << 4
+            scale = mdx_m.MDXBoneFrameCompressed.location_dir_scale
+            yaw = int(yaw / scale) << 4  # TODO why bitshift
             pitch = int(pitch / scale) << 4
 
         else:
 
             pass  # root bone always is 0, 0
 
-        location_dir = (pitch, yaw)
+        location_dir = (yaw, pitch)
 
         mdx_bone_frame_compressed = \
-            mdx.MDXBoneFrameCompressed(orientation, location_dir)
+            mdx_m.MDXBoneFrameCompressed(orientation, location_dir)
 
         return mdx_bone_frame_compressed
 
     @staticmethod
     def _to_mdx_frame_info(mdi_model, num_frame):
-        """TODO
-        """
 
         mdi_aabb = mdi_model.bounds.aabbs[num_frame]
         mdi_bounding_sphere = mdi_model.bounds.spheres[num_frame]
@@ -360,17 +353,15 @@ class MDIToModel:
         root_bone_location = \
             mdi_model.skeleton.root_bone_locations[num_frame].to_tuple()
 
-        mdx_frame_info = mdx.MDXFrameInfo(min_bound, max_bound, local_origin,
-                                          radius, root_bone_location)
+        mdx_frame_info = mdx_m.MDXFrameInfo(min_bound, max_bound, local_origin,
+                                            radius, root_bone_location)
 
         return mdx_frame_info
 
     @staticmethod
     def _to_mdx_frame(mdi_model, num_frame):
-        """TODO
-        """
 
-        mdx_frame = mdx.MDXFrame()
+        mdx_frame = mdx_m.MDXFrame()
 
         mdx_frame.frame_info = MDIToModel._to_mdx_frame_info(mdi_model,
                                                              num_frame)
@@ -386,19 +377,33 @@ class MDIToModel:
 
     @staticmethod
     def convert(mdi_model):
+        """Converts MDI to MDM/MDX.
 
-        mdx_model = mdx.MDX()
-        mdm_model = mdm.MDM()
+        Args:
+
+            mdi_model (MDI): MDI model.
+
+        Returns:
+
+            mdx_model (MDX): MDX model.
+            mdm_model (MDM): MDM model.
+        """
+
+        timer = timer_m.Timer()
+        reporter_m.info("Converting MDI to MDM/MDX ...")
+
+        mdx_model = mdx_m.MDX()
+        mdm_model = mdm_m.MDM()
 
         # type conversions
         for num_surface, mdi_surface in enumerate(mdi_model.surfaces):
 
-            mdi_surface.uv_map_to_type(mdi.MDIUVMapBijective)
-            mdi_surface.shader_to_type(mdi.MDIShaderPath)
-            mdi_surface.vertices_to_type(mdi.MDIRiggedVertex, mdi_model)
+            mdi_surface.uv_map_to_type(mdi_m.MDIUVMapBijective)
+            mdi_surface.shader_to_type(mdi_m.MDIShaderPath)
+            mdi_surface.vertices_to_type(mdi_m.MDIRiggedVertex, mdi_model)
 
-        mdi_model.tags_to_type(mdi.MDIBoneTagOff)
-        mdi_model.lod_to_type(mdi.MDICollapseMap)
+        mdi_model.tags_to_type(mdi_m.MDIBoneTagOff)
+        mdi_model.lod_to_type(mdi_m.MDICollapseMap)
 
         # mdx frames
         for num_frame in range(len(mdi_model.bounds.aabbs)):
@@ -427,17 +432,21 @@ class MDIToModel:
         # headers
         MDIToModel._calc_mdmmdx_headers(mdx_model, mdm_model, mdi_model)
 
+        time = timer.time()
+        reporter_m.info("Converting MDI to MDM/MDX DONE (time={})"
+            .format(time))
+
         return (mdx_model, mdm_model)
 
 
 class ModelToMDI:
+    """MDM/MDX to MDI conversion.
+    """
 
     @staticmethod
     def _to_mdi_lod(mdm_model, collapse_frame = None):
-        """TODO
-        """
 
-        mdi_collapse_map = mdi.MDICollapseMap()
+        mdi_collapse_map = mdi_m.MDICollapseMap()
 
         mdi_collapse_map.collapse_frame = collapse_frame
         mdi_collapse_map.lod_scale = mdm_model.header.lod_scale
@@ -458,10 +467,8 @@ class ModelToMDI:
 
     @staticmethod
     def _to_mdi_bounds(mdx_model):
-        """TODO
-        """
 
-        mdi_bounds = mdi.MDIBoundingVolume()
+        mdi_bounds = mdi_m.MDIBoundingVolume()
 
         for mdx_frame in mdx_model.frames:
 
@@ -470,55 +477,38 @@ class ModelToMDI:
             # aabb
             min_bound = mathutils.Vector(mdx_frame_info.min_bound)
             max_bound = mathutils.Vector(mdx_frame_info.max_bound)
-            mdi_aabb = mdi.MDIAABB(min_bound, max_bound)
+            mdi_aabb = mdi_m.MDIAABB(min_bound, max_bound)
             mdi_bounds.aabbs.append(mdi_aabb)
 
             # sphere
             origin = mathutils.Vector(mdx_frame_info.local_origin)
             radius = mdx_frame_info.radius
-            mdi_bounding_sphere = mdi.MDIBoundingSphere(origin, radius)
+            mdi_bounding_sphere = mdi_m.MDIBoundingSphere(origin, radius)
             mdi_bounds.spheres.append(mdi_bounding_sphere)
 
         return mdi_bounds
 
     @staticmethod
     def _to_mdi_tag(mdm_model, num_tag, mdi_model):
-        """TODO
-        """
 
-        mdi_bone_tag_off = mdi.MDIBoneTagOff()
+        mdi_bone_tag_off = mdi_m.MDIBoneTagOff()
 
         mdm_tag = mdm_model.tags[num_tag]
 
-        mdi_bone_tag_off.name = mdi.from_c_string_padded(mdm_tag.name)
+        mdi_bone_tag_off.name = mdi_util_m.from_c_string_padded(mdm_tag.name)
         mdi_bone_tag_off.parent_bone = mdm_tag.parent_bone
-
-        # mdi_parent_bone = mdi_model.skeleton.bones[mdm_tag.parent_bone]
-
-        # # location
-        # mdi_bone_tag_off.location = \
-        #     mdi_parent_bone.locations[mdi_model.root_frame] + \
-        #     (mdi_parent_bone.orientations[mdi_model.root_frame] @ \
-        #     mathutils.Vector(mdm_tag.location))
-
-        # # orientation
-        # orientation_offset = mdi.tuple_to_matrix(mdm_tag.orientation)
-        # mdi_bone_tag_off.orientation = \
-        #     mdi_parent_bone.orientations[mdi_model.root_frame] @ \
-        #     orientation_offset
 
         mdi_bone_tag_off.location = mathutils.Vector(mdm_tag.location)
 
-        mdi_bone_tag_off.orientation = mdi.tuple_to_matrix(mdm_tag.orientation)
+        mdi_bone_tag_off.orientation = \
+            mdi_util_m.tuple_to_matrix(mdm_tag.orientation)
 
         return mdi_bone_tag_off
 
     @staticmethod
     def _to_mdi_skeleton(mdx_model):
-        """TODO
-        """
 
-        mdi_skeleton = mdi.MDISkeleton()
+        mdi_skeleton = mdi_m.MDISkeleton()
 
         mdi_skeleton.name = "mdx_skeleton"
         mdi_skeleton.torso_parent_bone = mdx_model.header.torso_parent_bone
@@ -536,9 +526,9 @@ class ModelToMDI:
         # bones
         for num_bone, mdx_bone_info in enumerate(mdx_model.bone_infos):
 
-            mdi_bone = mdi.MDIBone()
+            mdi_bone = mdi_m.MDIBone()
 
-            mdi_bone.name = mdi.from_c_string_padded(mdx_bone_info.name)
+            mdi_bone.name = mdi_util_m.from_c_string_padded(mdx_bone_info.name)
             mdi_bone.parent_bone = mdx_bone_info.parent_bone
             mdi_bone.parent_dist = mdx_bone_info.parent_dist
             mdi_bone.torso_weight = mdx_bone_info.torso_weight
@@ -559,14 +549,14 @@ class ModelToMDI:
                     mdx_bone_frame_compressed = \
                         mdx_frame.bone_frames_compressed[num_bone]
 
-                    yaw = mdx_bone_frame_compressed.location_dir[1]
-                    pitch = mdx_bone_frame_compressed.location_dir[0]
+                    yaw = mdx_bone_frame_compressed.location_dir[0]
+                    pitch = mdx_bone_frame_compressed.location_dir[1]
 
-                    scale = mdx.MDXBoneFrameCompressed.location_dir_scale
+                    scale = mdx_m.MDXBoneFrameCompressed.location_dir_scale
                     yaw = (yaw >> 4) * scale  # TODO why bitshift?
                     pitch = (pitch >> 4) * scale
 
-                    location_dir = mdi.angles_to_vector(yaw, pitch)
+                    location_dir = mdi_util_m.rotate_forward_vector(yaw, pitch)
                     location_dir = mathutils.Vector(location_dir)
 
                     # parent_dist
@@ -600,16 +590,16 @@ class ModelToMDI:
                 roll = mdx_bone_frame_compressed.orientation[2]
 
                 # short to float
-                scale = mdx.MDXBoneFrameCompressed.orientation_scale
+                scale = mdx_m.MDXBoneFrameCompressed.orientation_scale
 
                 yaw = yaw * scale
                 pitch = pitch * scale
                 roll = roll * scale
 
                 # to matrix
-                orientation = mdi.angles_to_matrix(yaw, pitch, roll)
+                orientation = mdi_util_m.angles_to_matrix(yaw, pitch, roll)
 
-                if mdx_model.bone_infos[num_bone].flags == 1:
+                if mdx_model.bone_infos[num_bone].flags == 1:  # TODO explain
                     orientation = orientation.transposed()
 
                 mdi_bone.orientations.append(orientation)
@@ -620,37 +610,31 @@ class ModelToMDI:
 
     @staticmethod
     def _to_mdi_uv_map(mdm_model, num_surface):
-        """TODO.
-        """
 
-        mdi_uv_map = mdi.MDIUVMapBijective()
+        mdi_uv_map = mdi_m.MDIUVMapBijective()
 
         for mdm_vertex in mdm_model.surfaces[num_surface].vertices:
 
             u = mdm_vertex.tex_coords[0]
             v = 1 - mdm_vertex.tex_coords[1]
 
-            mdi_uv = mdi.MDIUV(u, v)
+            mdi_uv = mdi_m.MDIUV(u, v)
             mdi_uv_map.uvs.append(mdi_uv)
 
         return mdi_uv_map
 
     @staticmethod
     def _to_mdi_shader(mdm_model, num_surface):
-        """TODO.
-        """
 
-        mdi_shader_path = mdi.MDIShaderPath()
+        mdi_shader_path = mdi_m.MDIShaderPath()
 
         path = mdm_model.surfaces[num_surface].header.shader
-        mdi_shader_path.path = mdi.from_c_string_padded(path)
+        mdi_shader_path.path = mdi_util_m.from_c_string_padded(path)
 
         return mdi_shader_path
 
     @staticmethod
     def _to_mdi_triangle(mdm_model, num_surface, num_triangle):
-        """TODO
-        """
 
         mdm_triangle = mdm_model.surfaces[num_surface].triangles[num_triangle]
 
@@ -658,15 +642,13 @@ class ModelToMDI:
         index_2 = mdm_triangle.indices[2]
         index_3 = mdm_triangle.indices[1]
 
-        mdi_triangle = mdi.MDITriangle([index_1, index_2, index_3])
+        mdi_triangle = mdi_m.MDITriangle([index_1, index_2, index_3])
         return mdi_triangle
 
     @staticmethod
     def _to_mdi_rigged_vertex(mdm_model, num_surface, num_vertex):
-        """TODO.
-        """
 
-        mdi_rigged_vertex = mdi.MDIRiggedVertex()
+        mdi_rigged_vertex = mdi_m.MDIRiggedVertex()
 
         mdm_vertex = mdm_model.surfaces[num_surface].vertices[num_vertex]
 
@@ -674,7 +656,7 @@ class ModelToMDI:
 
         for mdm_weight in mdm_vertex.weights:
 
-            mdi_vertex_weight = mdi.MDIVertexWeight()
+            mdi_vertex_weight = mdi_m.MDIVertexWeight()
 
             mdi_vertex_weight.parent_bone = mdm_weight.bone_index
             mdi_vertex_weight.weight_value = mdm_weight.bone_weight
@@ -686,15 +668,14 @@ class ModelToMDI:
 
     @staticmethod
     def _to_mdi_surface(mdm_model, num_surface):
-        """TODO
-        """
 
-        mdi_surface = mdi.MDISurface()
+        mdi_surface = mdi_m.MDISurface()
 
         mdm_surface = mdm_model.surfaces[num_surface]
 
         # name
-        mdi_surface.name = mdi.from_c_string_padded(mdm_surface.header.name)
+        mdi_surface.name = \
+            mdi_util_m.from_c_string_padded(mdm_surface.header.name)
 
         # mdi vertices
         for num_vertex in range(len(mdm_surface.vertices)):
@@ -724,10 +705,25 @@ class ModelToMDI:
 
     @staticmethod
     def convert(mdx_model, mdm_model, root_frame = 0):
+        """Converts MDM/MDX to MDI.
 
-        mdi_model = mdi.MDI()
+        Args:
 
-        mdi_model.name = mdi.from_c_string_padded(mdm_model.header.name)
+            mdx_model (MDX): MDX model.
+            mdm_model (MDM): MDM model.
+            root_frame (int): bind pose frame.
+
+        Returns:
+
+            mdi_model (MDI): MDI model.
+        """
+
+        timer = timer_m.Timer()
+        reporter_m.info("Converting MDM/MDX to MDI ...")
+
+        mdi_model = mdi_m.MDI()
+
+        mdi_model.name = mdi_util_m.from_c_string_padded(mdm_model.header.name)
         mdi_model.root_frame = root_frame
 
         # mdi surfaces
@@ -750,5 +746,8 @@ class ModelToMDI:
 
         # mdi lod
         mdi_model.lod = ModelToMDI._to_mdi_lod(mdm_model)
+
+        time = timer.time()
+        reporter_m.info("Converting MDM/MDX to MDI DONE (time={})".format(time))
 
         return mdi_model

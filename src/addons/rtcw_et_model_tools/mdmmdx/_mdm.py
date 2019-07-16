@@ -64,6 +64,9 @@ Background:
 
 import struct
 
+import rtcw_et_model_tools.common.timer as timer_m
+import rtcw_et_model_tools.common.reporter as reporter_m
+
 
 class MDMTag:
     """Frame independent tag information.
@@ -991,6 +994,9 @@ class MDM:
 
         with open(file_path, 'rb') as file:
 
+            timer = timer_m.Timer()
+            reporter_m.info("Reading MDM file: {} ...".format(file_path))
+
             mdm = MDM()
 
             # mdm.header
@@ -1015,6 +1021,9 @@ class MDM:
 
                 file_ofs = file_ofs + mdm_tag.ofs_end
 
+            time = timer.time()
+            reporter_m.info("Reading MDM file DONE (time={})".format(time))
+
             return mdm
 
     def write(self, file_path):
@@ -1026,6 +1035,9 @@ class MDM:
         """
 
         with open(file_path, 'wb') as file:
+
+            timer = timer_m.Timer()
+            reporter_m.info("Writing MDM file: {} ...".format(file_path))
 
             # mdm.header
             file_ofs = 0
@@ -1046,3 +1058,6 @@ class MDM:
                 mdm_tag.write(file, file_ofs)
 
                 file_ofs = file_ofs + mdm_tag.ofs_end
+
+            time = timer.time()
+            reporter_m.info("Writing MDM file DONE (time={})".format(time))

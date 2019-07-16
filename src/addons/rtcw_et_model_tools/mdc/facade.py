@@ -21,8 +21,8 @@
 """Facade for MDC file format.
 """
 
-import rtcw_et_model_tools.mdc._mdc as mdc
-import rtcw_et_model_tools.mdc._mdc_mdi as mdc_mdi
+import rtcw_et_model_tools.mdc._mdc as mdc_m
+import rtcw_et_model_tools.mdc._mdc_mdi as mdc_mdi_m
 
 
 def read(file_path, bind_frame, encoding="binary"):
@@ -41,7 +41,7 @@ def read(file_path, bind_frame, encoding="binary"):
     """
 
     if encoding == "binary":
-        mdc_model = mdc.MDC.read(file_path)
+        mdc_model = mdc_m.MDC.read(file_path)
     elif encoding == "xml":
         pass  # TODO
     elif encoding == "json":
@@ -49,7 +49,7 @@ def read(file_path, bind_frame, encoding="binary"):
     else:
         print("encoding option '{}' not supported".format(encoding))
 
-    mdi_model = mdc_mdi.ModelToMDI.convert(mdc_model, bind_frame)
+    mdi_model = mdc_mdi_m.ModelToMDI.convert(mdc_model, bind_frame)
 
     return mdi_model
 
@@ -64,7 +64,7 @@ def write(mdi_model, file_path, encoding="binary"):
         encoding (str): encoding to use for MDC.
     """
 
-    mdc_model = mdc_mdi.MDIToModel.convert(mdi_model)
+    mdc_model = mdc_mdi_m.MDIToModel.convert(mdi_model)
 
     if encoding == "binary":
         mdc_model.write(file_path)

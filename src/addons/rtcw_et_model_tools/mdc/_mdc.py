@@ -70,6 +70,9 @@ Background:
 
 import struct
 
+import rtcw_et_model_tools.common.timer as timer_m
+import rtcw_et_model_tools.common.reporter as reporter_m
+
 
 class MDCCompFrameIndices:
     """Indices into the list of compressed frame vertices.
@@ -223,15 +226,27 @@ class MDCCompFrameVertex:
 
     Attributes:
 
-        TODO
+        location (tuple): location coordinates in frame as tuple of bytes.
+        normal (byte): vertex normal as index into a list of 256 precalculated
+            normals as byte value.
 
     File encodings:
 
-        TODO
+        location: 3*INT8.
+        normal: UINT8.
 
-    Background:
+    Notes:
 
-        TODO
+        Each key frame contains a list of vertex locations and normals.
+        These values are either compressed or uncompressed.
+
+        Compressed frame vertex location values are used in conjunction with
+        base frames to calculate the location. It works by storing an offset
+        relative to a base frames vertex location.
+
+        Vertex normals manipulate the shading of a surface (for example smooth
+        or flat). They are encoded by precalculating a list of 256 normals.
+        The byte value is an index into this list.
     """
 
     format = '<3B1B'
@@ -285,27 +300,49 @@ class MDCCompFrameVertex:
 
         file.seek(file_ofs)
 
-        file.write(struct.pack(MDCCompFrameVertex.format,
-                               self.location_offset[0],
-                               self.location_offset[1],
-                               self.location_offset[2],
-                               self.normal))
+        try:
 
+            file.write(struct.pack(MDCCompFrameVertex.format,
+                                self.location_offset[0],
+                                self.location_offset[1],
+                                self.location_offset[2],
+                                self.normal))
+        except:
+
+            if self.location_offset[1] > 255 or self.location_offset[2] > 255:
+                print("1")
 
 class MDCBaseFrameVertex:
     """Vertex location and normal in a base frame.
 
     Attributes:
 
-        TODO
+        location (tuple): location coordinates in frame as tuple of shorts.
+        normal (tuple): vertex normal given in angles as tuple of bytes.
+            Index 0 = yaw, index 1 = pitch.
 
     File encodings:
 
-        TODO
+        location: 3*INT16.
+        normal: 2*UINT8.
 
-    Background:
+    Notes:
 
-        TODO
+        Each key frame contains a list of vertex locations and normals.
+        These values are either compressed or uncompressed. Base frames are
+        uncompressed.
+
+        Vertex location values from file are given as compressed 16-Bit
+        integers. To convert this range to a range of floats, the given value
+        is linearly mapped. For this, a hard coded scale value is used.
+
+        Vertex normals manipulate the shading of a surface (for example smooth
+        or flat). They are encoded by a pair of angle values. These values
+        rotate the upwards vector. Pitch range is within [0, 180] degrees.
+        Yaw range is within [0, 360) degrees. To obtain the values in degrees,
+        the given range of [0, 255] from file needs to be linearly mapped to
+        [0, 360) degrees. To convert the angles to cartesian space, the upwards
+        vector is first rotated by the pitch value, then by the yaw value.
     """
 
     format = '<3h2B'
@@ -335,12 +372,12 @@ class MDCBaseFrameVertex:
 
         file.seek(file_ofs)
 
-        location_x, location_y, location_z, normal_lon, normal_lat \
+        location_x, location_y, location_z, normal_pitch, normal_yaw \
             = struct.unpack(MDCBaseFrameVertex.format,
                             file.read(MDCBaseFrameVertex.format_size))
 
         location = (location_x, location_y, location_z)
-        normal = (normal_lat, normal_lon)
+        normal = (normal_yaw, normal_pitch)
 
         mdc_base_frame_vertex = MDCBaseFrameVertex(location, normal)
 
@@ -796,7 +833,7 @@ class MDCSurface:
         # mdc_surface.tex_coords
         file_ofs = mdc_surface_ofs + mdc_surface.header.ofs_tex_coords
 
-        for i in range(0, mdc_surface.header.num_vertices):
+        for _ in range(0, mdc_surface.header.num_vertices):
 
             mdc_tex_coords = MDCTexCoords.read(file, file_ofs)
             mdc_surface.tex_coords.append(mdc_tex_coords)
@@ -937,8 +974,8 @@ class MDCFrameTag:
     Attributes:
 
         location (tuple): location coordinates in frame as tuple of shorts.
-        orientation (tuple): orientation as euler angles in frame as tuple of
-            shorts. Index 0 = pitch, index 1 = yaw, index 2 = roll.
+        orientation (tuple): orientation as Tait–Bryan angles in frame as tuple
+            of shorts. Index 0 = pitch, index 1 = yaw, index 2 = roll.
 
     File encodings:
 
@@ -950,7 +987,7 @@ class MDCFrameTag:
         To convert location and orientation values to float, a scale value is
         used.
 
-        Orientation values are given as euler angles. Inside file they are
+        Orientation values are given as Tait–Bryan angles. Inside file they are
         stored in order of pitch, yaw, roll. Rotation order is: first roll,
         then pitch, then yaw (XYZ, intrinsic).
 
@@ -1360,6 +1397,9 @@ class MDC:
 
         with open(file_path, 'rb') as file:
 
+            timer = timer_m.Timer()
+            reporter_m.info("Reading MDC file: {} ...".format(file_path))
+
             mdc = MDC()
 
             # mdc.header
@@ -1408,6 +1448,9 @@ class MDC:
 
                 file_ofs = file_ofs + mdc_surface.header.ofs_end
 
+            time = timer.time()
+            reporter_m.info("Reading MDC file DONE (time={})".format(time))
+
             return mdc
 
     def write(self, file_path):
@@ -1419,6 +1462,9 @@ class MDC:
         """
 
         with open(file_path, 'wb') as file:
+
+            timer = timer_m.Timer()
+            reporter_m.info("Writing MDC file: {} ...".format(file_path))
 
             # mdc.header
             file_ofs = 0
@@ -1457,3 +1503,6 @@ class MDC:
                 mdc_surface.write(file, file_ofs)
 
                 file_ofs = file_ofs + mdc_surface.header.ofs_end
+
+            time = timer.time()
+            reporter_m.info("Writing MDC file DONE (time={})".format(time))

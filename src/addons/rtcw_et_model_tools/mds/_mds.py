@@ -59,6 +59,9 @@ Background:
 
 import struct
 
+import rtcw_et_model_tools.common.timer as timer_m
+import rtcw_et_model_tools.common.reporter as reporter_m
+
 
 class MDSTag:
     """Frame independent tag information.
@@ -529,7 +532,7 @@ class MDSVertex:
         # mds_vertex.weights
         file_ofs = file_ofs + MDSVertex.format_size
 
-        for i in range(mds_vertex.num_weights):
+        for _ in range(mds_vertex.num_weights):
 
             mds_weight = MDSWeight.read(file, file_ofs)
             mds_vertex.weights.append(mds_weight)
@@ -898,11 +901,11 @@ class MDSBoneFrameCompressed:
 
     Attributes:
 
-        orientation (tuple): orientation as euler angles in frame as tuple of
-            shorts. Index 0 = pitch, index 1 = yaw, index 2 = roll. Index 3 is
-            not used and contains a default value.
-        location_dir (tuple): location in spherical coordinates as tuple of
-            shorts. Index 0 = latitude, index 1 = longitude.
+        orientation (tuple): orientation as Tait–Bryan angles in frame as tuple
+            of shorts. Index 0 = pitch, index 1 = yaw, index 2 = roll. Index 3
+            is not used and contains a default value.
+        location_dir (tuple): location in angles as tuple of shorts.
+            Index 0 = yaw, index 1 = pitch.
 
     File encodings:
 
@@ -962,7 +965,7 @@ class MDSBoneFrameCompressed:
                             file.read(MDSBoneFrameCompressed.format_size))
 
         orientation = (pitch, yaw, roll, none)
-        location_dir = (off_pitch, off_yaw)
+        location_dir = (off_yaw, off_pitch)
 
         mds_bone_frame_compressed = MDSBoneFrameCompressed(orientation,
                                                            location_dir)
@@ -983,7 +986,7 @@ class MDSBoneFrameCompressed:
         file.write(struct.pack(MDSBoneFrameCompressed.format,
                                self.orientation[0], self.orientation[1],
                                self.orientation[2], self.orientation[3],
-                               self.location_dir[0], self.location_dir[1]))
+                               self.location_dir[1], self.location_dir[0]))
 
 
 class MDSFrameInfo:
@@ -1329,6 +1332,9 @@ class MDS:
 
         with open(file_path, 'rb') as file:
 
+            timer = timer_m.Timer()
+            reporter_m.info("Reading MDS file: {} ...".format(file_path))
+
             mds = MDS()
 
             # mds.header
@@ -1372,6 +1378,9 @@ class MDS:
 
                 file_ofs = file_ofs + MDSTag.format_size
 
+            time = timer.time()
+            reporter_m.info("Reading MDS file DONE (time={})".format(time))
+
             return mds
 
     def write(self, file_path):
@@ -1383,6 +1392,9 @@ class MDS:
         """
 
         with open(file_path, 'wb') as file:
+
+            timer = timer_m.Timer()
+            reporter_m.info("Writing MDS file: {} ...".format(file_path))
 
             # mds.header
             file_ofs = 0
@@ -1420,3 +1432,6 @@ class MDS:
                 tag.write(file, file_ofs)
 
                 file_ofs = file_ofs + MDSTag.format_size
+
+            time = timer.time()
+            reporter_m.info("Writing MDS file DONE (time={})".format(time))

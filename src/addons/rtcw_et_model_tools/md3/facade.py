@@ -21,8 +21,8 @@
 """Facade for MD3 file format.
 """
 
-import rtcw_et_model_tools.md3._md3 as md3
-import rtcw_et_model_tools.md3._md3_mdi as md3_mdi
+import rtcw_et_model_tools.md3._md3 as md3_m
+import rtcw_et_model_tools.md3._md3_mdi as md3_mdi_m
 
 
 def read(file_path, bind_frame, encoding="binary"):
@@ -41,7 +41,7 @@ def read(file_path, bind_frame, encoding="binary"):
     """
 
     if encoding == "binary":
-        md3_model = md3.MD3.read(file_path)
+        md3_model = md3_m.MD3.read(file_path)
     elif encoding == "xml":
         pass  # TODO
     elif encoding == "json":
@@ -49,7 +49,7 @@ def read(file_path, bind_frame, encoding="binary"):
     else:
         print("encoding option '{}' not supported".format(encoding))
 
-    mdi_model = md3_mdi.ModelToMDI.convert(md3_model, bind_frame)
+    mdi_model = md3_mdi_m.ModelToMDI.convert(md3_model, bind_frame)
 
     return mdi_model
 
@@ -64,7 +64,7 @@ def write(mdi_model, file_path, encoding="binary"):
         encoding (str): encoding to use for MD3.
     """
 
-    md3_model = md3_mdi.MDIToModel.convert(mdi_model)
+    md3_model = md3_mdi_m.MDIToModel.convert(mdi_model)
 
     if encoding == "binary":
         md3_model.write(file_path)

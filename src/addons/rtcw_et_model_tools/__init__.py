@@ -30,73 +30,58 @@ bl_info = {
     "category": "Import-Export",
 }
 
-import sys
-import logging
 
 import bpy
 
 
 def register():
 
-    import rtcw_et_model_tools.blender.imports as imports
-    import rtcw_et_model_tools.blender.exports as exports
-    import rtcw_et_model_tools.blender.direct_conversion as direct_conversion
-    import rtcw_et_model_tools.blender.attach_to_tag as attach_to_tag
-    import rtcw_et_model_tools.blender.skin_files as skin_files
-    import rtcw_et_model_tools.blender.shading as shading
-    import rtcw_et_model_tools.blender.extract_pk3s as extract_pk3s
-    import rtcw_et_model_tools.blender.tests as tests
+    import rtcw_et_model_tools.common.reporter as reporter_m
 
-    bpy.types.Scene.remt_data_path = \
+    import rtcw_et_model_tools.blender.ui.imports as imports_m
+    import rtcw_et_model_tools.blender.ui.exports as exports_m
+    import rtcw_et_model_tools.blender.ui.direct_conversion as direct_conversion_m
+    import rtcw_et_model_tools.blender.ui.attachment as attachment_m
+    import rtcw_et_model_tools.blender.ui.shading as shading_m
+    import rtcw_et_model_tools.blender.ui.unzip_pk3s as unzip_pk3s_m
+
+    reporter_m.init()
+
+    bpy.types.Scene.remt_game_path = \
         bpy.props.StringProperty(
-            name="Datapath",
-            description="Path to game data (pk3s need to be extracted" \
-                " manually)",
+            name="Game Path",
+            description="Path to game data. Game data will be read assuming"
+                " this is the directory of the .exe file."
+                " Note: PK3 files are not extracted, so you need to manually"
+                " extract them to this directory."
+                " You can use the 'Unzip PK3s' panel for that.",
             subtype='DIR_PATH')
 
-    imports.register()
-    exports.register()
-    direct_conversion.register()
-    attach_to_tag.register()
-    skin_files.register()
-    shading.register()
-    extract_pk3s.register()
-    tests.register()
-
-    logger = logging.getLogger('remt_logger')
-
-    for handler in logger.handlers[:]:
-        logger.removeHandler(handler)
-
-    logger.setLevel(logging.DEBUG)
-    stream_handler = logging.StreamHandler(sys.stdout)
-    stream_handler.setLevel(logging.DEBUG)
-    formatter = logging.Formatter('%(asctime)15s %(levelname)-6s %(message)s')
-    stream_handler.setFormatter(formatter)
-    logger.addHandler(stream_handler)
+    imports_m.register()
+    exports_m.register()
+    direct_conversion_m.register()
+    attachment_m.register()
+    shading_m.register()
+    unzip_pk3s_m.register()
 
 def unregister():
 
-    import rtcw_et_model_tools.blender.imports as imports
-    import rtcw_et_model_tools.blender.exports as exports
-    import rtcw_et_model_tools.blender.direct_conversion as direct_conversion
-    import rtcw_et_model_tools.blender.attach_to_tag as attach_to_tag
-    import rtcw_et_model_tools.blender.skin_files as skin_files
-    import rtcw_et_model_tools.blender.shading as shading
-    import rtcw_et_model_tools.blender.extract_pk3s as extract_pk3s
-    import rtcw_et_model_tools.blender.tests as tests
+    import rtcw_et_model_tools.common.reporter as reporter_m
 
-    del bpy.types.Scene.remt_data_path
+    import rtcw_et_model_tools.blender.ui.imports as imports_m
+    import rtcw_et_model_tools.blender.ui.exports as exports_m
+    import rtcw_et_model_tools.blender.ui.direct_conversion as direct_conversion_m
+    import rtcw_et_model_tools.blender.ui.attachment as attachment_m
+    import rtcw_et_model_tools.blender.ui.shading as shading_m
+    import rtcw_et_model_tools.blender.ui.unzip_pk3s as unzip_pk3s_m
 
-    imports.unregister()
-    exports.unregister()
-    direct_conversion.unregister()
-    attach_to_tag.unregister()
-    skin_files.unregister()
-    shading.unregister()
-    extract_pk3s.unregister()
-    tests.unregister()
+    reporter_m.deinit()
 
-    logger = logging.getLogger('remt_logger')
-    for handler in logger.handlers[:]:
-        logger.removeHandler(handler)
+    del bpy.types.Scene.remt_game_path
+
+    imports_m.unregister()
+    exports_m.unregister()
+    direct_conversion_m.unregister()
+    attachment_m.unregister()
+    shading_m.unregister()
+    unzip_pk3s_m.unregister()

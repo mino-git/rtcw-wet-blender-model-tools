@@ -21,12 +21,12 @@
 """Facade for MDM and MDX file format.
 """
 
-import rtcw_et_model_tools.mdmmdx._mdm as mdm
-import rtcw_et_model_tools.mdmmdx._mdx as mdx
-import rtcw_et_model_tools.mdmmdx._mdmmdx_mdi as mdmmdx_mdi
+import rtcw_et_model_tools.mdmmdx._mdm as mdm_m
+import rtcw_et_model_tools.mdmmdx._mdx as mdx_m
+import rtcw_et_model_tools.mdmmdx._mdmmdx_mdi as mdmmdx_mdi_m
 
 
-def read(file_path_mdx, file_path_mdm, bind_frame, encoding="binary"):
+def read(file_path_mdm, file_path_mdx, bind_frame, encoding="binary"):
     """Reads MDM/MDX data from file, then converts it to MDI.
 
     Args:
@@ -46,9 +46,11 @@ def read(file_path_mdx, file_path_mdm, bind_frame, encoding="binary"):
     """
 
     if encoding == "binary":
-        mdx_model = mdx.MDX.read(file_path_mdx)
-        if file_path_mdm is not None:
-            mdm_model = mdm.MDM.read(file_path_mdm)
+        mdx_model = mdx_m.MDX.read(file_path_mdx)
+        if file_path_mdm:
+            mdm_model = mdm_m.MDM.read(file_path_mdm)
+        else:
+            mdm_model = None
     elif encoding == "xml":
         pass  # TODO
     elif encoding == "json":
@@ -56,12 +58,13 @@ def read(file_path_mdx, file_path_mdm, bind_frame, encoding="binary"):
     else:
         print("encoding option '{}' not supported".format(encoding))
 
-    mdi_model = mdmmdx_mdi.ModelToMDI.convert(mdx_model, mdm_model, bind_frame)
+    mdi_model = \
+        mdmmdx_mdi_m.ModelToMDI.convert(mdx_model, mdm_model, bind_frame)
 
     return mdi_model
 
 
-def write(mdi_model, file_path_mdx, file_path_mdm, encoding="binary"):
+def write(mdi_model, file_path_mdm, file_path_mdx, encoding="binary"):
     """Converts MDI data to MDM/MDX, then writes it back to file.
 
     Args:
@@ -71,7 +74,7 @@ def write(mdi_model, file_path_mdx, file_path_mdm, encoding="binary"):
         encoding (str): encoding to use for MDS.
     """
 
-    mdx_model, mdm_model = mdmmdx_mdi.MDIToModel.convert(mdi_model)
+    mdx_model, mdm_model = mdmmdx_mdi_m.MDIToModel.convert(mdi_model)
 
     if encoding == "binary":
         mdx_model.write(file_path_mdx)

@@ -42,6 +42,9 @@ Background:
 
 import struct
 
+import rtcw_et_model_tools.common.timer as timer_m
+import rtcw_et_model_tools.common.reporter as reporter_m
+
 
 class MDXBoneInfo:
     """Frame independent bone information.
@@ -127,11 +130,11 @@ class MDXBoneFrameCompressed:
 
     Attributes:
 
-        orientation (tuple): orientation as euler angles in frame as tuple of
-            shorts. Index 0 = pitch, index 1 = yaw, index 2 = roll. Index 3 is
-            not used and contains a default value.
-        location_dir (tuple): location in spherical coordinates as tuple of
-            shorts. Index 0 = latitude, index 1 = longitude.
+        orientation (tuple): orientation as Tait–Bryan angles in frame as tuple
+            of shorts. Index 0 = pitch, index 1 = yaw, index 2 = roll. Index 3
+            is not used and contains a default value.
+        location_dir (tuple): location in angles as tuple of shorts.
+            Index 0 = yaw, index 1 = pitch.
 
     File encodings:
 
@@ -153,7 +156,7 @@ class MDXBoneFrameCompressed:
         location. Linear mapping is done the same way as with the bone
         orientation values to get the angle values from the range of integer
         to the range of floats. To convert the angles to a direction vector,
-        we first pitch (latitude), then yaw (longitude).
+        we first pitch, then yaw (intrinsic).
     """
 
     format = '<hhhhhh'
@@ -191,7 +194,7 @@ class MDXBoneFrameCompressed:
                             file.read(MDXBoneFrameCompressed.format_size))
 
         orientation = (pitch, yaw, roll, none)
-        location_dir = (off_pitch, off_yaw)
+        location_dir = (off_yaw, off_pitch)
 
         mdx_bone_frame_compressed = MDXBoneFrameCompressed(orientation,
                                                            location_dir)
@@ -212,7 +215,7 @@ class MDXBoneFrameCompressed:
         file.write(struct.pack(MDXBoneFrameCompressed.format,
                                self.orientation[0], self.orientation[1],
                                self.orientation[2], self.orientation[3],
-                               self.location_dir[0], self.location_dir[1]))
+                               self.location_dir[1], self.location_dir[0]))
 
 
 class MDXFrameInfo:
@@ -516,6 +519,9 @@ class MDX:
 
         with open(file_path, 'rb') as file:
 
+            timer = timer_m.Timer()
+            reporter_m.info("Reading MDX file: {} ...".format(file_path))
+
             mdx = MDX()
 
             # mdx.header
@@ -541,6 +547,9 @@ class MDX:
 
                 file_ofs = file_ofs + MDXBoneInfo.format_size
 
+            time = timer.time()
+            reporter_m.info("Reading MDX file DONE (time={})".format(time))
+
             return mdx
 
     def write(self, file_path):
@@ -553,6 +562,9 @@ class MDX:
         """
 
         with open(file_path, 'wb') as file:
+
+            timer = timer_m.Timer()
+            reporter_m.info("Writing MDM file: {} ...".format(file_path))
 
             # mdx.header
             file_ofs = 0
@@ -574,3 +586,6 @@ class MDX:
                 mdx_bone_info.write(file, file_ofs)
 
                 file_ofs = file_ofs + MDXBoneInfo.format_size
+
+            time = timer.time()
+            reporter_m.info("Writing MDX file DONE (time={})".format(time))

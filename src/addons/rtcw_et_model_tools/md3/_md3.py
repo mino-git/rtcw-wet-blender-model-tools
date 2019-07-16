@@ -55,6 +55,9 @@ Background:
 
 import struct
 
+import rtcw_et_model_tools.common.timer as timer_m
+import rtcw_et_model_tools.common.reporter as reporter_m
+
 
 class MD3FrameVertex:
     """Vertex location and normal in a specific frame.
@@ -62,8 +65,8 @@ class MD3FrameVertex:
     Attributes:
 
         location (tuple): location coordinates in frame as tuple of shorts.
-        normal (tuple): vertex normal in spherical coordinates as tuple of
-            bytes. Index 0 = latitude, index 1 = longitude.
+        normal (tuple): vertex normal given in angles as tuple of bytes.
+            Index 0 = yaw, index 1 = pitch.
 
     File encodings:
 
@@ -79,15 +82,12 @@ class MD3FrameVertex:
         is linearly mapped. For this, a hard coded scale value is used.
 
         Vertex normals manipulate the shading of a surface (for example smooth
-        or flat). They are given in spherical coordinates. Since the
-        coordinates describe the direction of a normal, the radius value is
-        omitted and only latitude and longitude values are given as unsigned
-        8-bit values from file. To convert them to cartesian space, the upwards
-        vector is first rotated by the latitude value, then by the longitude
-        value. Latitude range is within [0, 180] degrees. Longitude range is
-        within [0, 360) degrees. To obtain the values in degrees, the given
-        range of [0, 255] from file needs to be linearly mapped to [0, 360)
-        degrees.
+        or flat). They are encoded by a pair of angle values. These values
+        rotate the upwards vector. Pitch range is within [0, 180] degrees.
+        Yaw range is within [0, 360) degrees. To obtain the values in degrees,
+        the given range of [0, 255] from file needs to be linearly mapped to
+        [0, 360) degrees. To convert the angles to cartesian space, the upwards
+        vector is first rotated by the pitch value, then by the yaw value.
     """
 
     format = '<3h2B'
@@ -116,12 +116,12 @@ class MD3FrameVertex:
 
         file.seek(file_ofs)
 
-        location_x, location_y, location_z, normal_lon, normal_lat \
+        location_x, location_y, location_z, normal_pitch, normal_yaw \
             = struct.unpack(MD3FrameVertex.format,
                             file.read(MD3FrameVertex.format_size))
 
         location = (location_x, location_y, location_z)
-        normal = (normal_lat, normal_lon)
+        normal = (normal_yaw, normal_pitch)
 
         md3_frame_vertex = MD3FrameVertex(location, normal)
 
@@ -138,9 +138,12 @@ class MD3FrameVertex:
 
         file.seek(file_ofs)
 
-        file.write(struct.pack(MD3FrameVertex.format, self.location[0],
-                               self.location[1], self.location[2],
-                               self.normal[1], self.normal[0]))
+        try:
+            file.write(struct.pack(MD3FrameVertex.format, self.location[0],
+                                self.location[1], self.location[2],
+                                self.normal[1], self.normal[0]))
+        except:
+            print("test")
 
 
 class MD3TexCoords:
@@ -980,6 +983,9 @@ class MD3:
 
         with open(file_path, 'rb') as file:
 
+            timer = timer_m.Timer()
+            reporter_m.info("Reading MD3 file: {} ...".format(file_path))
+
             md3 = MD3()
 
             # md3.header
@@ -1019,6 +1025,9 @@ class MD3:
 
                 file_ofs = file_ofs + md3_surface.header.ofs_end
 
+            time = timer.time()
+            reporter_m.info("Reading MD3 file DONE (time={})".format(time))
+
             return md3
 
     def write(self, file_path):
@@ -1030,6 +1039,9 @@ class MD3:
         """
 
         with open(file_path, 'wb') as file:
+
+            timer = timer_m.Timer()
+            reporter_m.info("Writing MD3 file: {} ...".format(file_path))
 
             # md3.header
             file_ofs = 0
@@ -1060,3 +1072,6 @@ class MD3:
                 md3_surface.write(file, file_ofs)
 
                 file_ofs = file_ofs + md3_surface.header.ofs_end
+
+            time = timer.time()
+            reporter_m.info("Writing MD3 file DONE (time={})".format(time))

@@ -23,20 +23,27 @@
 
 import mathutils
 
-import rtcw_et_model_tools.md3._md3 as md3
-import rtcw_et_model_tools.mdi.mdi as mdi
+import rtcw_et_model_tools.md3._md3 as md3_m
+import rtcw_et_model_tools.mdi.mdi as mdi_m
+import rtcw_et_model_tools.mdi.util as mdi_util_m
+
+import rtcw_et_model_tools.common.timer as timer_m
+import rtcw_et_model_tools.common.reporter as reporter_m
 
 
 class MDIToModel:
+    """MDI to MD3 conversion.
+    """
 
     @staticmethod
     def _calc_md3_headers(md3_model, mdi_model):
 
         # md3_model.header
-        ident = md3.MD3Header.ident
-        version = md3.MD3Header.version
-        name = mdi.to_c_string_padded(mdi_model.name, md3.MD3Header.name_len)
-        flags = md3.MD3Header.flags
+        ident = md3_m.MD3Header.ident
+        version = md3_m.MD3Header.version
+        name = mdi_util_m.to_c_string_padded(mdi_model.name,
+                                             md3_m.MD3Header.name_len)
+        flags = md3_m.MD3Header.flags
         num_frames = 0
         if md3_model.surfaces:
             if md3_model.surfaces[0].vertices:
@@ -49,51 +56,51 @@ class MDIToModel:
         num_surfaces = len(md3_model.surfaces)
         num_skins = 0
 
-        ofs_frame_infos = 0 + md3.MD3Header.format_size
-        ofs_tags = ofs_frame_infos + num_frames * md3.MD3FrameInfo.format_size
+        ofs_frame_infos = 0 + md3_m.MD3Header.format_size
+        ofs_tags = ofs_frame_infos + num_frames * \
+                   md3_m.MD3FrameInfo.format_size
         ofs_surfaces = ofs_tags + \
-            num_frames * num_tags * md3.MD3FrameTag.format_size
+            num_frames * num_tags * md3_m.MD3FrameTag.format_size
         ofs_end = None  # calculated later
 
-        md3_model.header = md3.MD3Header(ident, version, name, flags,
-                                         num_frames, num_tags, num_surfaces,
-                                         num_skins, ofs_frame_infos, ofs_tags,
-                                         ofs_surfaces, ofs_end)
+        md3_model.header = md3_m.MD3Header(ident, version, name, flags,
+                                           num_frames, num_tags, num_surfaces,
+                                           num_skins, ofs_frame_infos,
+                                           ofs_tags, ofs_surfaces, ofs_end)
 
         surfaces_field_len = 0  # to calculate ofs_end
 
         # md3_surface.header
         for num_surface, md3_surface in enumerate(md3_model.surfaces):
 
-            ident = md3.MD3SurfaceHeader.ident
+            ident = md3_m.MD3SurfaceHeader.ident
             name = mdi_model.surfaces[num_surface].name
-            name = mdi.to_c_string_padded(name, md3.MD3SurfaceHeader.name_len)
-            flags = md3.MD3SurfaceHeader.flags
+            name = \
+                mdi_util_m.to_c_string_padded(name,
+                                              md3_m.MD3SurfaceHeader.name_len)
+            flags = md3_m.MD3SurfaceHeader.flags
             num_frames = len(md3_surface.vertices)
             num_shaders = len(md3_surface.shaders)
             num_vertices = 0
             if md3_surface.vertices:
                 num_vertices = len(md3_surface.vertices[0])
             num_triangles = len(md3_surface.triangles)
-            ofs_triangles = 0 + md3.MD3SurfaceHeader.format_size
+            ofs_triangles = 0 + md3_m.MD3SurfaceHeader.format_size
             ofs_shaders = ofs_triangles + \
-                num_triangles * md3.MD3Triangle.format_size
+                num_triangles * md3_m.MD3Triangle.format_size
             ofs_tex_coords = ofs_shaders + \
-                num_shaders * md3.MD3Shader.format_size
+                num_shaders * md3_m.MD3Shader.format_size
             ofs_vertices = ofs_tex_coords + \
-                num_vertices * md3.MD3TexCoords.format_size
+                num_vertices * md3_m.MD3TexCoords.format_size
             ofs_end = ofs_vertices + \
-                num_frames * num_vertices * md3.MD3FrameVertex.format_size
+                num_frames * num_vertices * md3_m.MD3FrameVertex.format_size
 
-            md3_surface.header = md3.MD3SurfaceHeader(ident, name, flags,
-                                                      num_frames, num_shaders,
-                                                      num_vertices,
-                                                      num_triangles,
-                                                      ofs_triangles,
-                                                      ofs_shaders,
-                                                      ofs_tex_coords,
-                                                      ofs_vertices,
-                                                      ofs_end)
+            md3_surface.header = \
+                md3_m.MD3SurfaceHeader(ident, name, flags, num_frames,
+                                       num_shaders, num_vertices,
+                                       num_triangles, ofs_triangles,
+                                       ofs_shaders, ofs_tex_coords,
+                                       ofs_vertices, ofs_end)
 
             surfaces_field_len += ofs_end
 
@@ -109,13 +116,23 @@ class MDIToModel:
         for mdi_morph_vertex in mdi_surface.vertices:
 
             location = mdi_morph_vertex.locations[num_frame]
-            location = location / md3.MD3FrameVertex.location_scale
+            location = location / md3_m.MD3FrameVertex.location_scale
             location = (int(location[0]), int(location[1]), int(location[2]))
 
-            normal = mdi_morph_vertex.normals[num_frame]
-            normal = (0, 0)  # TODO
+            mdi_normal = mdi_morph_vertex.normals[num_frame]
+            yaw, pitch = mdi_util_m.angles_from_up_vector(mdi_normal)
 
-            md3_frame_vertex = md3.MD3FrameVertex(location, normal)
+            if yaw < 0:
+                yaw = 360 + yaw
+
+            if pitch < 0:
+                pitch = 180 + pitch
+
+            yaw = int(yaw / md3_m.MD3FrameVertex.normal_scale)
+            pitch = int(pitch / md3_m.MD3FrameVertex.normal_scale)
+            normal = (yaw, pitch)
+
+            md3_frame_vertex = md3_m.MD3FrameVertex(location, normal)
             md3_frame_vertices.append(md3_frame_vertex)
 
         return md3_frame_vertices
@@ -128,7 +145,7 @@ class MDIToModel:
 
         u = mdi_uv.u
         v = 1 - mdi_uv.v
-        md3_tex_coords = md3.MD3TexCoords((u, v))
+        md3_tex_coords = md3_m.MD3TexCoords((u, v))
 
         return md3_tex_coords
 
@@ -138,10 +155,10 @@ class MDIToModel:
         mdi_surface = mdi_model.surfaces[num_surface]
         mdi_shader_path = mdi_surface.shader.paths[num_shader]
 
-        name = mdi.to_c_string_padded(mdi_shader_path.path,
-                                      md3.MD3Shader.name_len)
-        shader_index = md3.MD3Shader.shader_index
-        md3_shader = md3.MD3Shader(name, shader_index)
+        name = mdi_util_m.to_c_string_padded(mdi_shader_path.path,
+                                             md3_m.MD3Shader.name_len)
+        shader_index = md3_m.MD3Shader.shader_index
+        md3_shader = md3_m.MD3Shader(name, shader_index)
 
         return md3_shader
 
@@ -154,16 +171,14 @@ class MDIToModel:
         index_2 = mdi_triangle.indices[2]
         index_3 = mdi_triangle.indices[1]
         indices = (index_1, index_2, index_3)
-        md3_triangle = md3.MD3Triangle(indices)
+        md3_triangle = md3_m.MD3Triangle(indices)
 
         return md3_triangle
 
     @staticmethod
     def _to_md3_surface(mdi_model, num_surface):
-        """TODO
-        """
 
-        md3_surface = md3.MD3Surface()
+        md3_surface = md3_m.MD3Surface()
 
         mdi_surface = mdi_model.surfaces[num_surface]
 
@@ -208,28 +223,26 @@ class MDIToModel:
 
     @staticmethod
     def _to_md3_frame_tags(mdi_model, num_frame):
-        """TODO
-        """
 
         md3_frame_tags = []
 
         for mdi_free_tag in mdi_model.tags:
 
-            name = mdi.to_c_string_padded(mdi_free_tag.name,
-                                          md3.MD3FrameTag.name_len)
+            name = mdi_util_m.to_c_string_padded(mdi_free_tag.name,
+                                                 md3_m.MD3FrameTag.name_len)
             location = mdi_free_tag.locations[num_frame].to_tuple()
-            orientation = \
-                mdi.matrix_to_tuple(mdi_free_tag.orientations[num_frame])
+            orientation = mdi_util_m.matrix_to_tuple \
+                          (
+                              mdi_free_tag.orientations[num_frame]
+                          )
 
-            md3_frame_tag = md3.MD3FrameTag(name, location, orientation)
+            md3_frame_tag = md3_m.MD3FrameTag(name, location, orientation)
             md3_frame_tags.append(md3_frame_tag)
 
         return md3_frame_tags
 
     @staticmethod
     def _to_md3_frame_info(mdi_model, num_frame):
-        """TODO
-        """
 
         mdi_aabb = mdi_model.bounds.aabbs[num_frame]
         mdi_bounding_sphere = mdi_model.bounds.spheres[num_frame]
@@ -238,30 +251,41 @@ class MDIToModel:
         max_bound = mdi_aabb.max_bound.to_tuple()
         local_origin = mdi_bounding_sphere.origin.to_tuple()
         radius = mdi_bounding_sphere.radius
-        name = mdi.to_c_string_padded(md3.MD3FrameInfo.frame_name,
-                                      md3.MD3FrameInfo.name_len)
+        name = mdi_util_m.to_c_string_padded(md3_m.MD3FrameInfo.frame_name,
+                                             md3_m.MD3FrameInfo.name_len)
 
-        md3_frame_info = md3.MD3FrameInfo(min_bound, max_bound, local_origin,
-                                          radius, name)
+        md3_frame_info = md3_m.MD3FrameInfo(min_bound, max_bound, local_origin,
+                                            radius, name)
 
         return md3_frame_info
 
     @staticmethod
     def convert(mdi_model):
-        """TODO
+        """Converts MDI to MD3.
+
+        Args:
+
+            mdi_model (MDI): MDI model.
+
+        Returns:
+
+            md3_model (MD3): MD3 model.
         """
 
-        md3_model = md3.MD3()
+        timer = timer_m.Timer()
+        reporter_m.info("Converting MDI to MD3 ...")
+
+        md3_model = md3_m.MD3()
 
         # type conversions
         for num_surface, mdi_surface in enumerate(mdi_model.surfaces):
 
-            mdi_surface.uv_map_to_type(mdi.MDIUVMapBijective)
-            mdi_surface.shader_to_type(mdi.MDIShaderPaths)
-            mdi_surface.vertices_to_type(mdi.MDIMorphVertex, mdi_model)
+            mdi_surface.uv_map_to_type(mdi_m.MDIUVMapBijective)
+            mdi_surface.shader_to_type(mdi_m.MDIShaderPaths)
+            mdi_surface.vertices_to_type(mdi_m.MDIMorphVertex, mdi_model)
 
-        mdi_model.tags_to_type(mdi.MDIFreeTag)
-        mdi_model.lod_to_type(mdi.MDIDiscreteLOD)
+        mdi_model.tags_to_type(mdi_m.MDIFreeTag)
+        mdi_model.lod_to_type(mdi_m.MDIDiscreteLOD)
 
         # md3 frame infos
         for num_frame in range(len(mdi_model.bounds.aabbs)):
@@ -290,46 +314,45 @@ class MDIToModel:
         # headers
         MDIToModel._calc_md3_headers(md3_model, mdi_model)
 
+        time = timer.time()
+        reporter_m.info("Converting MDI to MD3 DONE (time={})".format(time))
+
         return md3_model
 
 
 class ModelToMDI:
-    """TODO
+    """MD3 to MDI conversion.
     """
 
     @staticmethod
     def _to_mdi_bounds(md3_model):
-        """TODO
-        """
 
-        mdi_bounds = mdi.MDIBoundingVolume()
+        mdi_bounds = mdi_m.MDIBoundingVolume()
 
         for md3_frame_info in md3_model.frame_infos:
 
             # aabb
             min_bound = mathutils.Vector(md3_frame_info.min_bound)
             max_bound = mathutils.Vector(md3_frame_info.max_bound)
-            mdi_aabb = mdi.MDIAABB(min_bound, max_bound)
+            mdi_aabb = mdi_m.MDIAABB(min_bound, max_bound)
             mdi_bounds.aabbs.append(mdi_aabb)
 
             # sphere
             origin = mathutils.Vector(md3_frame_info.local_origin)
             radius = md3_frame_info.radius
-            mdi_bounding_sphere = mdi.MDIBoundingSphere(origin, radius)
+            mdi_bounding_sphere = mdi_m.MDIBoundingSphere(origin, radius)
             mdi_bounds.spheres.append(mdi_bounding_sphere)
 
         return mdi_bounds
 
     @staticmethod
     def _to_mdi_tag(md3_model, num_tag):
-        """TODO
-        """
 
-        mdi_tag = mdi.MDIFreeTag()
+        mdi_tag = mdi_m.MDIFreeTag()
 
         # name
         mdi_tag.name = \
-            mdi.from_c_string_padded(md3_model.tags[0][num_tag].name)
+            mdi_util_m.from_c_string_padded(md3_model.tags[0][num_tag].name)
 
         for md3_frame_tags in md3_model.tags:
 
@@ -340,47 +363,44 @@ class ModelToMDI:
             mdi_tag.locations.append(mdi_location)
 
             # orientation
-            mdi_orientation = mdi.tuple_to_matrix(md3_frame_tag.orientation)
+            mdi_orientation = mdi_util_m.tuple_to_matrix \
+                              (
+                                  md3_frame_tag.orientation
+                              )
             mdi_tag.orientations.append(mdi_orientation)
 
         return mdi_tag
 
     @staticmethod
     def _to_mdi_uv_map(md3_model, num_surface):
-        """TODO.
-        """
 
-        mdi_uv_map = mdi.MDIUVMapBijective()
+        mdi_uv_map = mdi_m.MDIUVMapBijective()
 
         for md3_tex_coords in md3_model.surfaces[num_surface].tex_coords:
 
             u = md3_tex_coords.tex_coords[0]
             v = 1 - md3_tex_coords.tex_coords[1]
 
-            mdi_uv = mdi.MDIUV(u, v)
+            mdi_uv = mdi_m.MDIUV(u, v)
             mdi_uv_map.uvs.append(mdi_uv)
 
         return mdi_uv_map
 
     @staticmethod
     def _to_mdi_shader(md3_model, num_surface):
-        """TODO.
-        """
 
-        mdi_shader_paths = mdi.MDIShaderPaths()
+        mdi_shader_paths = mdi_m.MDIShaderPaths()
 
         for md3_shader in md3_model.surfaces[num_surface].shaders:
 
-            path = mdi.from_c_string_padded(md3_shader.name)
-            mdi_shader_path = mdi.MDIShaderPath(path)
+            path = mdi_util_m.from_c_string_padded(md3_shader.name)
+            mdi_shader_path = mdi_m.MDIShaderPath(path)
             mdi_shader_paths.paths.append(mdi_shader_path)
 
         return mdi_shader_paths
 
     @staticmethod
     def _to_mdi_triangle(md3_model, num_surface, num_triangle):
-        """TODO
-        """
 
         md3_triangle = md3_model.surfaces[num_surface].triangles[num_triangle]
 
@@ -388,15 +408,13 @@ class ModelToMDI:
         index_2 = md3_triangle.indices[2]
         index_3 = md3_triangle.indices[1]
 
-        mdi_triangle = mdi.MDITriangle([index_1, index_2, index_3])
+        mdi_triangle = mdi_m.MDITriangle([index_1, index_2, index_3])
         return mdi_triangle
 
     @staticmethod
     def _to_mdi_morph_vertex(md3_model, num_surface, num_vertex):
-        """TODO.
-        """
 
-        mdi_morph_vertex = mdi.MDIMorphVertex()
+        mdi_morph_vertex = mdi_m.MDIMorphVertex()
 
         for md3_frame_vertices in md3_model.surfaces[num_surface].vertices:
 
@@ -407,36 +425,36 @@ class ModelToMDI:
             y = md3_frame_vertex.location[1]
             z = md3_frame_vertex.location[2]
 
-            x = x * md3.MD3FrameVertex.location_scale
-            y = y * md3.MD3FrameVertex.location_scale
-            z = z * md3.MD3FrameVertex.location_scale
+            x = x * md3_m.MD3FrameVertex.location_scale
+            y = y * md3_m.MD3FrameVertex.location_scale
+            z = z * md3_m.MD3FrameVertex.location_scale
 
             location = mathutils.Vector((x, y, z))
             mdi_morph_vertex.locations.append(location)
 
             # normal
-            yaw = md3_frame_vertex.normal[1]
-            pitch = md3_frame_vertex.normal[0]
+            yaw = md3_frame_vertex.normal[0]
+            pitch = md3_frame_vertex.normal[1]
 
-            yaw = yaw * md3.MD3FrameVertex.normal_scale
-            pitch = pitch * md3.MD3FrameVertex.normal_scale
+            yaw = yaw * md3_m.MD3FrameVertex.normal_scale
+            pitch = pitch * md3_m.MD3FrameVertex.normal_scale
 
-            normal = mdi.angles_to_vector(yaw, pitch)
+            normal = mdi_util_m.rotate_up_vector(yaw, pitch)
+            normal = mathutils.Vector(normal)
             mdi_morph_vertex.normals.append(normal)
 
         return mdi_morph_vertex
 
     @staticmethod
     def _to_mdi_surface(md3_model, num_surface):
-        """TODO
-        """
 
-        mdi_surface = mdi.MDISurface()
+        mdi_surface = mdi_m.MDISurface()
 
         md3_surface = md3_model.surfaces[num_surface]
 
         # name
-        mdi_surface.name = mdi.from_c_string_padded(md3_surface.header.name)
+        mdi_surface.name = \
+            mdi_util_m.from_c_string_padded(md3_surface.header.name)
 
         # mdi vertices
         for md3_frame_vertices in md3_surface.vertices:
@@ -470,12 +488,24 @@ class ModelToMDI:
 
     @staticmethod
     def convert(md3_model, root_frame = 0):
-        """TODO
+        """Converts MD3 to MDI.
+
+        Args:
+
+            md3_model (MD3): MD3 model.
+            root_frame (int): frame of the model before animation pass.
+
+        Returns:
+
+            mdi_model (MDI): MDI model.
         """
 
-        mdi_model = mdi.MDI()
+        timer = timer_m.Timer()
+        reporter_m.info("Converting MD3 to MDI ...")
 
-        mdi_model.name = mdi.from_c_string_padded(md3_model.header.name)
+        mdi_model = mdi_m.MDI()
+
+        mdi_model.name = mdi_util_m.from_c_string_padded(md3_model.header.name)
         mdi_model.root_frame = root_frame
 
         # mdi surfaces
@@ -501,6 +531,9 @@ class ModelToMDI:
         mdi_model.bounds = ModelToMDI._to_mdi_bounds(md3_model)
 
         # mdi lod
-        mdi_model.lod = mdi.MDIDiscreteLOD()
+        mdi_model.lod = mdi_m.MDIDiscreteLOD()
+
+        time = timer.time()
+        reporter_m.info("Converting MD3 to MDI DONE (time={})".format(time))
 
         return mdi_model

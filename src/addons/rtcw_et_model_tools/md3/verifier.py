@@ -18,21 +18,4 @@
 
 # <pep8-80 compliant>
 
-import rtcw_et_model_tools.misc.status as status
-
-
-class Status(status.Status):
-    """Uses the status object to report errors and warnings to the Blender UI.
-    """
-
-    def __init__(self):
-
-        super().__init__()
-
-    def report(self, operator):
-
-        cancel_report, warning_report = self.prepare_report()
-        if cancel_report:
-            operator.report({'ERROR'}, cancel_report)
-        if warning_report:
-            operator.report({'WARNING'}, warning_report)
+# TODO
