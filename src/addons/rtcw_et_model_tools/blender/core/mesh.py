@@ -53,17 +53,16 @@ def _read_static_vertices(mesh_object):
 
     mdi_morph_vertices = []
 
-    vertices = [vertex.co for vertex in mesh_object.data.vertices]
-    normals = [vertex.normal for vertex in mesh_object.data.vertices]
+    mesh_vertices = [vertex.co for vertex in mesh_object.data.vertices]
+    mesh_normals = [vertex.normal for vertex in mesh_object.data.vertices]
 
     frame_start = bpy.context.scene.frame_start
     frame_end = bpy.context.scene.frame_end
 
-    num_vertices = len(mesh_object.vertices)
-    for num_vertex in range(num_vertices):
+    for num_vertex in range(len(mesh_vertices)):
 
-        location = vertices[num_vertex]
-        normal = normals[num_vertex]
+        location = mesh_vertices[num_vertex]
+        normal = mesh_normals[num_vertex]
 
         locations = []
         normals = []
