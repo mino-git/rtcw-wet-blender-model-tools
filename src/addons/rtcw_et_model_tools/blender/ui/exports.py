@@ -307,7 +307,7 @@ class MDMMDXExporter(bpy.types.Operator):
             mdm_file_path = None
 
         mdx_file_path = context.scene.remt_mdx_export_path
-        if not mdx_file_path:
+        if mdx_file_path:
 
             mdx_file_path = bpy.path.abspath(mdx_file_path)
 
