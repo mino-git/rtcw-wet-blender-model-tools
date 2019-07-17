@@ -143,8 +143,7 @@ class MDISurface:
                     bone_indices.add(bone_index)
                     bone_index = mdi_skeleton.bones[bone_index].parent_bone
 
-        bone_refs = [bone_index for bone_index in bone_indices]
-        bone_refs = sorted(bone_refs)
+        bone_refs = sorted(bone_indices)
 
         return bone_refs
 
@@ -790,10 +789,11 @@ class MDIBoneTagOff:
 
     def calc_bone_refs(self, mdi_skeleton):
 
+        # TODO some tags do not include the torso parent bone, why?
+
         bone_indices = set()
 
         bone_index = self.parent_bone
-        bone_indices.add(bone_index)
         while bone_index != -1:
 
             bone_indices.add(bone_index)
