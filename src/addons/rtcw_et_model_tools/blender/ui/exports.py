@@ -126,9 +126,6 @@ class MD3Exporter(bpy.types.Operator):
         md3_file_path = context.scene.remt_md3_export_path
         md3_file_path = bpy.path.abspath(md3_file_path)
 
-        if not os.path.isfile(md3_file_path):
-            raise Exception("MD3 filepath not found")
-
         if not md3_file_path.endswith(".md3"):
             raise Exception("MD3 filepath must end with '.md3'")
 
@@ -182,9 +179,6 @@ class MDCExporter(bpy.types.Operator):
         mdc_file_path = context.scene.remt_mdc_export_path
         mdc_file_path = bpy.path.abspath(mdc_file_path)
 
-        if not os.path.isfile(mdc_file_path):
-            raise Exception("MDC filepath not found")
-
         if not mdc_file_path.endswith(".mdc"):
             raise Exception("MDC filepath must end with '.mdc'")
 
@@ -204,7 +198,7 @@ class MDCExporter(bpy.types.Operator):
 
         try:
 
-            mdc_file_path, collapse_frame = self._parse_input(context)
+            mdc_file_path = self._parse_input(context)
 
             timer = timer_m.Timer()
             reporter_m.info("MDC export started ...")
@@ -237,9 +231,6 @@ class MDSExporter(bpy.types.Operator):
 
         mds_file_path = context.scene.remt_mds_export_path
         mds_file_path = bpy.path.abspath(mds_file_path)
-
-        if not os.path.isfile(mds_file_path):
-            raise Exception("MDS filepath not found")
 
         if not mds_file_path.endswith(".mds"):
             raise Exception("MDS filepath must end with '.mds'")
@@ -296,9 +287,6 @@ class MDMMDXExporter(bpy.types.Operator):
         mdm_file_path = context.scene.remt_mdm_export_path
         if mdm_file_path:
 
-            if not os.path.isfile(mdm_file_path):
-                raise Exception("MDM filepath not found")
-
             if not mdm_file_path.endswith(".mdm"):
                 raise Exception("MDM filepath must end with '.mdm'")
 
@@ -310,9 +298,6 @@ class MDMMDXExporter(bpy.types.Operator):
         if mdx_file_path:
 
             mdx_file_path = bpy.path.abspath(mdx_file_path)
-
-            if not os.path.isfile(mdx_file_path):
-                raise Exception("MDX filepath not found")
 
             if not mdx_file_path.endswith(".mdx"):
                 raise Exception("MDX filepath must end with '.mdx'")
