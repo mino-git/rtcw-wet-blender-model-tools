@@ -137,10 +137,9 @@ class MDIToModel:
     @staticmethod
     def _to_mds_bone_refs(mdi_model, num_surface):
 
-        mdi_surface = mdi_model.surfaces[num_surface]  # TODO
+        mdi_surface = mdi_model.surfaces[num_surface]
 
-        # bone_refs = mdi_surface._calc_bone_refs(mdi_model.skeleton)
-        bone_refs = [0]
+        bone_refs = mdi_surface.calc_bone_refs(mdi_model.skeleton)
         mds_bone_refs = mds_m.MDSBoneRefs(bone_refs)
 
         return mds_bone_refs

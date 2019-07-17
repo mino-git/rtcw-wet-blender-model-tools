@@ -132,29 +132,18 @@ class MDISurface:
 
     def calc_bone_refs(self, mdi_skeleton):
 
-        bone_refs = []
-
         bone_indices = set()
         for mdi_rigged_vertex in self.vertices:
 
             for mdi_weight in mdi_rigged_vertex.weights:
 
                 bone_index = mdi_weight.parent_bone
-                bone_indices.add(bone_index)
                 while bone_index != -1:
 
                     bone_indices.add(bone_index)
                     bone_index = mdi_skeleton.bones[bone_index].parent_bone
 
-        for bone_index in bone_indices:
-
-            # exclude torso parent bone
-            # TODO why?
-            if bone_index == mdi_skeleton.torso_parent_bone:
-                continue
-
-            bone_refs.append(bone_index)
-
+        bone_refs = [bone_index for bone_index in bone_indices]
         bone_refs = sorted(bone_refs)
 
         return bone_refs
