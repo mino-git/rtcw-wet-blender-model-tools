@@ -489,15 +489,19 @@ class MDIUVMapSurjective:
         # first pass
         for num_vertex, uvs in enumerate(self.uvs):
 
-            mdi_vertex = mdi_surface.vertices[num_vertex]
+            if uvs:
 
-            if not uvs:
-                raise Exception("UV map vertex not mapped")
+                mdi_uv_vertex_polygons = uvs[0]
+                uv_coordinates = mdi_uv_vertex_polygons.uv_coordinates
+                mdi_uv = MDIUV(uv_coordinates[0], uv_coordinates[1])
+                mdi_uv_map_bijective.uvs.append(mdi_uv)
 
-            mdi_uv_vertex_polygons = uvs[0]
-            uv_coordinates = mdi_uv_vertex_polygons.uv_coordinates
-            mdi_uv = MDIUV(uv_coordinates[0], uv_coordinates[1])
-            mdi_uv_map_bijective.uvs.append(mdi_uv)
+            else:
+
+                reporter_m.warning("Found unmapped vertex. Defaulting to"
+                                   " (0, 0).")
+                mdi_uv = MDIUV(0.0, 0.0)
+                mdi_uv_map_bijective.uvs.append(mdi_uv)
 
         # second pass
         num_new_vertices = 0
@@ -506,7 +510,7 @@ class MDIUVMapSurjective:
             mdi_vertex = mdi_surface.vertices[num_vertex]
 
             if not uvs:
-                raise Exception("UV map vertex not mapped")
+                continue  # fixed during first pass already
 
             # skip the first one, since it's already mapped
             for i in range(1, len(uvs)):

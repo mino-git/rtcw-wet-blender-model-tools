@@ -76,6 +76,15 @@ def read(mesh_object):
                                       uv_coordinates,
                                       polygon_index)
 
+    # find unmapped vertices
+    for num_vertex, uvs in enumerate(mdi_uv_map_surjective.uvs):
+
+        if not uvs:
+
+            reporter_m.warning("Found unmapped vertex: num_vertex='{}',"
+                                " mesh='{}'."
+                                .format(num_vertex, mesh_object.name))
+
     return mdi_uv_map_surjective
 
 # =====================================
