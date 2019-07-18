@@ -28,6 +28,7 @@ import sys
 import mathutils
 
 import rtcw_et_model_tools.common.collapse_map as collapse_map_m
+import rtcw_et_model_tools.common.reporter as reporter_m
 
 
 class MDI:
@@ -112,7 +113,7 @@ class MDISurface:
 
     def uv_map_to_type(self, target_type):
 
-        return True
+        self.uv_map = self.uv_map.to_type(self, target_type)
 
     def shader_to_type(self, target_type):
 
@@ -448,24 +449,126 @@ class MDIShaderPath:
 
 class MDIUVMapSurjective:
     """TODO
-
-    Attributes:
-
-        uvs (list<MDIUV>[num_vertices][num_mappings])
     """
 
-    def __init__(self, uvs = None):
+    def __init__(self, num_vertices):
 
-        if uvs:
-            self.uvs = uvs
+        self.uvs = []
+
+        for _ in range(num_vertices):
+            self.uvs.append(None)
+
+    def add(self, num_vertex, uv_coordinates, polygon_index):
+
+        if not self.uvs[num_vertex]:
+
+            mdi_uv_vertex_polygons = MDIUVVertexPolygons(uv_coordinates)
+            mdi_uv_vertex_polygons.polygon_indices.append(polygon_index)
+            self.uvs[num_vertex] = []
+            self.uvs[num_vertex].append(mdi_uv_vertex_polygons)
+            return
+
+        found = False
+        for mdi_uv_vertex_polygons in self.uvs[num_vertex]:
+
+            if mdi_uv_vertex_polygons.uv_coordinates == uv_coordinates:
+                mdi_uv_vertex_polygons.polygon_indices.append(polygon_index)
+                found = True
+                break
+
+        if not found:
+
+            mdi_uv_vertex_polygons = MDIUVVertexPolygons(uv_coordinates)
+            mdi_uv_vertex_polygons.polygon_indices.append(polygon_index)
+            self.uvs[num_vertex].append(mdi_uv_vertex_polygons)
+
+    def biject(self, mdi_surface, target_type):
+
+        mdi_uv_map_bijective = MDIUVMapBijective()
+
+        # first pass
+        for num_vertex, uvs in enumerate(self.uvs):
+
+            mdi_vertex = mdi_surface.vertices[num_vertex]
+
+            if not uvs:
+                raise Exception("UV map vertex not mapped")
+
+            mdi_uv_vertex_polygons = uvs[0]
+            uv_coordinates = mdi_uv_vertex_polygons.uv_coordinates
+            mdi_uv = MDIUV(uv_coordinates[0], uv_coordinates[1])
+            mdi_uv_map_bijective.uvs.append(mdi_uv)
+
+        # second pass
+        num_new_vertices = 0
+        for num_vertex, uvs in enumerate(self.uvs):
+
+            mdi_vertex = mdi_surface.vertices[num_vertex]
+
+            if not uvs:
+                raise Exception("UV map vertex not mapped")
+
+            # skip the first one, since it's already mapped
+            for i in range(1, len(uvs)):
+
+                mdi_uv_vertex_polygons = uvs[i]
+
+                # create new vertex
+                mdi_surface.vertices.append(mdi_vertex)
+                new_vertex_index = len(mdi_surface.vertices) - 1
+                num_new_vertices += 1
+
+                # modify the triangles
+                for polygon_index in mdi_uv_vertex_polygons.polygon_indices:
+
+                    mdi_triangle = mdi_surface.triangles[polygon_index]
+
+                    for j, index in enumerate(mdi_triangle.indices):
+
+                        if index == num_vertex:
+
+                            mdi_triangle.indices[j] = new_vertex_index
+                            break
+
+                # modify uv list
+                uv_coordinates = mdi_uv_vertex_polygons.uv_coordinates
+                mdi_uv = MDIUV(uv_coordinates[0], uv_coordinates[1])
+                mdi_uv_map_bijective.uvs.append(mdi_uv)
+
+        if num_new_vertices:
+
+            reporter_m.info("Created {} new vertices for the uv map."
+                            " To avoid this try to reduce the number of seams"
+                            " crossing each vertex."
+                            .format(num_new_vertices))
+
+        return mdi_uv_map_bijective
+
+    def to_type(self, mdi_surface, target_type):
+
+        if target_type == MDIUVMapBijective:
+
+            return self.biject(mdi_surface, target_type)
+
+        elif target_type == MDIUVMapSurjective:
+
+            return self
+
         else:
-            self.uvs = []
 
-    def to_type(self, target_type):
-
-        # TODO
+            raise Exception("Unknown UVMap type")
 
         return None
+
+
+class MDIUVVertexPolygons:
+    """TODO
+    """
+
+    def __init__(self, uv_coordinates):
+
+        self.uv_coordinates = uv_coordinates
+        self.polygon_indices = []
 
 
 class MDIUVMapBijective:
@@ -483,9 +586,19 @@ class MDIUVMapBijective:
         else:
             self.uvs = []
 
-    def to_type(self, target_type):
+    def to_type(self, mdi_surface, target_type):
 
-        # TODO
+        if target_type == MDIUVMapBijective:
+
+            return self
+
+        elif target_type == MDIUVMapSurjective:
+
+            raise Exception("Can not convert bijective to surjective uv map")
+
+        else:
+
+            raise Exception("Unknown UVMap type")
 
         return None
 
