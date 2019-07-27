@@ -27,6 +27,7 @@ import mathutils
 
 import rtcw_et_model_tools.mdi.mdi as mdi_m
 import rtcw_et_model_tools.blender.core.fcurve as fcurve_m
+import rtcw_et_model_tools.blender.util as blender_util_m
 import rtcw_et_model_tools.common.timer as timer_m
 import rtcw_et_model_tools.common.reporter as reporter_m
 
@@ -100,22 +101,35 @@ def read(armature_object):
             mdi_bone.parent_dist = cbl_ms.length
 
         # torso_weight
-        torso_weight = 0.0
         try:
             torso_weight = edit_bone['Torso Weight']
+            mdi_bone.torso_weight = torso_weight
         except:
-            pass  # TODO print warning
-        mdi_bone.torso_weight = torso_weight
+            pass  # it's ok
 
         # sneak in check for torso parent
         try:
             _ = edit_bone['Torso Parent']
             mdi_skeleton.torso_parent_bone = num_bone
         except:
-            pass  # TODO print warning
+            pass  # it's ok
 
         locations, rotations = \
             fcurve_m.read_pose_bone(armature_object, mdi_bone.name)
+
+        if not locations:  # no animation
+
+            frame_start = bpy.context.scene.frame_start
+            frame_end = bpy.context.scene.frame_end
+            location = mathutils.Vector((0, 0, 0))
+            locations = [location] * (frame_end + 1 - frame_start)
+
+        if not rotations:  # no animation
+
+            frame_start = bpy.context.scene.frame_start
+            frame_end = bpy.context.scene.frame_end
+            rotation = mathutils.Matrix.Identity(3)
+            rotations = [rotation] * (frame_end + 1 - frame_start)
 
         # calculate locations and orientations based on extracted offsets
         if mdi_bone.parent_bone >= 0:
