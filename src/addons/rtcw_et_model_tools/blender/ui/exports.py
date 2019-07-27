@@ -50,10 +50,6 @@ class ExportPanel(bpy.types.Panel):
                     "remt_md3_export_path")
 
             row = layout.row()
-            row.prop(context.scene,
-                    "remt_md3_collapse_frame_export")
-
-            row = layout.row()
             row.operator("remt.md3_exporter",
                             text="Export",
                             icon="EXPORT")
@@ -63,10 +59,6 @@ class ExportPanel(bpy.types.Panel):
             row = layout.row()
             row.prop(context.scene,
                     "remt_mdc_export_path")
-
-            row = layout.row()
-            row.prop(context.scene,
-                    "remt_mdc_collapse_frame_export")
 
             row = layout.row()
             row.operator("remt.mdc_exporter",
