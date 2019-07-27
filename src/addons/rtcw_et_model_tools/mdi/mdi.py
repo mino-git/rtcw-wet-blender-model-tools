@@ -634,7 +634,7 @@ class MDISkeleton:
         bones (list<MDIBone>[num_bones])
     """
 
-    def __init__(self, name = "unknown name", torso_parent_bone = 0,
+    def __init__(self, name = "unknown name", torso_parent_bone = -1,
                  root_bone_locations = None, bones = None):
 
         self.name = name
@@ -665,7 +665,7 @@ class MDIBone:
     """
 
     def __init__(self, name = "unknown name", parent_bone = 0,
-                 parent_dist = 0.0, torso_weight = 0.0, locations = None,
+                 parent_dist = 0.0, torso_weight = None, locations = None,
                  orientations = None):
 
         self.name = name
@@ -737,7 +737,7 @@ class MDIBoneTag:
     """
 
     def __init__(self, name = "unknown name", parent_bone = 0,
-                 torso_weight = 0.0):
+                 torso_weight = None):
 
         self.name = name
         self.parent_bone = parent_bone
