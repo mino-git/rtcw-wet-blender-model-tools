@@ -24,7 +24,7 @@
 import bpy
 
 
-class ShadingPanel(bpy.types.Panel):
+class REMT_PT_Shading(bpy.types.Panel):
     """Panel for shading operations.
     """
 
@@ -58,7 +58,7 @@ class ShadingPanel(bpy.types.Panel):
                      icon="MATERIAL_DATA")
 
 
-class ShadingOperator(bpy.types.Operator):
+class REMT_OT_Shading(bpy.types.Operator):
     """Operator for shading operations.
     """
 
@@ -112,8 +112,8 @@ class ShadingOperator(bpy.types.Operator):
 # ==============================
 
 classes = (
-    ShadingPanel,
-    ShadingOperator,
+    REMT_PT_Shading,
+    REMT_OT_Shading,
 )
 
 def register():

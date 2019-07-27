@@ -27,7 +27,7 @@ import bpy
 # UI
 # ==============================
 
-class TestPanel(bpy.types.Panel):
+class REMT_PT_Test(bpy.types.Panel):
     """Panel for test operations.
     """
 
@@ -79,7 +79,7 @@ class TestPanel(bpy.types.Panel):
 # Operators
 # ==============================
 
-class TestReadWrite(bpy.types.Operator):
+class REMT_OT_TestReadWrite(bpy.types.Operator):
     """Tests reading from and writing to file.
     """
 
@@ -102,7 +102,7 @@ class TestReadWrite(bpy.types.Operator):
         return {'FINISHED'}
 
 
-class TestDirectConversion(bpy.types.Operator):
+class REMT_OT_TestDirectConversion(bpy.types.Operator):
     """Tests direction conversion.
     """
 
@@ -127,7 +127,7 @@ class TestDirectConversion(bpy.types.Operator):
         return {'FINISHED'}
 
 
-class TestExec(bpy.types.Operator):
+class REMT_OT_TestExec(bpy.types.Operator):
     """For internal testing, gets removed later.
     """
 
@@ -166,10 +166,10 @@ class TestExec(bpy.types.Operator):
 # ==============================
 
 classes = (
-    TestPanel,
-    TestReadWrite,
-    TestDirectConversion,
-    TestExec,
+    REMT_PT_Test,
+    REMT_OT_TestReadWrite,
+    REMT_OT_TestDirectConversion,
+    REMT_OT_TestExec,
 )
 
 def register():

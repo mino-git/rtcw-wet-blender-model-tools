@@ -26,7 +26,7 @@ import os
 import bpy
 
 
-class ImportPanel(bpy.types.Panel):
+class REMT_PT_Import(bpy.types.Panel):
     """Panel for import operations.
     """
 
@@ -104,7 +104,7 @@ class ImportPanel(bpy.types.Panel):
             pass
 
 
-class MD3Importer(bpy.types.Operator):
+class REMT_OT_MD3Import(bpy.types.Operator):
     """Operator for importing MD3 file format.
     """
 
@@ -159,7 +159,7 @@ class MD3Importer(bpy.types.Operator):
         return {'FINISHED'}
 
 
-class MDCImporter(bpy.types.Operator):
+class REMT_OT_MDCImport(bpy.types.Operator):
     """Operator for importing MDC file format.
     """
 
@@ -214,7 +214,7 @@ class MDCImporter(bpy.types.Operator):
         return {'FINISHED'}
 
 
-class MDSImporter(bpy.types.Operator):
+class REMT_OT_MDSImport(bpy.types.Operator):
     """Operator for importing MDS file format.
     """
 
@@ -269,7 +269,7 @@ class MDSImporter(bpy.types.Operator):
         return {'FINISHED'}
 
 
-class MDMMDXImporter(bpy.types.Operator):
+class REMT_OT_MDMMDXImport(bpy.types.Operator):
     """Operator for importing MDM/MDX file format.
     """
 
@@ -343,11 +343,11 @@ class MDMMDXImporter(bpy.types.Operator):
 # ==============================
 
 classes = (
-    ImportPanel,
-    MD3Importer,
-    MDCImporter,
-    MDSImporter,
-    MDMMDXImporter,
+    REMT_PT_Import,
+    REMT_OT_MD3Import,
+    REMT_OT_MDCImport,
+    REMT_OT_MDSImport,
+    REMT_OT_MDMMDXImport,
 )
 
 def register():

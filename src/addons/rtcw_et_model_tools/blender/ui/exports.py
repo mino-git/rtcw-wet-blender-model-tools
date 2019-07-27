@@ -26,7 +26,7 @@ import os
 import bpy
 
 
-class ExportPanel(bpy.types.Panel):
+class REMT_PT_Export(bpy.types.Panel):
     """Panel for export operations.
     """
 
@@ -104,7 +104,7 @@ class ExportPanel(bpy.types.Panel):
             pass
 
 
-class MD3Exporter(bpy.types.Operator):
+class REMT_OT_MD3Export(bpy.types.Operator):
     """Operator for exporting to MD3 file format.
     """
 
@@ -157,7 +157,7 @@ class MD3Exporter(bpy.types.Operator):
         return {'FINISHED'}
 
 
-class MDCExporter(bpy.types.Operator):
+class REMT_OT_MDCExport(bpy.types.Operator):
     """Operator for exporting to MDC file format.
     """
 
@@ -210,7 +210,7 @@ class MDCExporter(bpy.types.Operator):
         return {'FINISHED'}
 
 
-class MDSExporter(bpy.types.Operator):
+class REMT_OT_MDSExport(bpy.types.Operator):
     """Operator for exporting to MDS file format.
     """
 
@@ -265,7 +265,7 @@ class MDSExporter(bpy.types.Operator):
         return {'FINISHED'}
 
 
-class MDMMDXExporter(bpy.types.Operator):
+class REMT_OT_MDMMDXExport(bpy.types.Operator):
     """Operator for exporting to MDM/MDX file format.
     """
 
@@ -344,11 +344,11 @@ class MDMMDXExporter(bpy.types.Operator):
 # ==============================
 
 classes = (
-    ExportPanel,
-    MD3Exporter,
-    MDCExporter,
-    MDSExporter,
-    MDMMDXExporter,
+    REMT_PT_Export,
+    REMT_OT_MD3Export,
+    REMT_OT_MDCExport,
+    REMT_OT_MDSExport,
+    REMT_OT_MDMMDXExport,
 )
 
 def register():

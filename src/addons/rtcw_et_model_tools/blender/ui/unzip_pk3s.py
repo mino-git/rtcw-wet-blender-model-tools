@@ -24,7 +24,7 @@
 import bpy
 
 
-class UnzipPK3sPanel(bpy.types.Panel):
+class REMT_PT_UnzipPK3s(bpy.types.Panel):
     """Panel for unzip pk3s operation.
     """
 
@@ -52,8 +52,8 @@ class UnzipPK3sPanel(bpy.types.Panel):
                      icon="DISK_DRIVE")
 
 
-class UnzipPK3s(bpy.types.Operator):
-    """Unzip PK3s.
+class REMT_OT_UnzipPK3s(bpy.types.Operator):
+    """Unzip PK3s operator.
     """
 
     bl_idname = "remt.remt_unzip_pk3"
@@ -101,8 +101,8 @@ class UnzipPK3s(bpy.types.Operator):
 # ==============================
 
 classes = (
-    UnzipPK3sPanel,
-    UnzipPK3s,
+    REMT_PT_UnzipPK3s,
+    REMT_OT_UnzipPK3s,
 )
 
 def register():

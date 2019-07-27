@@ -24,7 +24,7 @@
 import bpy
 
 
-class AttachmentPanel(bpy.types.Panel):
+class REMT_PT_Attachment(bpy.types.Panel):
     """Panel for attach to tag operation.
     """
 
@@ -58,7 +58,7 @@ class AttachmentPanel(bpy.types.Panel):
                      icon="EMPTY_DATA")
 
 
-class Attachment(bpy.types.Operator):
+class REMT_OT_Attachment(bpy.types.Operator):
     """Operator for attach to tag operation.
     """
 
@@ -109,8 +109,8 @@ class Attachment(bpy.types.Operator):
 # ==============================
 
 classes = (
-    AttachmentPanel,
-    Attachment,
+    REMT_PT_Attachment,
+    REMT_OT_Attachment,
 )
 
 def register():

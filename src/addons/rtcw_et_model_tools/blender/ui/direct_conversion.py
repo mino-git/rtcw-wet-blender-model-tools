@@ -24,7 +24,7 @@
 import bpy
 
 
-class DirectConversionPanel(bpy.types.Panel):
+class REMT_PT_DirectConversion(bpy.types.Panel):
     """Panel for direct conversion operation.
     """
 
@@ -116,7 +116,7 @@ class DirectConversionPanel(bpy.types.Panel):
                      icon="PLUGIN")
 
 
-class DirectConversionOperator(bpy.types.Operator):
+class REMT_OT_DirectConversion(bpy.types.Operator):
     """Operator for direct conversion operation.
     """
 
@@ -333,8 +333,8 @@ class DirectConversionOperator(bpy.types.Operator):
 # ==============================
 
 classes = (
-    DirectConversionPanel,
-    DirectConversionOperator,
+    REMT_PT_DirectConversion,
+    REMT_OT_DirectConversion,
 )
 
 def register():
