@@ -100,14 +100,17 @@ def read_object_locations(blender_object, frame_start, frame_end,
 
     if not locations:  # create static values
 
-        if bone_name:  # values are in bind pose space for bones
+        if bone_name:
 
+            # values are in bind pose space for bones
             location = mathutils.Vector((0, 0, 0))
             locations = [location] * (frame_end + 1 - frame_start)
 
-        else:  # values are in local space for all other objects
+        else:
 
-            location, _, _ = blender_object.matrix_world.decompose()
+            # values are in local space without constraints or modifiers
+            # for all other objects
+            location, _, _ = blender_object.matrix_basis.decompose()
             locations = [location] * (frame_end + 1 - frame_start)
 
     return locations
@@ -211,14 +214,17 @@ def read_object_rotations(blender_object, frame_start, frame_end,
 
     if not rotations:  # create static values
 
-        if bone_name:  # values are in bind pose space for bones
+        if bone_name:
 
+            # values are in bind pose space for bones
             rotation = mathutils.Matrix.Identity(3)
             rotations = [rotation] * (frame_end + 1 - frame_start)
 
-        else:  # values are in local space for all other objects
+        else:
 
-            _, rotation, _ = blender_object.matrix_world.decompose()
+            # values are in local space without constraints or modifiers
+            # for all other objects
+            _, rotation, _ = blender_object.matrix_basis.decompose()
             rotation = rotation.to_matrix()
             rotations = [rotation] * (frame_end + 1 - frame_start)
 
@@ -270,14 +276,16 @@ def read_object_scales(blender_object, frame_start, frame_end,
 
     if not scales:  # create static values
 
-        if bone_name:  # values are in bind pose space for bones
+        if bone_name:
 
+            # values are in bind pose space for bones
             scale = mathutils.Vector((1, 1, 1))
             scales = [scale] * (frame_end + 1 - frame_start)
 
-        else:  # values are in local space for all other objects
-
-            _, _, scale = blender_object.matrix_world.decompose()
+        else:
+            # values are in local space without constraints or modifiers
+            # for all other objects
+            _, _, scale = blender_object.matrix_basis.decompose()
             scales = [scale] * (frame_end + 1 - frame_start)
 
     return scales
