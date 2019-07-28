@@ -27,6 +27,7 @@ import bpy
 import mathutils
 
 import rtcw_et_model_tools.mdi.mdi as mdi_m
+import rtcw_et_model_tools.blender.core.arrow as arrow_m
 import rtcw_et_model_tools.blender.core.fcurve as fcurve_m
 import rtcw_et_model_tools.common.reporter as reporter_m
 
@@ -444,7 +445,7 @@ def apply_object_transforms(mdi_model, mesh_objects, armature_object,
     # armature_object
     if armature_object:
 
-        if not mdi_model.mdi_skeleton:
+        if not mdi_model.skeleton:
 
             reporter_m.warning("Could not apply skeleton object transforms.")
 
@@ -452,22 +453,22 @@ def apply_object_transforms(mdi_model, mesh_objects, armature_object,
 
             locations_os = \
                 read_object_locations(armature_object, frame_start, frame_end)
-            orientation_os = \
+            orientations_os = \
                 read_object_rotations(armature_object, frame_start, frame_end)
             # scale not supported for skeleton object transforms,
             # because of fixed dist constraint
 
-            for mdi_bone in mdi_model.mdi_skeleton:
+            for mdi_bone in mdi_model.skeleton.bones:
 
                 for num_frame in range(len(locations_os)):
 
                     location_cs = mdi_bone.locations[num_frame]
                     orientation_cs = mdi_bone.orientations[num_frame]
                     location_os = locations_os[num_frame]
-                    orientation_os = orientation_os[num_frame]
+                    orientation_os = orientations_os[num_frame]
 
                     mdi_bone.locations[num_frame] = \
-                        locations_os + orientation_os @ location_cs
+                        location_os + orientation_os @ location_cs
                     mdi_bone.orientations[num_frame] = \
                         (orientation_os @ orientation_cs)
 
