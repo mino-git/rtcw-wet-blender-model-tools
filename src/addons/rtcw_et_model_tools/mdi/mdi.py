@@ -1041,10 +1041,7 @@ class MDIBoundingVolume:
 
                         if isinstance(mdi_vertex, MDIMorphVertex):
 
-                            try:
-                                location = mdi_vertex.locations[num_frame]
-                            except:
-                                print("test")
+                            location = mdi_vertex.locations[num_frame]
 
                         elif isinstance(mdi_vertex, MDIRiggedVertex):
 

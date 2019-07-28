@@ -223,6 +223,64 @@ def read_object_rotations(blender_object, frame_start, frame_end,
 
     return rotations
 
+def read_object_scales(blender_object, frame_start, frame_end,
+                       bone_name = None):
+    """Read scale values of an object (transforms). If not animated, return
+    static values across frames.
+
+    Args:
+
+        blender_object
+        frame_start
+        frame_end
+        bone_name
+
+    Returns:
+
+        locations
+    """
+
+    scales = []
+
+    if blender_object.animation_data:
+
+        action = blender_object.animation_data.action
+        if action:
+
+            fcurves = action.fcurves
+            if not fcurves:
+
+                reporter_m.warning("Action found with no fcurves")
+
+            else:
+
+                scales = fcurve_m.read_scales(fcurves,
+                                              frame_start,
+                                              frame_end,
+                                              bone_name)
+
+        else:  # no action
+
+            reporter_m.warning("Animation data with no action found")
+
+    else:  # no animation_data
+
+        pass
+
+    if not scales:  # create static values
+
+        if bone_name:  # values are in bind pose space for bones
+
+            scale = mathutils.Vector((1, 1, 1))
+            scales = [scale] * (frame_end + 1 - frame_start)
+
+        else:  # values are in local space for all other objects
+
+            _, _, scale = blender_object.matrix_world.decompose()
+            scales = [scale] * (frame_end + 1 - frame_start)
+
+    return scales
+
 def write_object_locations(blender_object, locations, frame_start = 0,
                            bone_name = None):
     """Write location values of an object (transforms).
@@ -334,7 +392,84 @@ def apply_object_transforms(mdi_model, mesh_objects, armature_object,
     """TODO
     """
 
-    pass
+    # mesh_objects
+    for mesh_object in mesh_objects:
+
+        mdi_vertices = None
+        for mdi_surface in mdi_model.surfaces:
+            if mdi_surface.name == mesh_object.name:
+                mdi_vertices = mdi_surface.vertices
+                break
+
+        if not mdi_vertices:
+
+            reporter_m.warning("Could not find mdi vertices for mesh object"
+                               " '{}' during object transforming."
+                               .format(mesh_object.name))
+            continue
+
+        locations_os = \
+            read_object_locations(mesh_object, frame_start, frame_end)
+        rotations_os = \
+            read_object_rotations(mesh_object, frame_start, frame_end)
+        scales_os = \
+            read_object_scales(mesh_object, frame_start, frame_end)
+
+        for mdi_vertex in mdi_vertices:
+
+            # only for morph vertices
+            if isinstance(mdi_vertex, mdi_m.MDIMorphVertex):
+
+                for num_frame in range(len(locations_os)):
+
+                    location_cs = mdi_vertex.locations[num_frame]
+                    normal_cs = mdi_vertex.normals[num_frame]
+                    location_os = locations_os[num_frame]
+                    rotation_os = rotations_os[num_frame]
+                    scale_os = scales_os[num_frame]
+
+                    # we can't do this inplace since some mdi_vertex objects
+                    # might be duplicated during uv map pass, so just create
+                    # a new vector
+                    sx = location_cs[0] * scale_os[0]
+                    sy = location_cs[1] * scale_os[1]
+                    sz = location_cs[2] * scale_os[2]
+                    location_scaled = mathutils.Vector((sx, sy, sz))
+
+                    mdi_vertex.locations[num_frame] = \
+                        location_os + rotation_os @ location_scaled
+
+                    mdi_vertex.normals[num_frame] = rotation_os @ normal_cs
+
+    # armature_object
+    if armature_object:
+
+        if not mdi_model.mdi_skeleton:
+
+            reporter_m.warning("Could not apply skeleton object transforms.")
+
+        else:
+
+            locations_os = \
+                read_object_locations(armature_object, frame_start, frame_end)
+            orientation_os = \
+                read_object_rotations(armature_object, frame_start, frame_end)
+            # scale not supported for skeleton object transforms,
+            # because of fixed dist constraint
+
+            for mdi_bone in mdi_model.mdi_skeleton:
+
+                for num_frame in range(len(locations_os)):
+
+                    location_cs = mdi_bone.locations[num_frame]
+                    orientation_cs = mdi_bone.orientations[num_frame]
+                    location_os = locations_os[num_frame]
+                    orientation_os = orientation_os[num_frame]
+
+                    mdi_bone.locations[num_frame] = \
+                        locations_os + orientation_os @ location_cs
+                    mdi_bone.orientations[num_frame] = \
+                        (orientation_os @ orientation_cs)
 
 # calculates a vector (x, y, z) orthogonal to v
 def getOrthogonal(v):

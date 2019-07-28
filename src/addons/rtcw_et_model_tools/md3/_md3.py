@@ -138,12 +138,9 @@ class MD3FrameVertex:
 
         file.seek(file_ofs)
 
-        try:
-            file.write(struct.pack(MD3FrameVertex.format, self.location[0],
-                                self.location[1], self.location[2],
-                                self.normal[1], self.normal[0]))
-        except:
-            print("test")
+        file.write(struct.pack(MD3FrameVertex.format, self.location[0],
+                            self.location[1], self.location[2],
+                            self.normal[1], self.normal[0]))
 
 
 class MD3TexCoords:

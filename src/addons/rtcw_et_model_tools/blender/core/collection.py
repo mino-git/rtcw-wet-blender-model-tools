@@ -39,7 +39,7 @@ def _collect_objects_for_export(collection):
     mesh_objects = []
     armature_objects = []
     arrow_objects = []
-    for obj in collection.objects:
+    for obj in collection.all_objects:
 
         if obj.type == 'MESH':
             mesh_objects.append(obj)
@@ -51,6 +51,19 @@ def _collect_objects_for_export(collection):
              obj.empty_display_type == 'ARROWS' and \
              obj.name.startswith('tag_'):
             arrow_objects.append(obj)
+
+    num_mesh_objects =  len(mesh_objects)
+    num_armature_objects = len(armature_objects)
+    num_arrow_objects = len(arrow_objects)
+    num_objects = num_mesh_objects + num_armature_objects + num_arrow_objects
+    reporter_m.info("Found {} objects for export."
+                    " {} mesh objects,"
+                    " {} armature objects,"
+                    " {} arrow objects"
+                    .format(num_objects,
+                            num_mesh_objects,
+                            num_armature_objects,
+                            num_arrow_objects))
 
     armature_object = None
     if armature_objects:
@@ -78,12 +91,14 @@ def read(collapse_frame = 0):
         mdi_model (MDI): MDI object.
     """
 
-    frame_start = bpy.context.scene.frame_start
-    frame_end = bpy.context.scene.frame_end
-    if collapse_frame < frame_start or collapse_frame > frame_end:
-        reporter_m.warning("Collapse frame not in range. Adjusting to frame "
-                            "'{}'.".format(frame_start))
-        collapse_frame = frame_start
+
+
+    # frame_start = bpy.context.scene.frame_start
+    # frame_end = bpy.context.scene.frame_end
+    # if collapse_frame < frame_start or collapse_frame > frame_end:
+    #     reporter_m.warning("Collapse frame not in range. Adjusting to frame "
+    #                         "'{}'.".format(frame_start))
+    #     collapse_frame = frame_start
 
     active_collection = \
         bpy.context.view_layer.active_layer_collection.collection
@@ -123,7 +138,22 @@ def read(collapse_frame = 0):
     # mdi lod
     mdi_model.lod = mdi_m.MDIDiscreteLOD()  # TODO
 
-    # blender_util_m.apply_object_transforms(mesh_object, mdi_model)
+    # apply object transforms
+    frame_start = bpy.context.scene.frame_start
+    frame_end = bpy.context.scene.frame_end
+
+    blender_util_m.apply_object_transforms(mdi_model,
+                                           mesh_objects,
+                                           armature_object,
+                                           arrow_objects,
+                                           frame_start,
+                                           frame_end)
+
+    # consider parenting
+    blender_util_m.apply_parent_transforms(mdi_model,
+                                           mesh_objects,
+                                           armature_object,
+                                           arrow_objects)
 
     time = timer.time()
     reporter_m.info("Reading collection DONE (time={})".format(time))
