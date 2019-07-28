@@ -113,7 +113,7 @@ def read_quaternions(fcurves, frame_start, frame_end, bone_name = None):
     if bone_name:
         data_path = DP_BONE_QUATERNION.format(bone_name)
     else:
-        data_path = DP_BONE_QUATERNION
+        data_path = DP_QUATERNION
 
     fcurve_w = fcurves.find(data_path, index=0)
     fcurve_x = fcurves.find(data_path, index=1)
