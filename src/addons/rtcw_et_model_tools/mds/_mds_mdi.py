@@ -336,7 +336,7 @@ class MDIToModel:
         local_origin = mdi_bounding_sphere.origin.to_tuple()
         radius = mdi_bounding_sphere.radius
         root_bone_location = \
-            mdi_model.skeleton.root_bone_locations[num_frame].to_tuple()
+            mdi_model.skeleton.bones[0].locations[num_frame].to_tuple()
 
         mds_frame_info = mds_m.MDSFrameInfo(min_bound, max_bound, local_origin,
                                             radius, root_bone_location)
@@ -490,16 +490,6 @@ class ModelToMDI:
 
         mdi_skeleton.name = "mds_skeleton"
         mdi_skeleton.torso_parent_bone = mds_model.header.torso_parent_bone
-
-        # root bone locations
-        root_bone_locations = []
-        for mds_frame in mds_model.frames:
-
-            root_bone_location = \
-                mathutils.Vector(mds_frame.frame_info.root_bone_location)
-            root_bone_locations.append(root_bone_location)
-
-        mdi_skeleton.root_bone_locations = root_bone_locations
 
         # bones
         for num_bone, mds_bone_info in enumerate(mds_model.bone_infos):

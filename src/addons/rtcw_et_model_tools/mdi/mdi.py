@@ -630,20 +630,14 @@ class MDISkeleton:
 
         name (str)
         torso_parent_bone (int)
-        root_bone_locations (list<Vector>[num_frames])
         bones (list<MDIBone>[num_bones])
     """
 
     def __init__(self, name = "unknown name", torso_parent_bone = -1,
-                 root_bone_locations = None, bones = None):
+                 bones = None):
 
         self.name = name
         self.torso_parent_bone = torso_parent_bone
-
-        if root_bone_locations:
-            self.root_bone_locations = root_bone_locations
-        else:
-            self.root_bone_locations = []
 
         if bones:
             self.bones = bones
