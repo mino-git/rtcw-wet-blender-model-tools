@@ -93,10 +93,17 @@ def _read_rigged_vertices(mesh_object, armature_object, root_frame):
             objects. List is empty or None if no success.
     """
 
-    mdi_rigged_vertices = []
-
     if not armature_object:
-        return mdi_rigged_vertices
+        return None
+
+    armature_object_found = mesh_object.find_armature()
+    if not armature_object_found:
+        return None
+
+    if not armature_object_found.name == armature_object.name:
+        return None
+
+    mdi_rigged_vertices = []
 
     bpy.context.view_layer.objects.active = \
         bpy.data.objects[armature_object.name]
