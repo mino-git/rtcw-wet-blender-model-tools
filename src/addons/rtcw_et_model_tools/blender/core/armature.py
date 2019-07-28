@@ -176,11 +176,6 @@ def read(armature_object):
 
     bpy.ops.object.mode_set(mode='OBJECT')
 
-    # root bone locations
-    mdi_root_bone = mdi_skeleton.bones[0]
-    for location in mdi_root_bone.locations:
-        mdi_skeleton.root_bone_locations.append(location)
-
     return mdi_skeleton
 
 # =====================================
