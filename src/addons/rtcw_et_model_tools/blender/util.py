@@ -28,97 +28,318 @@ import mathutils
 
 import rtcw_et_model_tools.mdi.mdi as mdi_m
 import rtcw_et_model_tools.blender.core.fcurve as fcurve_m
+import rtcw_et_model_tools.common.reporter as reporter_m
 
 
-def apply_object_transforms(mesh_object, mdi_model):
+def matrix_to_axis_angle(matrix):
+    """TODO
+    """
 
-    # TODO parent objects, child of constraints?
+    axis_angle = None
 
-    locations, rotations = fcurve_m.read_object(mesh_object)
+    if True:
+        raise Exception("Matrix to axis angle conversion not supported")
 
-    if not locations:
+    return axis_angle
 
-        locations = []
-        rotations = []
+def axis_angle_to_matrix(axis_angle):
+    """TODO
+    """
 
-        matrix_world = mesh_object.matrix_world
+    matrix = None
 
-        loc, rot, _ = matrix_world.decompose()
-        rot = rot.to_matrix()
+    if True:
+        raise Exception("Axis angle to matrix conversion not supported")
 
-        zero_vector = mathutils.Vector((0, 0, 0))
-        matrix_identity = mathutils.Matrix.Identity(3)
+    return matrix
 
-        if not (loc == zero_vector and rot == matrix_identity):
+def read_object_locations(blender_object, frame_start, frame_end,
+                          bone_name = None):
+    """Read location values of an object (transforms). If not animated, return
+    static values across frames.
 
-            frame_start = bpy.context.scene.frame_start
-            frame_end = bpy.context.scene.frame_end
+    Args:
 
-            for _ in range(frame_start, frame_end + 1):
+        blender_object
+        frame_start
+        frame_end
+        bone_name
 
-                locations.append(loc)
-                rotations.append(rot)
+    Returns:
 
-    if locations and rotations:
+        locations
+    """
 
-        for mdi_surface in mdi_model.surfaces:
+    locations = []
 
-            for mdi_vertex in mdi_surface.vertices:
+    if blender_object.animation_data:
 
-                if isinstance(mdi_vertex , mdi_m.MDIMorphVertex):
+        action = blender_object.animation_data.action
+        if action:
 
-                    new_locations = []
-                    new_normals = []
+            fcurves = action.fcurves
+            if not fcurves:
 
-                    for num_frame in range(len(mdi_vertex.locations)):
+                reporter_m.warning("Action found with no fcurves")
 
-                        loc = locations[num_frame]
-                        rot = rotations[num_frame]
+            else:
 
-                        new_loc = loc + rot @ mdi_vertex.locations[num_frame]
-                        new_locations.append(new_loc)
-                        new_normal = rot @ mdi_vertex.normals[num_frame]
-                        new_normals.append(new_normal)
+                locations = fcurve_m.read_locations(fcurves,
+                                                    frame_start,
+                                                    frame_end,
+                                                    bone_name)
 
-                    mdi_vertex.locations = new_locations
-                    mdi_vertex.normals = new_normals
+        else:  # no action
 
-                elif isinstance(mdi_vertex, mdi_m.MDIRiggedVertex):
+            reporter_m.warning("Animation data with no action found")
 
-                    mdi_vertex.normal = rot @ mdi_vertex.normal
+    else:  # no animation_data
 
-                    # weight locations are given on bone space, so no
-                    # transform needed
+        pass
+
+    if not locations:  # create static values
+
+        if bone_name:  # values are in bind pose space for bones
+
+            location = mathutils.Vector((0, 0, 0))
+            locations = [location] * (frame_end + 1 - frame_start)
+
+        else:  # values are in local space for all other objects
+
+            location, _, _ = blender_object.matrix_world.decompose()
+            locations = [location] * (frame_end + 1 - frame_start)
+
+    return locations
+
+def read_object_rotations(blender_object, frame_start, frame_end,
+                          bone_name = None):
+    """Read rotation values of an object (transforms). If not animated, return
+    static values across frames.
+
+    Args:
+
+        blender_object
+        frame_start
+        frame_end
+        bone_name
+
+    Returns:
+
+        rotations
+    """
+
+    rotations = []
+
+    if blender_object.animation_data:
+
+        action = blender_object.animation_data.action
+        if action:
+
+            fcurves = action.fcurves
+            if not fcurves:
+
+                reporter_m.warning("Action found with no fcurves")
+
+            else:
+
+                if bone_name:
+
+                    pose_bone = blender_object.pose.bones[bone_name]
+                    rotation_mode = pose_bone.rotation_mode
 
                 else:
 
-                    # TODO warning
-                    pass
+                    rotation_mode = blender_object.rotation_mode
 
-        if mdi_model.skeleton:
+                if rotation_mode == 'XYZ' or rotation_mode == 'XZY' or \
+                   rotation_mode == 'YXZ' or rotation_mode == 'YZX' or \
+                   rotation_mode == 'ZXY' or rotation_mode == 'ZYX':
 
-            for mdi_bone in mdi_model.skeleton.bones:
+                    eulers = fcurve_m.read_eulers(fcurves,
+                                                  frame_start,
+                                                  frame_end,
+                                                  bone_name,
+                                                  rotation_mode)
 
-                new_bone_locations = []
-                new_bone_oris = []
+                    if eulers:
 
-                for num_frame in range(len(mdi_bone.locations)):
+                        for euler in eulers:
 
-                    loc = locations[num_frame]
-                    rot = rotations[num_frame]
+                            rotation = euler.to_matrix()
+                            rotations.append(rotation)
 
-                    new_loc = loc + rot @ mdi_bone.locations[num_frame]
-                    new_ori = rot @ mdi_bone.orientations[num_frame]
+                elif rotation_mode == 'AXIS_ANGLE':
 
-                    new_bone_locations.append(new_loc)
-                    new_bone_oris.append(new_ori)
+                    axis_angles = fcurve_m.read_axis_angles(fcurves,
+                                                            frame_start,
+                                                            frame_end,
+                                                            bone_name)
 
-                mdi_bone.locations = new_bone_locations
-                mdi_bone.orientations = new_bone_oris
+                    if axis_angles:
 
+                        for axis_angle in axis_angles:
+
+                            rotation = axis_angle_to_matrix(axis_angle)
+                            rotations.append(rotation)
+
+                elif rotation_mode == 'QUATERNION':
+
+                    quaternions = fcurve_m.read_quaternions(fcurves,
+                                                            frame_start,
+                                                            frame_end,
+                                                            bone_name)
+
+                    if quaternions:
+
+                        for quaternion in quaternions:
+
+                            rotation = quaternion.to_matrix()
+                            rotations.append(rotation)
+
+                else:
+
+                    raise Exception("Unknown rotation mode")
+
+        else:  # no action
+
+            reporter_m.warning("Animation data with no action found")
+
+    else:  # no animation_data
+
+        pass
+
+    if not rotations:  # create static values
+
+        if bone_name:  # values are in bind pose space for bones
+
+            rotation = mathutils.Matrix.Identity(3)
+            rotations = [rotation] * (frame_end + 1 - frame_start)
+
+        else:  # values are in local space for all other objects
+
+            _, rotation, _ = blender_object.matrix_world.decompose()
+            rotation = rotation.to_matrix()
+            rotations = [rotation] * (frame_end + 1 - frame_start)
+
+    return rotations
+
+def write_object_locations(blender_object, locations, frame_start = 0,
+                           bone_name = None):
+    """Write location values of an object (transforms).
+
+    Args:
+
+        blender_object
+        locations
+        frame_start
+        bone_name
+    """
+
+    num_frames = len(locations)
+    if num_frames == 1:
+
+        # TODO maybe support this another time, for now its not needed
+        reporter_m.warning("Setting location handled elsewhere")
+
+    elif num_frames > 1:
+
+        if not blender_object.animation_data:
+            blender_object.animation_data_create()
+
+        if not blender_object.animation_data.action:
+            blender_object.animation_data.action = \
+                bpy.data.actions.new(name=blender_object.name)
+
+        fcurves = blender_object.animation_data.action.fcurves
+        fcurve_m.write_locations(fcurves, locations, frame_start, bone_name)
+
+    else:  # nothing to write
+
+        pass
+
+def write_object_rotations(blender_object, rotations, rotation_mode = 'XYZ',
+                           frame_start = 0, bone_name = None):
+    """Write rotation values of an object (transforms).
+
+    Args:
+
+        blender_object
+        rotations
+        rotation_mode
+        frame_start
+        bone_name
+    """
+
+    num_frames = len(rotations)
+    if num_frames == 1:
+
+        # TODO maybe support this another time, for now its not needed
+        reporter_m.warning("Setting rotation handled elsewhere")
+
+    elif num_frames > 1:
+
+        if not blender_object.animation_data:
+            blender_object.animation_data_create()
+
+        if not blender_object.animation_data.action:
+            blender_object.animation_data.action = \
+                bpy.data.actions.new(name=blender_object.name)
+
+        fcurves = blender_object.animation_data.action.fcurves
+
+        if rotation_mode == 'XYZ' or rotation_mode == 'XZY' or \
+            rotation_mode == 'YXZ' or rotation_mode == 'YZX' or \
+            rotation_mode == 'ZXY' or rotation_mode == 'ZYX':
+
+            eulers = []
+            for rotation in rotations:
+                euler = rotation.to_euler(rotation_mode)
+                eulers.append(euler)
+
+            fcurve_m.write_eulers(fcurves, eulers, frame_start, bone_name)
+
+        elif rotation_mode == 'AXIS_ANGLE':
+
+            axis_angles = []
+            for rotation in rotations:
+                axis_angle = axis_angle_to_matrix(rotation)
+                axis_angles.append(axis_angle)
+
+            fcurve_m.write_axis_angles(fcurves, axis_angles, frame_start,
+                                       bone_name)
+
+        elif rotation_mode == 'QUATERNION':
+
+            quaternions = []
+            for rotation in rotations:
+                quaternion = rotation.to_quaternion()
+                quaternions.append(quaternion)
+
+            fcurve_m.write_quaternions(fcurves, quaternions, frame_start,
+                                       bone_name)
+
+    else:  # nothing to write
+
+        pass
+
+def apply_parent_transforms(mdi_model, mesh_objects, armature_object,
+                            arrow_objects):
+    """TODO
+    """
+
+    pass
+
+def apply_object_transforms(mdi_model, mesh_objects, armature_object,
+                            arrow_objects, frame_start, frame_end):
+    """TODO
+    """
+
+    pass
 
 # calculates a vector (x, y, z) orthogonal to v
 def getOrthogonal(v):
+    """TODO
+    """
 
     x = 0
     y = 0
@@ -157,6 +378,8 @@ def getOrthogonal(v):
 
 def draw_normals_in_frame(mdi_vertices, num_frame, collection,
                           mdi_skeleton = None):
+    """TODO
+    """
 
     for mdi_vertex in mdi_vertices:
 
@@ -226,6 +449,8 @@ def draw_normals_in_frame(mdi_vertices, num_frame, collection,
             pass  # TODO
 
 def get_verts_from_bounds(min_bound, max_bound):
+    """TODO
+    """
 
     vertices = []
 
@@ -251,6 +476,8 @@ def get_verts_from_bounds(min_bound, max_bound):
     return vertices
 
 def draw_bounding_volume(mdi_bounding_volume):
+    """TODO
+    """
 
     min_bound = mdi_bounding_volume.aabbs[0].min_bound
     max_bound = mdi_bounding_volume.aabbs[0].max_bound

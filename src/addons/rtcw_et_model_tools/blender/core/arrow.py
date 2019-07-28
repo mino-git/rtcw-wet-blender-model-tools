@@ -28,7 +28,7 @@ import bpy
 import mathutils
 
 import rtcw_et_model_tools.mdi.mdi as mdi_m
-import rtcw_et_model_tools.blender.core.fcurve as fcurve_m
+import rtcw_et_model_tools.blender.util as blender_util_m
 import rtcw_et_model_tools.common.skin_file as skin_file_m
 import rtcw_et_model_tools.common.timer as timer_m
 import rtcw_et_model_tools.common.reporter as reporter_m
@@ -337,21 +337,18 @@ def read(arrow_object, armature_object = None):
 
         mdi_tag.name = arrow_object.name
 
-        locations, rotations = fcurve_m.read_object(arrow_object)
-        if not locations:
+        frame_start = bpy.context.scene.frame_start
+        frame_end = bpy.context.scene.frame_end
 
-            frame_start = bpy.context.scene.frame_start
-            frame_end = bpy.context.scene.frame_end
+        mdi_tag.locations = \
+            blender_util_m.read_object_locations(arrow_object,
+                                                 frame_start,
+                                                 frame_end)
 
-            loc, rot, _ = arrow_object.matrix_world.decompose()
-            rot = rot.to_matrix()
-            mdi_tag.locations = [loc] * (frame_end + 1 - frame_start)
-            mdi_tag.orientations = [rot] * (frame_end + 1 - frame_start)
-
-        else:
-
-            mdi_tag.locations = locations
-            mdi_tag.orientations = rotations
+        mdi_tag.orientations = \
+            blender_util_m.read_object_rotations(arrow_object,
+                                                 frame_start,
+                                                 frame_end)
 
     elif is_bone_tag:
 
@@ -448,14 +445,12 @@ def write(mdi_model, num_tag, collection, armature_object = None):
 
         else:
 
-            empty_object.animation_data_create()
-            empty_object.animation_data.action = \
-                bpy.data.actions.new(name=empty_object.name)
+            blender_util_m.write_object_locations(empty_object,
+                                                 mdi_tag.locations)
 
-            fcurve_m.write_object(empty_object,
-                                  empty_object.animation_data.action,
-                                  mdi_tag.locations,
-                                  mdi_tag.orientations)
+            blender_util_m.write_object_rotations(empty_object,
+                                                mdi_tag.orientations,
+                                                rotation_mode = 'QUATERNION')
 
     elif isinstance(mdi_tag, mdi_m.MDIBoneTag):
 
