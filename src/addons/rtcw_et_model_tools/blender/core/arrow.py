@@ -76,13 +76,13 @@ def _is_attach_object(attach_object):
         return False
 
     is_mesh_object = attach_object.type == 'MESH'
-    is_tag_object = _is_tag_object(attach_object)
-    if not (is_mesh_object or is_tag_object):
+    is_tag = is_tag_object(attach_object)
+    if not (is_mesh_object or is_tag):
         return False
 
     return True
 
-def _is_tag_object(tag_object):
+def is_tag_object(tag_object):
     """Checks if tag object. A tag is represented as an object of type 'EMPTY',
     display type 'ARROWS' and prefixed by 'tag_'.
     """
@@ -204,7 +204,7 @@ def _attach_by_collection(collection = None, tag_object = None):
 
         tag_object = bpy.context.view_layer.objects.active
 
-    if not _is_tag_object(tag_object):
+    if not is_tag_object(tag_object):
 
         exception_str = "Tag object not found. " \
                         " Must be of type='EMPTY', " \
@@ -231,7 +231,7 @@ def _attach_by_objects():
     """
 
     tag_object = bpy.context.view_layer.objects.active
-    if not _is_tag_object(tag_object):
+    if not is_tag_object(tag_object):
 
         exception_str = "Tag object not found. " \
                         " Must be of type='EMPTY', " \
