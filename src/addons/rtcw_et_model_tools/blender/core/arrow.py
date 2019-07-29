@@ -270,7 +270,6 @@ def attach_to_tag(method, game_path = None, skin_file_path = None):
     else:
         raise Exception("Attachment method not found.")
 
-
 # =====================================
 # READ
 # =====================================
@@ -339,16 +338,13 @@ def read(arrow_object, armature_object = None):
 
         frame_start = bpy.context.scene.frame_start
         frame_end = bpy.context.scene.frame_end
-
-        mdi_tag.locations = \
-            blender_util_m.read_object_locations(arrow_object,
+        locations, rotations, _ = \
+            blender_util_m.read_object_space_lrs(arrow_object,
                                                  frame_start,
-                                                 frame_end)
-
-        mdi_tag.orientations = \
-            blender_util_m.read_object_rotations(arrow_object,
-                                                 frame_start,
-                                                 frame_end)
+                                                 frame_end,
+                                                 read_scales=False)
+        mdi_tag.locations = locations
+        mdi_tag.orientations = rotations
 
     elif is_bone_tag:
 
@@ -445,12 +441,9 @@ def write(mdi_model, num_tag, collection, armature_object = None):
 
         else:
 
-            blender_util_m.write_object_locations(empty_object,
-                                                 mdi_tag.locations)
-
-            blender_util_m.write_object_rotations(empty_object,
-                                                mdi_tag.orientations,
-                                                rotation_mode = 'QUATERNION')
+            blender_util_m.write_object_space_lrs(empty_object,
+                                                  mdi_tag.locations,
+                                                  mdi_tag.orientations)
 
     elif isinstance(mdi_tag, mdi_m.MDIBoneTag):
 

@@ -21,16 +21,261 @@
 """Blender utils.
 """
 
-import math
-
 import bpy
 import mathutils
 
 import rtcw_et_model_tools.mdi.mdi as mdi_m
-import rtcw_et_model_tools.blender.core.arrow as arrow_m
 import rtcw_et_model_tools.blender.core.fcurve as fcurve_m
 import rtcw_et_model_tools.common.reporter as reporter_m
 
+def read_object_space_lrs(blender_object, frame_start = 0, frame_end = 0,
+                          read_locs = True, read_rots = True,
+                          read_scales = True):
+    """Read object space location, rotation and scale values of an object. If
+    not animated, return static values across frames. The returned values are
+    assumed to be given without constraints, parents or modifiers applied.
+
+    Args:
+
+        blender_object
+        frame_start
+        frame_end
+        read_locs
+        read_rots
+        read_scales
+
+    Returns:
+
+        (locations, rotations, scales)
+    """
+
+    # find out if its animated by searching for the fcurve of an action
+    # TODO nla
+    fcurves = None
+    if blender_object.animation_data:
+
+        action = blender_object.animation_data.action
+        if action:
+
+            fcurves = action.fcurves
+            if not fcurves:
+
+                reporter_m.warning("Action found with no fcurves on blender"
+                                   " object '{}'"
+                                   .format(blender_object.name))
+
+        else:
+
+            reporter_m.warning("Animation data with no action found on"
+                               " blender object '{}'"
+                               .format(blender_object.name))
+
+    locations = []
+    rotations = []
+    scales = []
+    if fcurves:
+
+        # locations
+        if read_locs:
+
+            data_path = fcurve_m.DP_LOCATION
+            locations = fcurve_m.read_locations(fcurves,
+                                                data_path,
+                                                frame_start,
+                                                frame_end)
+
+        # rotations
+        if read_rots:
+
+            rotation_mode = blender_object.rotation_mode
+
+            if rotation_mode == 'XYZ' or rotation_mode == 'XZY' or \
+               rotation_mode == 'YXZ' or rotation_mode == 'YZX' or \
+               rotation_mode == 'ZXY' or rotation_mode == 'ZYX':
+
+                data_path = fcurve_m.DP_EULER
+                eulers = fcurve_m.read_eulers(fcurves,
+                                              data_path,
+                                              rotation_mode,
+                                              frame_start,
+                                              frame_end)
+
+                if eulers:
+
+                    for euler in eulers:
+
+                        rotation = euler.to_matrix()
+                        rotations.append(rotation)
+
+            elif rotation_mode == 'AXIS_ANGLE':
+
+                data_path = fcurve_m.DP_AXIS_ANGLE
+                axis_angles = fcurve_m.read_axis_angles(fcurves,
+                                                        data_path,
+                                                        frame_start,
+                                                        frame_end)
+
+                if axis_angles:
+
+                    for axis_angle in axis_angles:
+
+                        rotation = axis_angle_to_matrix(axis_angle)
+                        rotations.append(rotation)
+
+            elif rotation_mode == 'QUATERNION':
+
+                data_path = fcurve_m.DP_QUATERNION
+                quaternions = fcurve_m.read_quaternions(fcurves,
+                                                        data_path,
+                                                        frame_start,
+                                                        frame_end)
+
+                if quaternions:
+
+                    for quaternion in quaternions:
+
+                        rotation = quaternion.to_matrix()
+                        rotations.append(rotation)
+
+            else:
+
+                exception_string = "Unknown rotation mode found on blender" \
+                                   " object '{}'".format(blender_object.name)
+                raise Exception(exception_string)
+
+        # scales
+        if read_scales:
+
+            data_path = fcurve_m.DP_SCALE
+            scales = fcurve_m.read_scales(fcurves,
+                                          data_path,
+                                          frame_start,
+                                          frame_end)
+
+    if not locations and read_locs:
+
+        loc, _, _ = blender_object.matrix_basis.decompose()
+        locations = [loc] * (frame_end + 1 - frame_start)
+
+    if not rotations and read_rots:
+
+        _, rot, _ = blender_object.matrix_basis.decompose()
+        rotations = [rot] * (frame_end + 1 - frame_start)
+
+    if not scales and read_scales:
+
+        _, _, scale = blender_object.matrix_basis.decompose()
+        scales = [scale] * (frame_end + 1 - frame_start)
+
+    return (locations, rotations, scales)
+
+def write_object_space_lrs(blender_object, locations = None, rotations = None,
+                           scales = None, frame_start = 0):
+    """Write object space location, rotation and scale values of an object. The
+    values are assumed to be given without constraints, parents or modifiers
+    applied.
+
+    Args:
+
+        blender_object
+        locations
+        rotations
+        scales
+        frame_start
+    """
+
+    # ensure there is animation data to write to
+    needs_animation_data = False
+    if locations and len(locations) > 1:
+            needs_animation_data = True
+    if rotations and len(rotations) > 1:
+            needs_animation_data = True
+    if scales and len(scales) > 1:
+            needs_animation_data = True
+
+    if needs_animation_data:
+
+        if not blender_object.animation_data:
+            blender_object.animation_data_create()
+
+        if not blender_object.animation_data.action:
+            blender_object.animation_data.action = \
+                bpy.data.actions.new(name=blender_object.name)
+
+        # TODO check for fcurves?
+
+    # locations
+    if locations:
+
+        num_frames = len(locations)
+        if num_frames > 1:
+
+            fcurves = blender_object.animation_data.action.fcurves
+            data_path = fcurve_m.DP_LOCATION
+            fcurve_m.write_locations(fcurves,
+                                     data_path,
+                                     locations,
+                                     frame_start)
+
+        elif num_frames == 1:
+
+            blender_object.matrix_basis.translation = locations[0]
+
+        else:
+
+            pass  # nothing to write
+
+    if rotations:
+
+        num_frames = len(rotations)
+        if num_frames > 1:
+
+            fcurves = blender_object.animation_data.action.fcurves
+            data_path = fcurve_m.DP_QUATERNION
+
+            quaternions = []
+            for rotation in rotations:
+
+                quaternion = rotation.to_quaternion()
+                quaternions.append(quaternion)
+
+            fcurve_m.write_quaternions(fcurves,
+                                       data_path,
+                                       quaternions,
+                                       frame_start)
+
+        elif num_frames == 1:
+
+            rotation_matrix = rotations[0]
+            matrix_basis = blender_object.matrix_basis
+            matrix_basis[0][0:3] = rotation_matrix[0][0:3]
+            matrix_basis[1][0:3] = rotation_matrix[1][0:3]
+            matrix_basis[2][0:3] = rotation_matrix[2][0:3]
+
+        else:
+
+            pass  # nothing to write
+
+    if scales:
+
+        num_frames = len(scales)
+        if num_frames > 1:
+
+            fcurves = blender_object.animation_data.action.fcurves
+            data_path = fcurve_m.DP_SCALE
+            fcurve_m.write_scales(fcurves, data_path, scales, frame_start)
+
+        elif num_frames == 1:
+
+            scale = scales[0]
+            matrix_basis = blender_object.matrix_basis
+            matrix_basis[0][0] = scale[0]
+            matrix_basis[1][1] = scale[1]
+            matrix_basis[2][2] = scale[2]
+
+        else:
+
+            pass  # nothing to write
 
 def matrix_to_axis_angle(matrix):
     """TODO
@@ -54,431 +299,6 @@ def axis_angle_to_matrix(axis_angle):
 
     return matrix
 
-def read_object_locations(blender_object, frame_start, frame_end,
-                          bone_name = None):
-    """Read location values of an object (transforms). If not animated, return
-    static values across frames.
-
-    Args:
-
-        blender_object
-        frame_start
-        frame_end
-        bone_name
-
-    Returns:
-
-        locations
-    """
-
-    locations = []
-
-    if blender_object.animation_data:
-
-        action = blender_object.animation_data.action
-        if action:
-
-            fcurves = action.fcurves
-            if not fcurves:
-
-                reporter_m.warning("Action found with no fcurves")
-
-            else:
-
-                locations = fcurve_m.read_locations(fcurves,
-                                                    frame_start,
-                                                    frame_end,
-                                                    bone_name)
-
-        else:  # no action
-
-            reporter_m.warning("Animation data with no action found")
-
-    else:  # no animation_data
-
-        pass
-
-    if not locations:  # create static values
-
-        if bone_name:
-
-            # values are in bind pose space for bones
-            location = mathutils.Vector((0, 0, 0))
-            locations = [location] * (frame_end + 1 - frame_start)
-
-        else:
-
-            # values are in local space without constraints or modifiers
-            # for all other objects
-            location, _, _ = blender_object.matrix_basis.decompose()
-            locations = [location] * (frame_end + 1 - frame_start)
-
-    return locations
-
-def read_object_rotations(blender_object, frame_start, frame_end,
-                          bone_name = None):
-    """Read rotation values of an object (transforms). If not animated, return
-    static values across frames.
-
-    Args:
-
-        blender_object
-        frame_start
-        frame_end
-        bone_name
-
-    Returns:
-
-        rotations
-    """
-
-    rotations = []
-
-    if blender_object.animation_data:
-
-        action = blender_object.animation_data.action
-        if action:
-
-            fcurves = action.fcurves
-            if not fcurves:
-
-                reporter_m.warning("Action found with no fcurves")
-
-            else:
-
-                if bone_name:
-
-                    pose_bone = blender_object.pose.bones[bone_name]
-                    rotation_mode = pose_bone.rotation_mode
-
-                else:
-
-                    rotation_mode = blender_object.rotation_mode
-
-                if rotation_mode == 'XYZ' or rotation_mode == 'XZY' or \
-                   rotation_mode == 'YXZ' or rotation_mode == 'YZX' or \
-                   rotation_mode == 'ZXY' or rotation_mode == 'ZYX':
-
-                    eulers = fcurve_m.read_eulers(fcurves,
-                                                  frame_start,
-                                                  frame_end,
-                                                  bone_name,
-                                                  rotation_mode)
-
-                    if eulers:
-
-                        for euler in eulers:
-
-                            rotation = euler.to_matrix()
-                            rotations.append(rotation)
-
-                elif rotation_mode == 'AXIS_ANGLE':
-
-                    axis_angles = fcurve_m.read_axis_angles(fcurves,
-                                                            frame_start,
-                                                            frame_end,
-                                                            bone_name)
-
-                    if axis_angles:
-
-                        for axis_angle in axis_angles:
-
-                            rotation = axis_angle_to_matrix(axis_angle)
-                            rotations.append(rotation)
-
-                elif rotation_mode == 'QUATERNION':
-
-                    quaternions = fcurve_m.read_quaternions(fcurves,
-                                                            frame_start,
-                                                            frame_end,
-                                                            bone_name)
-
-                    if quaternions:
-
-                        for quaternion in quaternions:
-
-                            rotation = quaternion.to_matrix()
-                            rotations.append(rotation)
-
-                else:
-
-                    raise Exception("Unknown rotation mode")
-
-        else:  # no action
-
-            reporter_m.warning("Animation data with no action found")
-
-    else:  # no animation_data
-
-        pass
-
-    if not rotations:  # create static values
-
-        if bone_name:
-
-            # values are in bind pose space for bones
-            rotation = mathutils.Matrix.Identity(3)
-            rotations = [rotation] * (frame_end + 1 - frame_start)
-
-        else:
-
-            # values are in local space without constraints or modifiers
-            # for all other objects
-            _, rotation, _ = blender_object.matrix_basis.decompose()
-            rotation = rotation.to_matrix()
-            rotations = [rotation] * (frame_end + 1 - frame_start)
-
-    return rotations
-
-def read_object_scales(blender_object, frame_start, frame_end,
-                       bone_name = None):
-    """Read scale values of an object (transforms). If not animated, return
-    static values across frames.
-
-    Args:
-
-        blender_object
-        frame_start
-        frame_end
-        bone_name
-
-    Returns:
-
-        locations
-    """
-
-    scales = []
-
-    if blender_object.animation_data:
-
-        action = blender_object.animation_data.action
-        if action:
-
-            fcurves = action.fcurves
-            if not fcurves:
-
-                reporter_m.warning("Action found with no fcurves")
-
-            else:
-
-                scales = fcurve_m.read_scales(fcurves,
-                                              frame_start,
-                                              frame_end,
-                                              bone_name)
-
-        else:  # no action
-
-            reporter_m.warning("Animation data with no action found")
-
-    else:  # no animation_data
-
-        pass
-
-    if not scales:  # create static values
-
-        if bone_name:
-
-            # values are in bind pose space for bones
-            scale = mathutils.Vector((1, 1, 1))
-            scales = [scale] * (frame_end + 1 - frame_start)
-
-        else:
-            # values are in local space without constraints or modifiers
-            # for all other objects
-            _, _, scale = blender_object.matrix_basis.decompose()
-            scales = [scale] * (frame_end + 1 - frame_start)
-
-    return scales
-
-def write_object_locations(blender_object, locations, frame_start = 0,
-                           bone_name = None):
-    """Write location values of an object (transforms).
-
-    Args:
-
-        blender_object
-        locations
-        frame_start
-        bone_name
-    """
-
-    num_frames = len(locations)
-    if num_frames == 1:
-
-        # TODO maybe support this another time, for now its not needed
-        reporter_m.warning("Setting location handled elsewhere")
-
-    elif num_frames > 1:
-
-        if not blender_object.animation_data:
-            blender_object.animation_data_create()
-
-        if not blender_object.animation_data.action:
-            blender_object.animation_data.action = \
-                bpy.data.actions.new(name=blender_object.name)
-
-        fcurves = blender_object.animation_data.action.fcurves
-        fcurve_m.write_locations(fcurves, locations, frame_start, bone_name)
-
-    else:  # nothing to write
-
-        pass
-
-def write_object_rotations(blender_object, rotations, rotation_mode = 'XYZ',
-                           frame_start = 0, bone_name = None):
-    """Write rotation values of an object (transforms).
-
-    Args:
-
-        blender_object
-        rotations
-        rotation_mode
-        frame_start
-        bone_name
-    """
-
-    num_frames = len(rotations)
-    if num_frames == 1:
-
-        # TODO maybe support this another time, for now its not needed
-        reporter_m.warning("Setting rotation handled elsewhere")
-
-    elif num_frames > 1:
-
-        if not blender_object.animation_data:
-            blender_object.animation_data_create()
-
-        if not blender_object.animation_data.action:
-            blender_object.animation_data.action = \
-                bpy.data.actions.new(name=blender_object.name)
-
-        fcurves = blender_object.animation_data.action.fcurves
-
-        if rotation_mode == 'XYZ' or rotation_mode == 'XZY' or \
-            rotation_mode == 'YXZ' or rotation_mode == 'YZX' or \
-            rotation_mode == 'ZXY' or rotation_mode == 'ZYX':
-
-            eulers = []
-            for rotation in rotations:
-                euler = rotation.to_euler(rotation_mode)
-                eulers.append(euler)
-
-            fcurve_m.write_eulers(fcurves, eulers, frame_start, bone_name)
-
-        elif rotation_mode == 'AXIS_ANGLE':
-
-            axis_angles = []
-            for rotation in rotations:
-                axis_angle = axis_angle_to_matrix(rotation)
-                axis_angles.append(axis_angle)
-
-            fcurve_m.write_axis_angles(fcurves, axis_angles, frame_start,
-                                       bone_name)
-
-        elif rotation_mode == 'QUATERNION':
-
-            quaternions = []
-            for rotation in rotations:
-                quaternion = rotation.to_quaternion()
-                quaternions.append(quaternion)
-
-            fcurve_m.write_quaternions(fcurves, quaternions, frame_start,
-                                       bone_name)
-
-    else:  # nothing to write
-
-        pass
-
-def apply_parent_transforms(mdi_model, mesh_objects, armature_object,
-                            arrow_objects):
-    """TODO
-    """
-
-    pass
-
-def apply_object_transforms(mdi_model, mesh_objects, armature_object,
-                            arrow_objects, frame_start, frame_end):
-    """TODO
-    """
-
-    # mesh_objects
-    for mesh_object in mesh_objects:
-
-        mdi_vertices = None
-        for mdi_surface in mdi_model.surfaces:
-            if mdi_surface.name == mesh_object.name:
-                mdi_vertices = mdi_surface.vertices
-                break
-
-        if not mdi_vertices:
-
-            reporter_m.warning("Could not find mdi vertices for mesh object"
-                               " '{}' during object transforming."
-                               .format(mesh_object.name))
-            continue
-
-        locations_os = \
-            read_object_locations(mesh_object, frame_start, frame_end)
-        rotations_os = \
-            read_object_rotations(mesh_object, frame_start, frame_end)
-        scales_os = \
-            read_object_scales(mesh_object, frame_start, frame_end)
-
-        for mdi_vertex in mdi_vertices:
-
-            # only for morph vertices
-            if isinstance(mdi_vertex, mdi_m.MDIMorphVertex):
-
-                for num_frame in range(len(locations_os)):
-
-                    location_cs = mdi_vertex.locations[num_frame]
-                    normal_cs = mdi_vertex.normals[num_frame]
-                    location_os = locations_os[num_frame]
-                    rotation_os = rotations_os[num_frame]
-                    scale_os = scales_os[num_frame]
-
-                    # we can't do this inplace since some mdi_vertex objects
-                    # might be duplicated during uv map pass, so just create
-                    # a new vector
-                    sx = location_cs[0] * scale_os[0]
-                    sy = location_cs[1] * scale_os[1]
-                    sz = location_cs[2] * scale_os[2]
-                    location_scaled = mathutils.Vector((sx, sy, sz))
-
-                    mdi_vertex.locations[num_frame] = \
-                        location_os + rotation_os @ location_scaled
-
-                    mdi_vertex.normals[num_frame] = rotation_os @ normal_cs
-
-    # armature_object
-    if armature_object:
-
-        if not mdi_model.skeleton:
-
-            reporter_m.warning("Could not apply skeleton object transforms.")
-
-        else:
-
-            locations_os = \
-                read_object_locations(armature_object, frame_start, frame_end)
-            orientations_os = \
-                read_object_rotations(armature_object, frame_start, frame_end)
-            # scale not supported for skeleton object transforms,
-            # because of fixed dist constraint
-
-            for mdi_bone in mdi_model.skeleton.bones:
-
-                for num_frame in range(len(locations_os)):
-
-                    location_cs = mdi_bone.locations[num_frame]
-                    orientation_cs = mdi_bone.orientations[num_frame]
-                    location_os = locations_os[num_frame]
-                    orientation_os = orientations_os[num_frame]
-
-                    mdi_bone.locations[num_frame] = \
-                        location_os + orientation_os @ location_cs
-                    mdi_bone.orientations[num_frame] = \
-                        (orientation_os @ orientation_cs)
 
 # calculates a vector (x, y, z) orthogonal to v
 def getOrthogonal(v):

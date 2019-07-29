@@ -139,21 +139,21 @@ def read(collapse_frame = 0):
     mdi_model.lod = mdi_m.MDIDiscreteLOD()  # TODO
 
     # apply object transforms
-    frame_start = bpy.context.scene.frame_start
-    frame_end = bpy.context.scene.frame_end
+    # frame_start = bpy.context.scene.frame_start
+    # frame_end = bpy.context.scene.frame_end
 
-    blender_util_m.apply_object_transforms(mdi_model,
-                                           mesh_objects,
-                                           armature_object,
-                                           arrow_objects,
-                                           frame_start,
-                                           frame_end)
+    # blender_util_m.apply_object_transforms(mdi_model,
+    #                                        mesh_objects,
+    #                                        armature_object,
+    #                                        arrow_objects,
+    #                                        frame_start,
+    #                                        frame_end)
 
-    # consider parenting
-    blender_util_m.apply_parent_transforms(mdi_model,
-                                           mesh_objects,
-                                           armature_object,
-                                           arrow_objects)
+    # # consider parenting
+    # blender_util_m.apply_parent_transforms(mdi_model,
+    #                                        mesh_objects,
+    #                                        armature_object,
+    #                                        arrow_objects)
 
     time = timer.time()
     reporter_m.info("Reading collection DONE (time={})".format(time))

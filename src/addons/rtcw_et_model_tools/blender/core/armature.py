@@ -26,6 +26,7 @@ import bpy
 import mathutils
 
 import rtcw_et_model_tools.mdi.mdi as mdi_m
+import rtcw_et_model_tools.blender.core.fcurve as fcurve_m
 import rtcw_et_model_tools.blender.util as blender_util_m
 import rtcw_et_model_tools.common.timer as timer_m
 import rtcw_et_model_tools.common.reporter as reporter_m
@@ -34,6 +35,76 @@ import rtcw_et_model_tools.common.reporter as reporter_m
 # =====================================
 # READ
 # =====================================
+
+def _read_pose_bone_lr(armature_object, bone_name, frame_start = 0,
+                       frame_end = 0):
+    """Read pose bone location and rotation values. If not animated, return
+    static values across frames. The values are returned in bind pose space.
+    Scale is not supported.
+
+    Args:
+
+        armature_object
+        bone_name
+        frame_start
+        frame_end
+
+    Returns:
+
+        (locations, rotations)
+    """
+
+    # find out if its animated by searching for the fcurve of an action
+    # TODO nla
+    fcurves = None
+    if armature_object.animation_data:
+
+        action = armature_object.animation_data.action
+        if action:
+
+            fcurves = action.fcurves
+            if not fcurves:
+
+                reporter_m.warning("Action found with no fcurves on armature"
+                                   " '{}' and pose bone '{}"
+                                   .format(armature_object.name, bone_name))
+
+        else:
+
+            reporter_m.warning("Animation data with no action found on"
+                               " armature '{}'"
+                               .format(armature_object.name))
+
+    locations = []
+    rotations = []
+    if fcurves:
+
+        # locations
+        data_path = fcurve_m.DP_BONE_LOCATION.format(bone_name)
+        locations = fcurve_m.read_locations(fcurves,
+                                            data_path,
+                                            frame_start,
+                                            frame_end)
+
+        # rotations
+        rotation_mode = armature_object.pose.bones[bone_name].rotation_mode
+        rotations = fcurve_m.read_rotation_matrices(fcurves,
+                                                    rotation_mode,
+                                                    frame_start,
+                                                    frame_end,
+                                                    bone_name)
+
+    if not locations:
+
+        location = mathutils.Vector((0, 0, 0))
+        locations = [location] * (frame_end + 1 - frame_start)
+
+    if not rotations:
+
+        rotation = mathutils.Matrix.Identity(3)
+        rotations = [rotation] * (frame_end + 1 - frame_start)
+
+    return (locations, rotations)
 
 def read(armature_object):
     """Read armature object and convert to mdi.
@@ -116,15 +187,11 @@ def read(armature_object):
         frame_start = bpy.context.scene.frame_start
         frame_end = bpy.context.scene.frame_end
 
-        locations = blender_util_m.read_object_locations(armature_object,
-                                                         frame_start,
-                                                         frame_end,
-                                                         mdi_bone.name)
-
-        rotations = blender_util_m.read_object_rotations(armature_object,
-                                                         frame_start,
-                                                         frame_end,
-                                                         mdi_bone.name)
+        locations, rotations = \
+            _read_pose_bone_lr(armature_object,
+                               mdi_bone.name,
+                               frame_start,
+                               frame_end)
 
         # calculate locations and orientations based on extracted offsets
         if mdi_bone.parent_bone >= 0:
@@ -181,6 +248,59 @@ def read(armature_object):
 # =====================================
 # WRITE
 # =====================================
+
+def _write_pose_bone_lr(armature_object, bone_name, locations, rotations,
+                        frame_start):
+    """Write pose bone location and rotation values. The values should be given
+    in bind pose space. Scale is not supported.
+
+    Args:
+
+        armature_object
+        bone_name
+        locations
+        rotations
+        frame_start
+    """
+
+    num_frames = len(locations)
+    num_rotations = len(rotations)
+    if num_frames != num_rotations:
+
+        exception_string = "Unequal frame count found when writing pose bone" \
+                           " '{}' for armature '{}'" \
+                           .format(bone_name, armature_object.name)
+        raise Exception(exception_string)
+
+    if num_frames == 1:
+
+        pass  # no need to animate
+
+    elif num_frames > 1:
+
+        if not armature_object.animation_data:
+            armature_object.animation_data_create()
+
+        if not armature_object.animation_data.action:
+            armature_object.animation_data.action = \
+                bpy.data.actions.new(name=armature_object.name)
+
+        fcurves = armature_object.animation_data.action.fcurves
+
+        # locations
+        data_path = fcurve_m.DP_BONE_LOCATION.format(bone_name)
+        fcurve_m.write_locations(fcurves, data_path, locations)
+
+        # rotations
+        fcurve_m.write_rotation_matrices(fcurves,
+                                         rotations,
+                                         "QUATERNION",
+                                         frame_start,
+                                         bone_name)
+
+    else:  # nothing to write
+
+        pass
 
 def _set_constraints(mdi_skeleton, armature_object):
 
@@ -280,16 +400,11 @@ def _animate_bones(mdi_skeleton, root_frame, armature_object):
             rotations.append(orientation_off)
 
         # write locations, rotations
-        blender_util_m.write_object_locations(armature_object,
-                                              locations,
-                                              frame_start = 0,
-                                              bone_name = mdi_bone.name)
-
-        blender_util_m.write_object_rotations(armature_object,
-                                              rotations,
-                                              rotation_mode = 'QUATERNION',
-                                              frame_start = 0,
-                                              bone_name = mdi_bone.name)
+        _write_pose_bone_lr(armature_object,
+                            mdi_bone.name,
+                            locations,
+                            rotations,
+                            frame_start=0)
 
     time = timer.time()
     reporter_m.debug("Animating bones DONE (time={})".format(time))
