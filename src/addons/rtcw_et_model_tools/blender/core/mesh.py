@@ -292,7 +292,7 @@ def read(mesh_object, armature_object = None, root_frame = 0):
         if is_morph_mesh:
 
             reporter_m.warning("Failed reading morph mesh data for object '{}'"
-                            .format(mesh_object.name))
+                               .format(mesh_object.name))
 
         elif is_skeletal_mesh:
 
@@ -302,7 +302,7 @@ def read(mesh_object, armature_object = None, root_frame = 0):
         else:
 
             reporter_m.warning("Found mesh object '{}' with no vertex data"
-                            .format(mesh_object.name))
+                               .format(mesh_object.name))
 
         return None
 
