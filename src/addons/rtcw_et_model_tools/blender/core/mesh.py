@@ -190,7 +190,9 @@ def _read_rigged_vertices(mesh_object, armature_object, root_frame):
         if a_vertex_was_not_skinned:
             reporter_m.warning("A vertex was not skinned")
     else:
-        return None  # normal behaviour
+        reporter_m.warning("Found skeletal animation data but vertices not"
+                           " skinned")
+        return None
 
     return mdi_rigged_vertices
 
@@ -242,18 +244,69 @@ def read(mesh_object, armature_object = None, root_frame = 0):
     mdi_surface.name = mesh_object.name
 
     # vertices
-    mdi_vertices = _read_morph_vertices(mesh_object)
-    if not mdi_vertices:
 
-        mdi_vertices = \
-            _read_rigged_vertices(mesh_object, armature_object, root_frame)
-        if not mdi_vertices:
+    # do some checks first
+    is_morph_mesh = False
+    is_skeletal_mesh = False
 
-            mdi_vertices = _read_static_vertices(mesh_object)
+    shape_key = mesh_object.data.shape_keys
+    if shape_key and \
+       shape_key.animation_data and \
+       shape_key.animation_data.action:  # TODO nla
+       is_morph_mesh = True
+
+    if not armature_object:
+        return None
+
+    armature_object_found = mesh_object.find_armature()
+    if armature_object_found:
+        is_skeletal_mesh = True
+
+    if is_morph_mesh and is_skeletal_mesh:
+
+        exception_string = "Found shape key animation as well as skeletal" \
+                           " animation data for object '{}'. Both animation" \
+                           " types are not supported. Make sure to use only" \
+                           " one type of animation for the object." \
+                           .format(mesh_object.name)
+        raise Exception(exception_string)
+
+    # read the vertices
+    if is_morph_mesh:
+
+        mdi_vertices = _read_morph_vertices(mesh_object)
+
+    elif is_skeletal_mesh:
+
+        mdi_vertices = _read_rigged_vertices(mesh_object,
+                                             armature_object,
+                                             root_frame)
+
+    else:
+
+        mdi_vertices = _read_static_vertices(mesh_object)
 
     if mdi_vertices:
+
         mdi_surface.vertices = mdi_vertices
+
     else:
+
+        if is_morph_mesh:
+
+            reporter_m.warning("Failed reading morph mesh data for object '{}'"
+                            .format(mesh_object.name))
+
+        elif is_skeletal_mesh:
+
+            reporter_m.warning("Failed reading skeletal mesh data for object "
+                               " '{}'".format(mesh_object.name))
+
+        else:
+
+            reporter_m.warning("Found mesh object '{}' with no vertex data"
+                            .format(mesh_object.name))
+
         return None
 
     # triangles
