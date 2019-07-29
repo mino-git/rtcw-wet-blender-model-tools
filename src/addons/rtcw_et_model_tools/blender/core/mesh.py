@@ -255,9 +255,6 @@ def read(mesh_object, armature_object = None, root_frame = 0):
        shape_key.animation_data.action:  # TODO nla
        is_morph_mesh = True
 
-    if not armature_object:
-        return None
-
     armature_object_found = mesh_object.find_armature()
     if armature_object_found:
         is_skeletal_mesh = True
