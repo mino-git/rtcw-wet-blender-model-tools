@@ -142,7 +142,7 @@ def is_object_supported(mdi_object, blender_object):
         if blender_object.animation_data:
 
             fcurves = blender_object.animation_data.action.fcurves
-            fcurve_1 = fcurves.find(fcurve_m.DP_BONE_LOCATION)
+            fcurve_1 = fcurves.find(fcurve_m.DP_LOCATION)
             fcurve_2 = fcurves.find(fcurve_m.DP_EULER)
             fcurve_3 = fcurves.find(fcurve_m.DP_AXIS_ANGLE)
             fcurve_4 = fcurves.find(fcurve_m.DP_QUATERNION)
