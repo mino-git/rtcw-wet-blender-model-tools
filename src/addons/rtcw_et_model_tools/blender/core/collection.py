@@ -243,6 +243,11 @@ def write(mdi_model):
 
         arrow_m.write(mdi_model, num_tag, collection, armature_object)
 
+    # set frame to avoid a blender bug
+    # without this the model will show up in a different frame after import
+    frame_current = bpy.context.scene.frame_current
+    bpy.context.scene.frame_set(frame_current)
+
     time = timer.time()
     reporter_m.info("Writing collection DONE (time={})".format(time))
 
