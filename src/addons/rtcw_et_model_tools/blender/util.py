@@ -28,6 +28,346 @@ import rtcw_et_model_tools.mdi.mdi as mdi_m
 import rtcw_et_model_tools.blender.core.fcurve as fcurve_m
 import rtcw_et_model_tools.common.reporter as reporter_m
 
+
+def is_object_supported(mdi_object, blender_object):
+    """We currently do not support parenting and for certain objects object
+    space animation. No constraints other than child_of, no modifiers except
+    armature modifier, no drivers.
+    """
+
+    is_supported = True
+
+    if isinstance(mdi_object, mdi_m.MDISurface):
+
+        if mdi_object.vertices:
+
+            sample_vertex = mdi_object.vertices[0]
+            if isinstance(sample_vertex, mdi_m.MDIMorphVertex):
+
+                # no modifiers
+                if len(blender_object.modifiers) > 0:
+
+                    reporter_m.warning("Modifiers for surface '{}' not"
+                                       " supported"
+                                       .format(mdi_object.name))
+                    is_supported = False
+
+                # no constraints
+                if len(blender_object.constraints) > 0:
+
+                    reporter_m.warning("Constraints for surface '{}' not"
+                                       " supported"
+                                       .format(mdi_object.name))
+                    is_supported = False
+
+                # no parenting
+                if blender_object.parent or blender_object.parent_bone:
+
+                    reporter_m.warning("Parenting for surface '{}' not"
+                                       " supported"
+                                       .format(mdi_object.name))
+                    is_supported = False
+
+            elif isinstance(sample_vertex, mdi_m.MDIRiggedVertex):
+
+                # no object space animation
+                if blender_object.animation_data:
+
+                    reporter_m.warning("Surface '{}' with rigged vertices can"
+                                       " only be animated by the armature"
+                                       .format(mdi_object.name))
+                    is_supported = False
+
+                # only armature modifier
+                if len(blender_object.modifiers) == 0:
+
+                    reporter_m.warning("Surface '{}' needs armature modifier"
+                                       .format(mdi_object.name))
+                    is_supported = False
+
+                elif len(blender_object.modifiers) == 1:
+
+                    armature_exists = False
+                    try:
+
+                        blender_object.modifiers['Armature']
+                        armature_exists = True
+
+                    except:
+
+                        pass
+
+                    if not armature_exists:
+
+                        reporter_m.warning("Surface '{}' only supports"
+                                       " armature modifier, but found a"
+                                       " different one"
+                                        .format(mdi_object.name))
+                        is_supported = False
+
+                elif len(blender_object.modifiers) >= 1:
+
+                    reporter_m.warning("Surface '{}' only supports armature"
+                                       " modifier, but found multiple"
+                                       " modifiers"
+                                       .format(mdi_object.name))
+                    is_supported = False
+
+                # no constraints
+                if len(blender_object.constraints) > 0:
+
+                    reporter_m.warning("Constraints for surface '{}' not"
+                                       " supported"
+                                       .format(mdi_object.name))
+                    is_supported = False
+
+                # no parenting
+                if blender_object.parent or blender_object.parent_bone:
+
+                    reporter_m.warning("Parenting for surface '{}' not"
+                                       " supported"
+                                       .format(mdi_object.name))
+                    is_supported = False
+
+            else:
+
+                raise Exception("Unknown vertex type on mdi surface '{}'"
+                                .format(mdi_object.name))
+
+        pass
+
+    elif isinstance(mdi_object, mdi_m.MDISkeleton):
+
+        # no object space animation
+        if blender_object.animation_data:
+
+            fcurves = blender_object.animation_data.action.fcurves
+            fcurve_1 = fcurves.find(fcurve_m.DP_BONE_LOCATION)
+            fcurve_2 = fcurves.find(fcurve_m.DP_EULER)
+            fcurve_3 = fcurves.find(fcurve_m.DP_AXIS_ANGLE)
+            fcurve_4 = fcurves.find(fcurve_m.DP_QUATERNION)
+            fcurve_5 = fcurves.find(fcurve_m.DP_SCALE)
+
+            if fcurve_1 or fcurve_2 or fcurve_3 or fcurve_4 or fcurve_5:
+
+                reporter_m.warning("Armature '{}' can only be animated in pose"
+                                "mode, but not in object mode"
+                                    .format(mdi_object.name))
+                is_supported = False
+
+        # no modifiers
+        if len(blender_object.modifiers) > 0:
+
+            reporter_m.warning("Modifiers for armature '{}' not"
+                               " supported"
+                                .format(mdi_object.name))
+            is_supported = False
+
+        # no constraints
+        if len(blender_object.constraints) > 0:
+
+            reporter_m.warning("Constraints for armature '{}' not"
+                               " supported"
+                                .format(mdi_object.name))
+            is_supported = False
+
+        # no parenting
+        if blender_object.parent or blender_object.parent_bone:
+
+            reporter_m.warning("Parenting for armature '{}' not"
+                               " supported"
+                                .format(mdi_object.name))
+            is_supported = False
+
+    elif isinstance(mdi_object, mdi_m.MDIFreeTag):
+        # no modifiers
+        if len(blender_object.modifiers) > 0:
+
+            reporter_m.warning("Modifiers for arrow object '{}' not"
+                               " supported"
+                                .format(mdi_object.name))
+            is_supported = False
+
+        # only child of constraint
+        if len(blender_object.constraints) == 0:
+
+            pass
+
+        if len(blender_object.constraints) == 1:
+
+            child_of_constraint_exists = False
+            try:
+
+                blender_object.constraints['Child Of']
+                child_of_constraint_exists = True
+
+            except:
+
+                pass
+
+            if not child_of_constraint_exists:
+
+                reporter_m.warning("Arrow object '{}' only supports 'Child Of'"
+                                   " constraint but found a different one"
+                                    .format(mdi_object.name))
+                is_supported = False
+
+        if len(blender_object.constraints) > 1:
+
+            reporter_m.warning("Arrow object '{}' only supports 'Child Of'"
+                                " constraint but found multiple constraints"
+                                .format(mdi_object.name))
+            is_supported = False
+
+        # no parenting
+        if blender_object.parent or blender_object.parent_bone:
+
+            reporter_m.warning("Parenting for arrow object '{}' not"
+                               " supported"
+                                .format(mdi_object.name))
+            is_supported = False
+
+    elif isinstance(mdi_object, mdi_m.MDIBoneTag) or \
+         isinstance(mdi_object, mdi_m.MDIBoneTagOff):
+
+        # no object space animation
+        if blender_object.animation_data:
+
+            reporter_m.warning("Arrow object '{}' can only be animated by the"
+                               " bone of an armature"
+                                .format(mdi_object.name))
+            is_supported = False
+
+        # no modifiers
+        if len(blender_object.modifiers) > 0:
+
+            reporter_m.warning("Modifiers for arrow object '{}' not"
+                                " supported"
+                                .format(mdi_object.name))
+            is_supported = False
+
+        # only child of constraint
+        if len(blender_object.constraints) == 0:
+
+            reporter_m.warning("Arrow object '{}' attached to bone needs"
+                                " 'Child Of' constraint"
+                                .format(mdi_object.name))
+            is_supported = False
+
+        elif len(blender_object.constraints) == 1:
+
+            child_of_constraint_exists = False
+            try:
+
+                blender_object.constraints['Child Of']
+                child_of_constraint_exists = True
+
+            except:
+
+                pass
+
+            if not child_of_constraint_exists:
+
+                reporter_m.warning("Arrow object '{}' attached to bone"
+                                    " only supports 'Child Of' constraint"
+                                    " but found a different one"
+                                    .format(mdi_object.name))
+                is_supported = False
+
+        elif len(blender_object.constraints) >= 1:
+
+            reporter_m.warning("Arrow object '{}' attached to bone only"
+                               " supports 'Child Of' constraint, but"
+                               " found multiple constraints"
+                               .format(mdi_object.name))
+            is_supported = False
+
+        # no parenting
+        if blender_object.parent or blender_object.parent_bone:
+
+            reporter_m.warning("Parenting for arrow object '{}' not"
+                               " supported"
+                               .format(mdi_object.name))
+            is_supported = False
+
+    else:
+
+        pass  # ok
+
+    return is_supported
+
+def transform_for_tag_objects(mdi_model, mesh_objects, arrow_objects,
+                              frame_start, frame_end):
+    """TODO
+    """
+
+    pass
+
+def apply_object_transform(mdi_object, blender_object, frame_start, frame_end):
+    """Applies the transforms given in object space including animation.
+    """
+
+    if isinstance(mdi_object, mdi_m.MDISurface):
+
+        if mdi_object.vertices:
+
+            # only for morph vertices, surfaces with rigged vertices are not
+            # supported
+            sample_vertex = mdi_object.vertices[0]
+            if isinstance(sample_vertex, mdi_m.MDIMorphVertex):
+
+                locs, rots, scales = \
+                    read_object_space_lrs(blender_object,
+                                          frame_start,
+                                          frame_end)
+
+                for mdi_vertex in mdi_object.vertices:
+
+                    for num_frame in range(len(locs)):
+
+                        location_cs = mdi_vertex.locations[num_frame]
+                        normal_cs = mdi_vertex.normals[num_frame]
+                        loc_os = locs[num_frame]
+                        rot_os = rots[num_frame]
+                        scale_os = scales[num_frame]
+
+                        # we can't do this inplace since some mdi_vertex objects
+                        # might be duplicated during uv map pass, so just create
+                        # a new vector
+                        sx = location_cs[0] * scale_os[0]
+                        sy = location_cs[1] * scale_os[1]
+                        sz = location_cs[2] * scale_os[2]
+                        location_scaled = mathutils.Vector((sx, sy, sz))
+
+                        mdi_vertex.locations[num_frame] = \
+                            loc_os + rot_os @ location_scaled
+
+                        mdi_vertex.normals[num_frame] = rot_os @ normal_cs
+
+            else:
+
+                pass  # reported back elsewhere
+
+    elif isinstance(mdi_object, mdi_m.MDISkeleton):
+
+        pass  # ok
+
+    elif isinstance(mdi_object, mdi_m.MDIFreeTag):
+
+        pass  # ok
+
+    elif isinstance(mdi_object, mdi_m.MDIBoneTag):
+
+        pass  # ok
+
+    elif isinstance(mdi_object, mdi_m.MDIBoneTagOff):
+
+        pass  # ok
+
+    else:
+
+        raise Exception("Unknown object type during object transform")
+
 def read_object_space_lrs(blender_object, frame_start = 0, frame_end = 0,
                           read_locs = True, read_rots = True,
                           read_scales = True):
@@ -160,6 +500,7 @@ def read_object_space_lrs(blender_object, frame_start = 0, frame_end = 0,
     if not rotations and read_rots:
 
         _, rot, _ = blender_object.matrix_basis.decompose()
+        rot = rot.to_matrix()
         rotations = [rot] * (frame_end + 1 - frame_start)
 
     if not scales and read_scales:
@@ -298,7 +639,6 @@ def axis_angle_to_matrix(axis_angle):
         raise Exception("Axis angle to matrix conversion not supported")
 
     return matrix
-
 
 # calculates a vector (x, y, z) orthogonal to v
 def getOrthogonal(v):

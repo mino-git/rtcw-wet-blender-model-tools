@@ -78,7 +78,7 @@ def _collect_objects_for_export(collection):
 
     return (mesh_objects, armature_object, arrow_objects)
 
-def read(collapse_frame = 0):
+def read(collapse_frame = -1):
     """Reads a collection from active blender collection and converts to MDI.
 
     Args:
@@ -91,14 +91,14 @@ def read(collapse_frame = 0):
         mdi_model (MDI): MDI object.
     """
 
+    frame_start = bpy.context.scene.frame_start
+    frame_end = bpy.context.scene.frame_end
 
-
-    # frame_start = bpy.context.scene.frame_start
-    # frame_end = bpy.context.scene.frame_end
-    # if collapse_frame < frame_start or collapse_frame > frame_end:
-    #     reporter_m.warning("Collapse frame not in range. Adjusting to frame "
-    #                         "'{}'.".format(frame_start))
-    #     collapse_frame = frame_start
+    if collapse_frame >= 0:
+        if collapse_frame < frame_start or collapse_frame > frame_end:
+            reporter_m.warning("Collapse frame not in range. Adjusting to"
+                               " frame '{}'.".format(frame_start))
+            collapse_frame = frame_start
 
     active_collection = \
         bpy.context.view_layer.active_layer_collection.collection
@@ -110,50 +110,101 @@ def read(collapse_frame = 0):
     mdi_model = mdi_m.MDI()
 
     mdi_model.name = active_collection.name
-    # mdi_model.root_frame = 0
+    # mdi_model.root_frame = 0  # only used during import
 
     mesh_objects, armature_object, arrow_objects = \
         _collect_objects_for_export(active_collection)
+
+    # mdi skeleton
+    mdi_skeleton = armature_m.read(armature_object)
+    if mdi_skeleton:
+
+        is_supported = \
+            blender_util_m.is_object_supported(mdi_skeleton, armature_object)
+        if is_supported:
+
+            blender_util_m.apply_object_transform(mdi_skeleton,
+                                                  armature_object,
+                                                  frame_start,
+                                                  frame_end)
+            mdi_model.skeleton = mdi_skeleton
+
+        else:
+
+            # TODO drop with warning, but also drop all rigged surfaces
+            raise Exception("A property of armature object '{}' is unsupported"
+                            .format(armature_object.name))
+
+    else:
+
+        pass  # ok
 
     # mdi surfaces
     for mesh_object in mesh_objects:
 
         mdi_surface = mesh_m.read(mesh_object, armature_object)
         if mdi_surface:
-            mdi_model.surfaces.append(mdi_surface)
 
-    # mdi skeleton
-    mdi_model.skeleton = armature_m.read(armature_object)
+            is_supported = \
+                blender_util_m.is_object_supported(mdi_surface, mesh_object)
+            if is_supported:
+
+                blender_util_m.apply_object_transform(mdi_surface,
+                                                      mesh_object,
+                                                      frame_start,
+                                                      frame_end)
+                mdi_model.surfaces.append(mdi_surface)
+
+            else:
+
+                reporter_m.warning("Dropped mesh object with name '{}'."
+                                   " A property is unsupported"
+                                   .format(mesh_object.name))
+
+        else:
+
+            reporter_m.warning("Could not read mesh object '{}'"
+                               .format(mesh_object.name))
 
     # mdi tags
     for arrow_object in arrow_objects:
 
         mdi_tag = arrow_m.read(arrow_object, armature_object)
         if mdi_tag:
-            mdi_model.tags.append(mdi_tag)
+
+            is_supported = \
+                blender_util_m.is_object_supported(mdi_tag, arrow_object)
+            if is_supported:
+
+                blender_util_m.apply_object_transform(mdi_tag,
+                                                      arrow_object,
+                                                      frame_start,
+                                                      frame_end)
+                mdi_model.tags.append(mdi_tag)
+
+            else:
+
+                reporter_m.warning("Dropped arrow object with name '{}'."
+                                   " A property is unsupported"
+                                   .format(arrow_object.name))
+
+        else:
+
+            reporter_m.warning("Could not read arrow object '{}'"
+                              .format(arrow_object.name))
 
     # mdi bounds
     mdi_model.bounds = mdi_m.MDIBoundingVolume.calc(mdi_model)
 
     # mdi lod
-    mdi_model.lod = mdi_m.MDIDiscreteLOD()  # TODO
+    mdi_model.lod = mdi_m.MDIDiscreteLOD()
 
-    # apply object transforms
-    # frame_start = bpy.context.scene.frame_start
-    # frame_end = bpy.context.scene.frame_end
-
-    # blender_util_m.apply_object_transforms(mdi_model,
-    #                                        mesh_objects,
-    #                                        armature_object,
-    #                                        arrow_objects,
-    #                                        frame_start,
-    #                                        frame_end)
-
-    # # consider parenting
-    # blender_util_m.apply_parent_transforms(mdi_model,
-    #                                        mesh_objects,
-    #                                        armature_object,
-    #                                        arrow_objects)
+    # transform mesh objects with 'Child of' constraint
+    blender_util_m.transform_for_tag_objects(mdi_model,
+                                             mesh_objects,
+                                             arrow_objects,
+                                             frame_start,
+                                             frame_end)
 
     time = timer.time()
     reporter_m.info("Reading collection DONE (time={})".format(time))
