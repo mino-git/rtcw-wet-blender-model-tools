@@ -541,10 +541,10 @@ class MDIUVMapSurjective:
 
         if num_new_vertices:
 
-            reporter_m.info("Created {} new vertices for the uv map."
-                            " To avoid this try to reduce the number of seams"
-                            " crossing each vertex."
-                            .format(num_new_vertices))
+            reporter_m.info("Created {} new vertices for mdi surface '{}'"
+                            " during uv map pass. To avoid this try to reduce"
+                            " the number of seams crossing each vertex."
+                            .format(num_new_vertices, mdi_surface.name))
 
         return mdi_uv_map_bijective
 
@@ -979,35 +979,21 @@ class MDIBoundingVolume:
 
         if num_frames == 0:  # use tags to determine frame count
 
-            mdi_sample_free_tag = None
-            mdi_sample_bone_tag = None
-            mdi_sample_bone_tag_off = None
-
             for mdi_tag in mdi_model.tags:
 
                 if isinstance(mdi_tag, MDIFreeTag):
 
-                    mdi_sample_free_tag = mdi_tag
+                    num_frames = \
+                        max(num_frames, len(mdi_tag.locations))
 
-                elif isinstance(mdi_tag, MDIBoneTag):
+                elif isinstance(mdi_tag, MDIBoneTag) or \
+                     isinstance(mdi_tag, MDIBoneTagOff):
 
-                    mdi_sample_bone_tag = mdi_tag
+                    parent_bone = mdi_tag.parent_bone
+                    mdi_sample_bone = mdi_model.skeleton.bones[parent_bone]
 
-                elif isinstance(mdi_tag, MDIBoneTagOff):
-
-                    mdi_sample_bone_tag_off = mdi_tag
-
-            if mdi_sample_free_tag:
-
-                num_frames = \
-                    max(num_frames, len(mdi_sample_free_tag.locations))
-
-            if mdi_sample_bone_tag or mdi_sample_bone_tag_off:
-
-                parent_bone = mdi_sample_bone_tag.parent_bone
-                mdi_sample_bone = mdi_model.skeleton.bones[parent_bone]
-
-                num_frames = max(num_frames, len(mdi_sample_bone.locations))
+                    num_frames = \
+                        max(num_frames, len(mdi_sample_bone.locations))
 
         return num_frames
 
