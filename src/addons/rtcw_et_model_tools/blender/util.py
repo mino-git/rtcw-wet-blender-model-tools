@@ -30,118 +30,93 @@ import rtcw_et_model_tools.common.reporter as reporter_m
 
 
 def is_object_supported(mdi_object, blender_object):
-    """We currently do not support parenting and for certain objects object
-    space animation. No constraints other than child_of, no modifiers except
-    armature modifier, no drivers.
+    """Checks for contraints, modifiers and object space animation.
     """
 
     is_supported = True
 
+    # TODO drivers
+
+    # constraints not supported
+    if len(blender_object.constraints) > 0:
+
+        reporter_m.warning("Constraints for objects '{}' are generally not"
+                            " supported"
+                            .format(mdi_object.name))
+        is_supported = False
+
+    # modifiers
+    # only for mesh objects supported
+    if len(blender_object.modifiers) > 0:
+
+        if isinstance(mdi_object, mdi_m.MDISurface):
+
+            if len(blender_object.modifiers) == 1:
+
+                try:
+                    blender_object.modifiers['Armature']
+                except:
+                    reporter_m.warning("Only armature modifier allowed for"
+                                       " this type of object '{}'"
+                                   .format(mdi_object.name))
+                    is_supported = False
+
+            else:  # more than 1
+
+                reporter_m.warning("Only armature modifier allowed for this"
+                                   " type of object '{}'"
+                                   .format(mdi_object.name))
+                is_supported = False
+
+        else:
+
+            reporter_m.warning("Modifiers for this type of object '{}' are"
+                               " generally not supported"
+                                .format(mdi_object.name))
+            is_supported = False
+
+    else:
+
+        pass  # ok
+
+    # object space animation
+    # not supported for rigged mesh objects and certain types of tags
     if isinstance(mdi_object, mdi_m.MDISurface):
 
         if mdi_object.vertices:
 
             sample_vertex = mdi_object.vertices[0]
-            if isinstance(sample_vertex, mdi_m.MDIMorphVertex):
+            if isinstance(sample_vertex, mdi_m.MDIRiggedVertex):
 
-                # no modifiers
-                if len(blender_object.modifiers) > 0:
+                if blender_object.animation_data and \
+                    blender_object.animation_data.action and \
+                    blender_object.animation_data.action.fcurves:
 
-                    reporter_m.warning("Modifiers for surface '{}' not"
-                                       " supported"
-                                       .format(mdi_object.name))
-                    is_supported = False
+                    fcurves = blender_object.animation_data.action.fcurves
 
-                # no constraints
-                if len(blender_object.constraints) > 0:
+                    fcurve_1 = fcurves.find(fcurve_m.DP_LOCATION)
+                    fcurve_2 = fcurves.find(fcurve_m.DP_EULER)
+                    fcurve_3 = fcurves.find(fcurve_m.DP_AXIS_ANGLE)
+                    fcurve_4 = fcurves.find(fcurve_m.DP_QUATERNION)
+                    fcurve_5 = fcurves.find(fcurve_m.DP_SCALE)
 
-                    reporter_m.warning("Constraints for surface '{}' not"
-                                       " supported"
-                                       .format(mdi_object.name))
-                    is_supported = False
+                    if fcurve_1 or fcurve_2 or fcurve_3 or fcurve_4 or \
+                       fcurve_5:
 
-                # no parenting
-                if blender_object.parent or blender_object.parent_bone:
-
-                    reporter_m.warning("Parenting for surface '{}' not"
-                                       " supported"
-                                       .format(mdi_object.name))
-                    is_supported = False
-
-            elif isinstance(sample_vertex, mdi_m.MDIRiggedVertex):
-
-                # no object space animation
-                if blender_object.animation_data:
-
-                    reporter_m.warning("Surface '{}' with rigged vertices can"
-                                       " only be animated by the armature"
-                                       .format(mdi_object.name))
-                    is_supported = False
-
-                # only armature modifier
-                if len(blender_object.modifiers) == 0:
-
-                    reporter_m.warning("Surface '{}' needs armature modifier"
-                                       .format(mdi_object.name))
-                    is_supported = False
-
-                elif len(blender_object.modifiers) == 1:
-
-                    armature_exists = False
-                    try:
-
-                        blender_object.modifiers['Armature']
-                        armature_exists = True
-
-                    except:
-
-                        pass
-
-                    if not armature_exists:
-
-                        reporter_m.warning("Surface '{}' only supports"
-                                       " armature modifier, but found a"
-                                       " different one"
+                        reporter_m.warning("Object space animation of rigged"
+                                           " mesh object '{}' not supported"
                                         .format(mdi_object.name))
                         is_supported = False
 
-                elif len(blender_object.modifiers) >= 1:
+    elif isinstance(mdi_object, mdi_m.MDIBoneTag) or \
+         isinstance(mdi_object, mdi_m.MDIBoneTagOff):
 
-                    reporter_m.warning("Surface '{}' only supports armature"
-                                       " modifier, but found multiple"
-                                       " modifiers"
-                                       .format(mdi_object.name))
-                    is_supported = False
-
-                # no constraints
-                if len(blender_object.constraints) > 0:
-
-                    reporter_m.warning("Constraints for surface '{}' not"
-                                       " supported"
-                                       .format(mdi_object.name))
-                    is_supported = False
-
-                # no parenting
-                if blender_object.parent or blender_object.parent_bone:
-
-                    reporter_m.warning("Parenting for surface '{}' not"
-                                       " supported"
-                                       .format(mdi_object.name))
-                    is_supported = False
-
-            else:
-
-                raise Exception("Unknown vertex type on mdi surface '{}'"
-                                .format(mdi_object.name))
-
-        pass
-
-    elif isinstance(mdi_object, mdi_m.MDISkeleton):
-
-        # no object space animation
-        if blender_object.animation_data:
+        if blender_object.animation_data and \
+           blender_object.animation_data.action and \
+           blender_object.animation_data.action.fcurves:
 
             fcurves = blender_object.animation_data.action.fcurves
+
             fcurve_1 = fcurves.find(fcurve_m.DP_LOCATION)
             fcurve_2 = fcurves.find(fcurve_m.DP_EULER)
             fcurve_3 = fcurves.find(fcurve_m.DP_AXIS_ANGLE)
@@ -150,158 +125,14 @@ def is_object_supported(mdi_object, blender_object):
 
             if fcurve_1 or fcurve_2 or fcurve_3 or fcurve_4 or fcurve_5:
 
-                reporter_m.warning("Armature '{}' can only be animated in pose"
-                                "mode, but not in object mode"
-                                    .format(mdi_object.name))
+                reporter_m.warning("Arrow object '{}' object space animation"
+                                   " not supported for arrow objects parented"
+                                   " to a bone. They can only be animated by"
+                                   " animating the bone"
+                                   .format(mdi_object.name))
                 is_supported = False
-
-        # no modifiers
-        if len(blender_object.modifiers) > 0:
-
-            reporter_m.warning("Modifiers for armature '{}' not"
-                               " supported"
-                                .format(mdi_object.name))
-            is_supported = False
-
-        # no constraints
-        if len(blender_object.constraints) > 0:
-
-            reporter_m.warning("Constraints for armature '{}' not"
-                               " supported"
-                                .format(mdi_object.name))
-            is_supported = False
-
-        # no parenting
-        if blender_object.parent or blender_object.parent_bone:
-
-            reporter_m.warning("Parenting for armature '{}' not"
-                               " supported"
-                                .format(mdi_object.name))
-            is_supported = False
-
-    elif isinstance(mdi_object, mdi_m.MDIFreeTag):
-        # no modifiers
-        if len(blender_object.modifiers) > 0:
-
-            reporter_m.warning("Modifiers for arrow object '{}' not"
-                               " supported"
-                                .format(mdi_object.name))
-            is_supported = False
-
-        # only child of constraint
-        if len(blender_object.constraints) == 0:
-
-            pass
-
-        if len(blender_object.constraints) == 1:
-
-            child_of_constraint_exists = False
-            try:
-
-                blender_object.constraints['Child Of']
-                child_of_constraint_exists = True
-
-            except:
-
-                pass
-
-            if not child_of_constraint_exists:
-
-                reporter_m.warning("Arrow object '{}' only supports 'Child Of'"
-                                   " constraint but found a different one"
-                                    .format(mdi_object.name))
-                is_supported = False
-
-        if len(blender_object.constraints) > 1:
-
-            reporter_m.warning("Arrow object '{}' only supports 'Child Of'"
-                                " constraint but found multiple constraints"
-                                .format(mdi_object.name))
-            is_supported = False
-
-        # no parenting
-        if blender_object.parent or blender_object.parent_bone:
-
-            reporter_m.warning("Parenting for arrow object '{}' not"
-                               " supported"
-                                .format(mdi_object.name))
-            is_supported = False
-
-    elif isinstance(mdi_object, mdi_m.MDIBoneTag) or \
-         isinstance(mdi_object, mdi_m.MDIBoneTagOff):
-
-        # no object space animation
-        if blender_object.animation_data:
-
-            reporter_m.warning("Arrow object '{}' can only be animated by the"
-                               " bone of an armature"
-                                .format(mdi_object.name))
-            is_supported = False
-
-        # no modifiers
-        if len(blender_object.modifiers) > 0:
-
-            reporter_m.warning("Modifiers for arrow object '{}' not"
-                                " supported"
-                                .format(mdi_object.name))
-            is_supported = False
-
-        # only child of constraint
-        if len(blender_object.constraints) == 0:
-
-            reporter_m.warning("Arrow object '{}' attached to bone needs"
-                                " 'Child Of' constraint"
-                                .format(mdi_object.name))
-            is_supported = False
-
-        elif len(blender_object.constraints) == 1:
-
-            child_of_constraint_exists = False
-            try:
-
-                blender_object.constraints['Child Of']
-                child_of_constraint_exists = True
-
-            except:
-
-                pass
-
-            if not child_of_constraint_exists:
-
-                reporter_m.warning("Arrow object '{}' attached to bone"
-                                    " only supports 'Child Of' constraint"
-                                    " but found a different one"
-                                    .format(mdi_object.name))
-                is_supported = False
-
-        elif len(blender_object.constraints) >= 1:
-
-            reporter_m.warning("Arrow object '{}' attached to bone only"
-                               " supports 'Child Of' constraint, but"
-                               " found multiple constraints"
-                               .format(mdi_object.name))
-            is_supported = False
-
-        # no parenting
-        if blender_object.parent or blender_object.parent_bone:
-
-            reporter_m.warning("Parenting for arrow object '{}' not"
-                               " supported"
-                               .format(mdi_object.name))
-            is_supported = False
-
-    else:
-
-        pass  # ok
 
     return is_supported
-
-def transform_for_tag_objects(mdi_model, mesh_objects, arrow_objects,
-                              frame_start, frame_end):
-    """TODO
-    """
-
-    pass
 
 def apply_object_transform(mdi_object, blender_object, frame_start, frame_end):
     """Applies the transforms given in object space including animation.
@@ -311,8 +142,7 @@ def apply_object_transform(mdi_object, blender_object, frame_start, frame_end):
 
         if mdi_object.vertices:
 
-            # only for morph vertices, surfaces with rigged vertices are not
-            # supported
+            # only for morph vertices
             sample_vertex = mdi_object.vertices[0]
             if isinstance(sample_vertex, mdi_m.MDIMorphVertex):
 
@@ -346,23 +176,23 @@ def apply_object_transform(mdi_object, blender_object, frame_start, frame_end):
 
             else:
 
-                pass  # reported back elsewhere
+                pass  # checked else where
 
     elif isinstance(mdi_object, mdi_m.MDISkeleton):
 
-        pass  # ok
+        pass  # TODO
 
     elif isinstance(mdi_object, mdi_m.MDIFreeTag):
 
-        pass  # ok
+        pass  # already done
 
     elif isinstance(mdi_object, mdi_m.MDIBoneTag):
 
-        pass  # ok
+        pass  # TODO
 
     elif isinstance(mdi_object, mdi_m.MDIBoneTagOff):
 
-        pass  # ok
+        pass  # TODO
 
     else:
 

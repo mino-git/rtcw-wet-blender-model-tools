@@ -38,36 +38,19 @@ import rtcw_et_model_tools.common.reporter as reporter_m
 # ATTACH TO TAG OPERATION
 # =====================================
 
-def _add_child_of_constraint(child_object, parent_object):
-    """Adds a child-of constraint.
+def set_parent_child(parent_object, child_object):
+    """Attach by setting parent-child relationship.
     """
 
-    for constraint in child_object.constraints:
-        if constraint.type == 'CHILD_OF' and \
-            constraint.target is parent_object:
+    if parent_object == child_object:
+        return
 
-            reporter_m.warning("attach object with name '{}' already attached"
-                               " and was filtered".format(child_object.name))
-            return False
-
-    child_object.constraints.new(type="CHILD_OF")
-    child_object.constraints["Child Of"].target = parent_object
-
-    child_object.constraints["Child Of"].use_location_x = True
-    child_object.constraints["Child Of"].use_location_y = True
-    child_object.constraints["Child Of"].use_location_z = True
-
-    child_object.constraints["Child Of"].use_rotation_x = True
-    child_object.constraints["Child Of"].use_rotation_y = True
-    child_object.constraints["Child Of"].use_rotation_z = True
-
-    child_object.constraints["Child Of"].use_scale_x = True
-    child_object.constraints["Child Of"].use_scale_y = True
-    child_object.constraints["Child Of"].use_scale_z = True
+    child_object.parent_type == 'OBJECT'
+    child_object.parent = parent_object
 
     return True
 
-def _is_attach_object(attach_object):
+def is_attach_object(attach_object):
     """Checks if attachable object. Only mesh objects and tag objects can be
     attached.
     """
@@ -215,7 +198,7 @@ def _attach_by_collection(collection = None, tag_object = None):
     attach_objects = []
     for collection_object in collection.all_objects:
 
-        if _is_attach_object(collection_object):
+        if is_attach_object(collection_object):
             attach_objects.append(collection_object)
         else:
             reporter_m.warning("Selected object is not attachable.")
@@ -224,7 +207,7 @@ def _attach_by_collection(collection = None, tag_object = None):
         raise Exception("No objects selected for attachment.")
 
     for attach_object in attach_objects:
-        _add_child_of_constraint(attach_object, tag_object)
+        set_parent_child(tag_object, attach_object)
 
 def _attach_by_objects():
     """Attach all selected objects to tag by setting a child-of constraint.
@@ -242,7 +225,7 @@ def _attach_by_objects():
     attach_objects = []
     for selected_object in bpy.context.selected_objects:
 
-        if _is_attach_object(selected_object):
+        if is_attach_object(selected_object):
             attach_objects.append(selected_object)
         else:
             reporter_m.warning("Selected object is not attachable.")
@@ -251,7 +234,7 @@ def _attach_by_objects():
         raise Exception("No objects selected for attachment.")
 
     for attach_object in attach_objects:
-        _add_child_of_constraint(attach_object, tag_object)
+        set_parent_child(tag_object, attach_object)
 
 def attach_to_tag(method, game_path = None, skin_file_path = None):
     """Attach to tag operation.
@@ -297,37 +280,22 @@ def read(arrow_object, armature_object = None):
     is_bone_tag = False
     is_bone_tag_off = False
 
-    matrix_identity = mathutils.Matrix.Identity(4)
+    if armature_object:
 
-    for constraint in arrow_object.constraints:
+        if arrow_object.parent == armature_object and \
+           arrow_object.parent_type == 'BONE':
 
-        if constraint.type == 'CHILD_OF' and \
-            constraint.target == armature_object:
+            loc, rot, _ = arrow_object.matrix_basis.decompose()
+            rot = rot.to_matrix()
 
-            is_inherit_transforms = constraint.use_location_x and \
-                                    constraint.use_location_y and \
-                                    constraint.use_location_z and \
-                                    constraint.use_rotation_x and \
-                                    constraint.use_rotation_y and \
-                                    constraint.use_rotation_z and \
-                                    constraint.use_scale_x and \
-                                    constraint.use_scale_y and \
-                                    constraint.use_scale_z
-            if not is_inherit_transforms:
-
-                reporter_m.warning("Tried reading tag object '{}' but "
-                                   "constraint does not inherit location, "
-                                   "rotation or scale"
-                                   .format(arrow_object.name))
-                return None
-
-            if arrow_object.matrix_basis == matrix_identity:
-                is_bone_tag = True
+            loc_off = mathutils.Vector((0, -1, 0))  # head, not tail
+            matrix_identity = mathutils.Matrix.Identity(3)
+            if loc == loc_off and rot == matrix_identity:
+               is_bone_tag = True
             else:
                 is_bone_tag_off = True
 
     if not (is_bone_tag or is_bone_tag_off):
-
         is_free_tag = True
 
     if is_free_tag:
@@ -351,7 +319,7 @@ def read(arrow_object, armature_object = None):
         mdi_tag = mdi_m.MDIBoneTag()
 
         mdi_tag.name = arrow_object.name
-        bone_name = arrow_object.constraints['Child Of'].subtarget
+        bone_name = arrow_object.parent_bone
         mdi_tag.parent_bone = armature_object.data.bones.find(bone_name)
         if mdi_tag.parent_bone < 0:
             reporter_m.warning("Tried reading tag object '{}' but "
@@ -365,7 +333,7 @@ def read(arrow_object, armature_object = None):
 
         except:
 
-            reporter_m.warning("'Torso Weight' value not specified on tag "
+            reporter_m.warning("'Torso Weight' property not specified on tag "
                                 "object '{}'. Defaulting to '0.0'."
                                 .format(arrow_object.name))
             mdi_tag.torso_weight = 0.0
@@ -375,7 +343,7 @@ def read(arrow_object, armature_object = None):
         mdi_tag = mdi_m.MDIBoneTagOff()
 
         mdi_tag.name = arrow_object.name
-        bone_name = arrow_object.constraints['Child Of'].subtarget
+        bone_name = arrow_object.parent_bone
         mdi_tag.parent_bone = armature_object.data.bones.find(bone_name)
         if mdi_tag.parent_bone < 0:
             reporter_m.warning("Tried reading tag object '{}' but "
@@ -383,8 +351,10 @@ def read(arrow_object, armature_object = None):
                                 .format(arrow_object.name))
             return None
 
-        mdi_tag.location = arrow_object.location
-        mdi_tag.orientation = arrow_object.rotation_quaternion.to_matrix()
+        loc, rot, _ = arrow_object.matrix_basis.decompose()
+
+        mdi_tag.location = loc - mathutils.Vector((0, -1, 0))
+        mdi_tag.orientation = rot.to_matrix()
 
     else:
 
@@ -456,28 +426,18 @@ def write(mdi_model, num_tag, collection, armature_object = None):
         empty_object.empty_display_type = 'ARROWS'
         empty_object.rotation_mode = 'QUATERNION'
 
-        empty_object.constraints.new(type="CHILD_OF")
-        empty_object.constraints["Child Of"].target = armature_object
-        empty_object.constraints["Child Of"].subtarget = parent_bone_name
-
-        empty_object.constraints["Child Of"].use_location_x = True
-        empty_object.constraints["Child Of"].use_location_y = True
-        empty_object.constraints["Child Of"].use_location_z = True
-
-        empty_object.constraints["Child Of"].use_rotation_x = True
-        empty_object.constraints["Child Of"].use_rotation_y = True
-        empty_object.constraints["Child Of"].use_rotation_z = True
-
-        empty_object.constraints["Child Of"].use_scale_x = True
-        empty_object.constraints["Child Of"].use_scale_y = True
-        empty_object.constraints["Child Of"].use_scale_z = True
+        empty_object.parent = armature_object
+        empty_object.parent_type = 'BONE'
+        empty_object.parent_bone = parent_bone_name
+        empty_object.matrix_basis = mathutils.Matrix.Identity(4)
+        empty_object.location = mathutils.Vector((0, -1, 0))
 
         empty_object['Torso Weight'] = mdi_tag.torso_weight
 
     elif isinstance(mdi_tag, mdi_m.MDIBoneTagOff):
 
         mdi_bones = mdi_model.skeleton.bones
-        mdi_parent_bone = mdi_bones[mdi_tag.parent_bone]
+        parent_bone_name = mdi_bones[mdi_tag.parent_bone].name
 
         empty_object = bpy.data.objects.new("empty", None)
         collection.objects.link(empty_object)
@@ -485,26 +445,14 @@ def write(mdi_model, num_tag, collection, armature_object = None):
         empty_object.empty_display_type = 'ARROWS'
         empty_object.rotation_mode = 'QUATERNION'
 
-        empty_object.constraints.new(type="CHILD_OF")
-        empty_object.constraints["Child Of"].target = armature_object
-        empty_object.constraints["Child Of"].subtarget = mdi_parent_bone.name
-
-        empty_object.constraints["Child Of"].use_location_x = True
-        empty_object.constraints["Child Of"].use_location_y = True
-        empty_object.constraints["Child Of"].use_location_z = True
-
-        empty_object.constraints["Child Of"].use_rotation_x = True
-        empty_object.constraints["Child Of"].use_rotation_y = True
-        empty_object.constraints["Child Of"].use_rotation_z = True
-
-        empty_object.constraints["Child Of"].use_scale_x = True
-        empty_object.constraints["Child Of"].use_scale_y = True
-        empty_object.constraints["Child Of"].use_scale_z = True
+        empty_object.parent = armature_object
+        empty_object.parent_type = 'BONE'
+        empty_object.parent_bone = parent_bone_name
 
         matrix = mathutils.Matrix.Identity(4)
-        matrix.translation = mdi_tag.location
+        matrix.translation = mdi_tag.location + mathutils.Vector((0, -1, 0))
         orientation = mdi_tag.orientation
-        empty_object.matrix_world = matrix @ orientation.to_4x4()
+        empty_object.matrix_basis = matrix @ orientation.to_4x4()
 
     else:
 

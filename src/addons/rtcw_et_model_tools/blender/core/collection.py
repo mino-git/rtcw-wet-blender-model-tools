@@ -199,13 +199,6 @@ def read(collapse_frame = -1):
     # mdi lod
     mdi_model.lod = mdi_m.MDIDiscreteLOD()
 
-    # transform mesh objects with 'Child of' constraint
-    blender_util_m.transform_for_tag_objects(mdi_model,
-                                             mesh_objects,
-                                             arrow_objects,
-                                             frame_start,
-                                             frame_end)
-
     time = timer.time()
     reporter_m.info("Reading collection DONE (time={})".format(time))
 
