@@ -262,6 +262,26 @@ def read(mesh_object):
 # WRITE
 # =====================================
 
+def write_empty_material_by_name(mesh_object, material_name):
+    """Creates a new empty material just by name. Will not create if exists."""
+
+    material = None
+    if material_name:
+
+        for existing_material in bpy.data.materials:
+
+            if existing_material.name == material_name:
+
+                material = existing_material
+                break
+
+        if not material:
+
+            material = bpy.data.materials.new(material_name)
+            mesh_object.data.materials.append(material)
+
+    return material
+
 def write(mdi_shader, mesh_object):
     """TODO
 
@@ -270,26 +290,24 @@ def write(mdi_shader, mesh_object):
         TODO
     """
 
+    material = None
     if isinstance(mdi_shader, mdi_m.MDIShaderPaths):
 
         for mdi_shader_path in mdi_shader.paths:
 
-            name = mdi_shader_path.path
-            if name:
-
-                material = bpy.data.materials.new(name)
-                mesh_object.data.materials.append(material)
+            material = \
+                write_empty_material_by_name(mesh_object, mdi_shader_path.path)
+            if material:
+                # last one will be active
+                mesh_object.active_material = material
 
     elif isinstance(mdi_shader, mdi_m.MDIShaderPath):
 
-        name = mdi_shader.path
-        if name:
-
-            material = bpy.data.materials.new(name)
-            mesh_object.data.materials.append(material)
+        material = \
+            write_empty_material_by_name(mesh_object, mdi_shader.path)
+        if material:
+            mesh_object.active_material = material
 
     else:
 
         raise Exception("Unknown type for mdi shader")
-
-# # if exists use it
