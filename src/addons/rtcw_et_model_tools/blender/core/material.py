@@ -275,15 +275,21 @@ def write(mdi_shader, mesh_object):
         for mdi_shader_path in mdi_shader.paths:
 
             name = mdi_shader_path.path
-            material = bpy.data.materials.new(name)
-            mesh_object.data.materials.append(material)
+            if name:
+
+                material = bpy.data.materials.new(name)
+                mesh_object.data.materials.append(material)
 
     elif isinstance(mdi_shader, mdi_m.MDIShaderPath):
 
         name = mdi_shader.path
-        material = bpy.data.materials.new(name)
-        mesh_object.data.materials.append(material)
+        if name:
+
+            material = bpy.data.materials.new(name)
+            mesh_object.data.materials.append(material)
 
     else:
 
-        pass  # TODO
+        raise Exception("Unknown type for mdi shader")
+
+# # if exists use it
