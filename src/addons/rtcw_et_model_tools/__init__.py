@@ -51,9 +51,9 @@ def register():
         bpy.props.StringProperty(
             name="Game Path",
             description="Path to game data. Game data will be read assuming"
-                " this is the directory of the .exe file."
-                " Note: PK3 files are not extracted, so you need to manually"
-                " extract them to this directory."
+                " this is the directory of the mod file (for example"
+                " 'etmain' or 'Main'. Note: PK3 files are not extracted, so"
+                " you need to manually extract them to this directory."
                 " You can use the 'Unzip PK3s' panel for that.",
             subtype='DIR_PATH')
 
@@ -70,7 +70,8 @@ def unregister():
 
     import rtcw_et_model_tools.blender.ui.imports as imports_m
     import rtcw_et_model_tools.blender.ui.exports as exports_m
-    import rtcw_et_model_tools.blender.ui.direct_conversion as direct_conversion_m
+    import rtcw_et_model_tools.blender.ui.direct_conversion as \
+           direct_conversion_m
     import rtcw_et_model_tools.blender.ui.attachment as attachment_m
     import rtcw_et_model_tools.blender.ui.shading as shading_m
     import rtcw_et_model_tools.blender.ui.unzip_pk3s as unzip_pk3s_m
