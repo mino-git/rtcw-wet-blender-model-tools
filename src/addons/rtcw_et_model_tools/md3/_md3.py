@@ -910,6 +910,10 @@ class MD3Header:
             = struct.unpack(MD3Header.format,
                             file.read(MD3Header.format_size))
 
+        if ident != MD3Header.ident:
+            raise Exception("Failed reading MD3 file. Reason: MD3Header.ident."
+                            " Make sure the file is indeed MD3.")
+
         md3_header = MD3Header(ident, version, name, flags, num_frames,
                                num_tags, num_surfaces, num_skins,
                                ofs_frame_infos, ofs_tags, ofs_surfaces,

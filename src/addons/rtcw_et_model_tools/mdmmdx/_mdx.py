@@ -460,6 +460,10 @@ class MDXHeader:
             = struct.unpack(MDXHeader.format,
                             file.read(MDXHeader.format_size))
 
+        if ident != MDXHeader.ident:
+            raise Exception("Failed reading MDX file. Reason: MDXHeader.ident."
+                            " Make sure the file is indeed MDX.")
+
         mdx_file_header = MDXHeader(ident, version, name, num_frames,
                                     num_bones, ofs_frames, ofs_bone_infos,
                                     torso_parent_bone, ofs_end)

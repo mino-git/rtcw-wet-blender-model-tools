@@ -934,6 +934,10 @@ class MDMHeader:
             = struct.unpack(MDMHeader.format,
                             file.read(MDMHeader.format_size))
 
+        if ident != MDMHeader.ident:
+            raise Exception("Failed reading MDM file. Reason: MDMHeader.ident."
+                            " Make sure the file is indeed MDM.")
+
         mdm_file_header = MDMHeader(ident, version, name, lod_scale, lod_bias,
                                     num_surfaces, ofs_surfaces, num_tags,
                                     ofs_tags, ofs_end)

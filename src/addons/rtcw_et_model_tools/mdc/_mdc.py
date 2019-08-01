@@ -1319,6 +1319,10 @@ class MDCHeader:
             = struct.unpack(MDCHeader.format,
                             file.read(MDCHeader.format_size))
 
+        if ident != MDCHeader.ident:
+            raise Exception("Failed reading MDC file. Reason: MDCHeader.ident."
+                            " Make sure the file is indeed MDC.")
+
         mdc_header = MDCHeader(ident, version, name, flags, num_frames,
                                num_tags, num_surfaces, num_skins,
                                ofs_frame_infos, ofs_tag_infos, ofs_tags,

@@ -1255,6 +1255,10 @@ class MDSHeader:
             = struct.unpack(MDSHeader.format,
                             file.read(MDSHeader.format_size))
 
+        if ident != MDSHeader.ident:
+            raise Exception("Failed reading MDS file. Reason: MDSHeader.ident."
+                            " Make sure the file is indeed MDS.")
+
         mds_header = MDSHeader(ident, version, name, lod_scale, lod_bias,
                                num_frames, num_bones, ofs_frames,
                                ofs_bone_infos, torso_parent_bone, num_surfaces,

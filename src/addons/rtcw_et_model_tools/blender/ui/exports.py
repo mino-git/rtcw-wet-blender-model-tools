@@ -118,9 +118,6 @@ class REMT_OT_MD3Export(bpy.types.Operator):
         md3_file_path = context.scene.remt_md3_export_path
         md3_file_path = bpy.path.abspath(md3_file_path)
 
-        if not md3_file_path.endswith(".md3"):
-            raise Exception("MD3 filepath must end with '.md3'")
-
         return md3_file_path
 
     def execute(self, context):
@@ -171,9 +168,6 @@ class REMT_OT_MDCExport(bpy.types.Operator):
         mdc_file_path = context.scene.remt_mdc_export_path
         mdc_file_path = bpy.path.abspath(mdc_file_path)
 
-        if not mdc_file_path.endswith(".mdc"):
-            raise Exception("MDC filepath must end with '.mdc'")
-
         return mdc_file_path
 
     def execute(self, context):
@@ -223,9 +217,6 @@ class REMT_OT_MDSExport(bpy.types.Operator):
 
         mds_file_path = context.scene.remt_mds_export_path
         mds_file_path = bpy.path.abspath(mds_file_path)
-
-        if not mds_file_path.endswith(".mds"):
-            raise Exception("MDS filepath must end with '.mds'")
 
         collapse_frame = context.scene.remt_mds_collapse_frame_export
 
@@ -278,24 +269,14 @@ class REMT_OT_MDMMDXExport(bpy.types.Operator):
 
         mdm_file_path = context.scene.remt_mdm_export_path
         if mdm_file_path:
-
-            if not mdm_file_path.endswith(".mdm"):
-                raise Exception("MDM filepath must end with '.mdm'")
-
+            mdm_file_path = bpy.path.abspath(mdm_file_path)
         else:
-
             mdm_file_path = None
 
         mdx_file_path = context.scene.remt_mdx_export_path
         if mdx_file_path:
-
             mdx_file_path = bpy.path.abspath(mdx_file_path)
-
-            if not mdx_file_path.endswith(".mdx"):
-                raise Exception("MDX filepath must end with '.mdx'")
-
         else:
-
             mdx_file_path = None
 
         if not (mdm_file_path or mdx_file_path):
