@@ -41,6 +41,14 @@ def _collect_objects_for_export(collection):
     arrow_objects = []
     for obj in collection.all_objects:
 
+        # only export visible objects
+        is_visible = obj.visible_get()
+        if not is_visible:
+
+            reporter_m.info("Object '{}' not visible in viewport. Dropping."
+                            .format(obj.name))
+            continue
+
         if obj.type == 'MESH':
             mesh_objects.append(obj)
 
