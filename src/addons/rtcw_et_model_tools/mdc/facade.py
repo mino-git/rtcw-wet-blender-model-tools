@@ -21,6 +21,8 @@
 """Facade for MDC file format.
 """
 
+import pathlib
+
 import rtcw_et_model_tools.mdc._mdc as mdc_m
 import rtcw_et_model_tools.mdc._mdc_mdi as mdc_mdi_m
 
@@ -50,6 +52,10 @@ def read(file_path, bind_frame, encoding="binary"):
         print("encoding option '{}' not supported".format(encoding))
 
     mdi_model = mdc_mdi_m.ModelToMDI.convert(mdc_model, bind_frame)
+
+    # TODO this shouldn't be here
+    if not mdi_model.name:
+        mdi_model.name = pathlib.Path(file_path).name
 
     return mdi_model
 

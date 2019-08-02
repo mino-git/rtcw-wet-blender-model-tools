@@ -21,6 +21,8 @@
 """Facade for MDM and MDX file format.
 """
 
+import pathlib
+
 import rtcw_et_model_tools.mdmmdx._mdm as mdm_m
 import rtcw_et_model_tools.mdmmdx._mdx as mdx_m
 import rtcw_et_model_tools.mdmmdx._mdmmdx_mdi as mdmmdx_mdi_m
@@ -60,6 +62,10 @@ def read(file_path_mdm, file_path_mdx, bind_frame, encoding="binary"):
 
     mdi_model = \
         mdmmdx_mdi_m.ModelToMDI.convert(mdx_model, mdm_model, bind_frame)
+
+    # TODO this shouldn't be here
+    if not mdi_model.name:
+        mdi_model.name = pathlib.Path(file_path_mdm).name
 
     return mdi_model
 

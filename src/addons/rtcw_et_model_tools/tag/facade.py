@@ -21,6 +21,8 @@
 """Facade for TAG file format.
 """
 
+import pathlib
+
 import rtcw_et_model_tools.tag._tag as tag_m
 import rtcw_et_model_tools.tag._tag_mdi as tag_mdi_m
 
@@ -49,6 +51,10 @@ def read(file_path, encoding="binary"):
         print("encoding option '{}' not supported".format(encoding))
 
     mdi_model = tag_mdi_m.ModelToMDI.convert(tag_model)
+
+    # TODO this shouldn't be here
+    if not mdi_model.name:
+        mdi_model.name = pathlib.Path(file_path).name
 
     return mdi_model
 
