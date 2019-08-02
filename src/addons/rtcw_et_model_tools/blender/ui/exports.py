@@ -99,6 +99,17 @@ class REMT_PT_Export(bpy.types.Panel):
                             text="Export",
                             icon="EXPORT")
 
+        elif context.scene.remt_export_format == "TAG":
+
+            row = layout.row()
+            row.prop(context.scene,
+                    "remt_tag_export_path")
+
+            row = layout.row()
+            row.operator("remt.tag_exporter",
+                            text="Export",
+                            icon="EXPORT")
+
         else:
 
             pass
@@ -321,6 +332,56 @@ class REMT_OT_MDMMDXExport(bpy.types.Operator):
         return {'FINISHED'}
 
 
+class REMT_OT_TAGExport(bpy.types.Operator):
+    """Operator for exporting to TAG file format.
+    """
+
+    bl_idname = "remt.tag_exporter"
+    bl_label = "Export to TAG file format"
+    bl_description = "Export to TAG file format"
+
+    @staticmethod
+    def _parse_input(context):
+
+        tag_file_path = context.scene.remt_tag_export_path
+        tag_file_path = bpy.path.abspath(tag_file_path)
+
+        return tag_file_path
+
+    def execute(self, context):
+        """Export to TAG file format.
+        """
+
+        import rtcw_et_model_tools.tag.facade as tag_facade_m
+        import rtcw_et_model_tools.mdi.mdi as mdi_m
+        import rtcw_et_model_tools.blender.core.collection as collection_m
+        import rtcw_et_model_tools.common.timer as timer_m
+        import rtcw_et_model_tools.common.reporter as reporter_m
+
+        reporter_m.reset_state()
+
+        try:
+
+            tag_file_path = self._parse_input(context)
+
+            timer = timer_m.Timer()
+            reporter_m.info("TAG export started ...")
+
+            mdi_model = collection_m.read()
+            tag_facade_m.write(mdi_model, tag_file_path)
+
+            time = timer.time()
+            reporter_m.info("TAG export DONE (time={})".format(time))
+
+        except Exception as error:
+
+            reporter_m.exception(error)
+            self.report({'ERROR'}, error.__str__())
+            return {'CANCELLED'}
+
+        return {'FINISHED'}
+
+
 # Registration
 # ==============================
 
@@ -330,6 +391,7 @@ classes = (
     REMT_OT_MDCExport,
     REMT_OT_MDSExport,
     REMT_OT_MDMMDXExport,
+    REMT_OT_TAGExport,
 )
 
 def register():
@@ -344,7 +406,8 @@ def register():
             items = [("MD3", "MD3", ""),
                      ("MDC", "MDC", ""),
                      ("MDS", "MDS", ""),
-                     ("MDM/MDX", "MDM/MDX", "")],
+                     ("MDM/MDX", "MDM/MDX", ""),
+                     ("TAG", "TAG", "")],
             default = "MD3")
 
     bpy.types.Scene.remt_md3_export_path = \
@@ -377,6 +440,12 @@ def register():
             description="Path to MDX file",
             subtype='FILE_PATH')
 
+    bpy.types.Scene.remt_tag_export_path = \
+        bpy.props.StringProperty(
+            name="TAG Filepath",
+            description="Path to TAG file",
+            subtype='FILE_PATH')
+
     bpy.types.Scene.remt_mds_collapse_frame_export = \
         bpy.props.IntProperty(
             name = "Collapse Frame",
@@ -406,5 +475,6 @@ def unregister():
     del bpy.types.Scene.remt_mds_export_path
     del bpy.types.Scene.remt_mdm_export_path
     del bpy.types.Scene.remt_mdx_export_path
+    bpy.types.Scene.remt_tag_export_path
     del bpy.types.Scene.remt_mds_collapse_frame_export
     del bpy.types.Scene.remt_mdmmdx_collapse_frame_export

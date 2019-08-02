@@ -99,6 +99,17 @@ class REMT_PT_Import(bpy.types.Panel):
                             text="Import",
                             icon="IMPORT")
 
+        elif context.scene.remt_import_format == "TAG":
+
+            row = layout.row()
+            row.prop(context.scene,
+                    "remt_tag_import_path")
+
+            row = layout.row()
+            row.operator("remt.tag_importer",
+                            text="Import",
+                            icon="IMPORT")
+
         else:
 
             pass
@@ -339,6 +350,66 @@ class REMT_OT_MDMMDXImport(bpy.types.Operator):
         return {'FINISHED'}
 
 
+
+class REMT_OT_TAGImport(bpy.types.Operator):
+    """Operator for importing TAG file format.
+    """
+
+    bl_idname = "remt.tag_importer"
+    bl_label = "Import TAG file format into blender"
+    bl_description = "Import TAG file format into blender"
+
+    @staticmethod
+    def _parse_input(context):
+
+        tag_file_path = context.scene.remt_tag_import_path
+        if tag_file_path:
+
+            tag_file_path = bpy.path.abspath(tag_file_path)
+
+            if not os.path.isfile(tag_file_path):
+                raise Exception("TAG filepath not found")
+
+        else:
+
+            tag_file_path = None
+
+        return tag_file_path
+
+    def execute(self, context):
+        """Import TAG file format.
+        """
+
+        import rtcw_et_model_tools.tag.facade as tag_facade_m
+        import rtcw_et_model_tools.mdi.mdi as mdi_m
+        import rtcw_et_model_tools.blender.core.collection as collection_m
+        import rtcw_et_model_tools.common.timer as timer_m
+        import rtcw_et_model_tools.common.reporter as reporter_m
+
+        reporter_m.reset_state()
+
+        try:
+
+            tag_file_path = self._parse_input(context)
+
+            timer = timer_m.Timer()
+            reporter_m.info("TAG import started ...")
+
+            mdi_model = tag_facade_m.read(tag_file_path)
+            collection_m.write(mdi_model)
+
+            time = timer.time()
+            reporter_m.info("Import DONE (time={})".format(time))
+
+        except Exception as error:
+
+            reporter_m.exception(error)
+            self.report({'ERROR'}, error.__str__())
+            return {'CANCELLED'}
+
+        return {'FINISHED'}
+
+
 # Registration
 # ==============================
 
@@ -348,6 +419,7 @@ classes = (
     REMT_OT_MDCImport,
     REMT_OT_MDSImport,
     REMT_OT_MDMMDXImport,
+    REMT_OT_TAGImport,
 )
 
 def register():
@@ -362,7 +434,8 @@ def register():
             items = [("MD3", "MD3", ""),
                      ("MDC", "MDC", ""),
                      ("MDS", "MDS", ""),
-                     ("MDM/MDX", "MDM/MDX", "")],
+                     ("MDM/MDX", "MDM/MDX", ""),
+                     ("TAG", "TAG", "")],
             default = "MD3")
 
     bpy.types.Scene.remt_md3_import_path = \
@@ -395,6 +468,12 @@ def register():
             description="Path to MDX file",
             subtype='FILE_PATH')
 
+    bpy.types.Scene.remt_tag_import_path = \
+        bpy.props.StringProperty(
+            name="TAG Filepath",
+            description="Path to TAG file",
+            subtype='FILE_PATH')
+
     bpy.types.Scene.remt_mds_bind_frame = \
         bpy.props.IntProperty(
             name = "Bindpose Frame",
@@ -424,5 +503,6 @@ def unregister():
     del bpy.types.Scene.remt_mds_import_path
     del bpy.types.Scene.remt_mdm_import_path
     del bpy.types.Scene.remt_mdx_import_path
+    del bpy.types.Scene.remt_tag_import_path
     del bpy.types.Scene.remt_mds_bind_frame
     del bpy.types.Scene.remt_mdmmdx_bind_frame
