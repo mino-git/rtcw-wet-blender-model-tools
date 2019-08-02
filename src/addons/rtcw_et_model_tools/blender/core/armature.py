@@ -466,7 +466,7 @@ def _create_armature(mdi_skeleton, collection):
 
     name = mdi_skeleton.name
 
-    armature = bpy.data.armatures.new(name)
+    armature = bpy.data.armatures.new("{}{}".format(name, "_data"))
     armature_object = bpy.data.objects.new(name, armature)
 
     collection.objects.link(armature_object)

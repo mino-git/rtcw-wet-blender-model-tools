@@ -171,6 +171,7 @@ def _read_rigged_vertices(mesh_object, armature_object, root_frame):
 
         normal = mesh_object.data.vertices[vertex_index].normal
         normal = total_rotation.transposed() @ normal
+
         mdi_rigged_vertex.normal = normal.normalized()
 
         mdi_rigged_vertices.append(mdi_rigged_vertex)
@@ -421,7 +422,7 @@ def _create_geometry(mdi_model, num_surface, collection):
     mdi_surface = mdi_model.surfaces[num_surface]
 
     name = mdi_surface.name
-    mesh = bpy.data.meshes.new(name)
+    mesh = bpy.data.meshes.new("{}{}".format(name, "_data"))
     mesh_object = bpy.data.objects.new(name, mesh)
 
     mdi_vertices = mdi_surface.vertices
