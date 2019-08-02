@@ -501,6 +501,7 @@ def write(mdi_model, num_surface, collection, armature_object = None):
 
             _write_rigged_vertices(mdi_surface.vertices, mdi_model.skeleton,
                                    mesh_object, armature_object)
+            mesh_object.parent = armature_object
 
         elif isinstance(sample_vertex, mdi_m.MDIMorphVertex):
 
