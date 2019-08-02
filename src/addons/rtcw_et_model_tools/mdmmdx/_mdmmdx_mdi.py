@@ -280,13 +280,13 @@ class MDIToModel:
                                           mdx_m.MDXBoneInfo.name_len)
         parent_bone = mdi_bone.parent_bone
 
-        if mdi_bone.torso_weight:
-            torso_weight = mdi_bone.torso_weight
-        else:
+        if mdi_bone.torso_weight is None:
             torso_weight = 0.0
             reporter_m.warning("'Torso Weight' property not set on bone '{}'."
                                " Defaulting to '{}'."
                                .format(mdi_bone.name, torso_weight))
+        else:
+            torso_weight = mdi_bone.torso_weight
 
         parent_dist = mdi_bone.parent_dist
         flags = mdx_m.MDXBoneInfo.flags_default_value
