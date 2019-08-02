@@ -80,6 +80,30 @@ class MDI:
 
         self.lod = self.lod.to_type(self, target_type, collapse_frame)
 
+    def find_surface_by_name(self, surface_name):
+
+        mdi_surface = None
+        for mdi_surface_tmp in self.surfaces:
+
+            if mdi_surface_tmp.name == surface_name:
+
+                mdi_surface = mdi_surface_tmp
+                break
+
+        return mdi_surface
+
+    def find_tag_by_name(self, tag_name):
+
+        mdi_tag = None
+        for mdi_tag_tmp in self.tags:
+
+            if mdi_tag_tmp.name == tag_name:
+
+                mdi_tag = mdi_tag_tmp
+                break
+
+        return mdi_tag
+
 
 class MDISurface:
     """TODO
@@ -778,6 +802,22 @@ class MDIBoneTag:
 
         return None
 
+    def calc_frame_location_ms(self, mdi_model, num_frame):
+
+        mdi_parent_bone = mdi_model.skeleton.bones[self.parent_bone]
+
+        location_ms = mdi_parent_bone.locations[num_frame]
+
+        return location_ms
+
+    def calc_frame_orientation_ms(self, mdi_model, num_frame):
+
+        mdi_parent_bone = mdi_model.skeleton.bones[self.parent_bone]
+
+        orientation_ms = mdi_parent_bone.orientations[num_frame]
+
+        return orientation_ms
+
 
 class MDIBoneTagOff:
     """TODO
@@ -983,8 +1023,7 @@ class MDIBoundingVolume:
 
                 if isinstance(mdi_tag, MDIFreeTag):
 
-                    num_frames = \
-                        max(num_frames, len(mdi_tag.locations))
+                    num_frames = max(num_frames, len(mdi_tag.locations))
 
                 elif isinstance(mdi_tag, MDIBoneTag) or \
                      isinstance(mdi_tag, MDIBoneTagOff):

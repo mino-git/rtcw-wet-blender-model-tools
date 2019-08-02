@@ -207,6 +207,13 @@ def read(collapse_frame = -1):
     # mdi lod
     mdi_model.lod = mdi_m.MDIDiscreteLOD()
 
+    blender_util_m.apply_parent_space_transforms(mdi_model,
+                                                 mesh_objects,
+                                                 armature_object,
+                                                 arrow_objects,
+                                                 frame_start,
+                                                 frame_end)
+
     time = timer.time()
     reporter_m.info("Reading collection DONE (time={})".format(time))
 
