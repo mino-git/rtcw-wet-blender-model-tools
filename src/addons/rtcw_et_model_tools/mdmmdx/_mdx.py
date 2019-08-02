@@ -461,8 +461,9 @@ class MDXHeader:
                             file.read(MDXHeader.format_size))
 
         if ident != MDXHeader.ident:
-            raise Exception("Failed reading MDX file. Reason: MDXHeader.ident."
-                            " Make sure the file is indeed MDX.")
+            reporter_m.warning("MDXHeader.ident mismatch. Found '{}'. Used"
+                       " '{}'. Make sure the file is indeed MDX."
+                       .format(ident, MDXHeader.ident))
 
         mdx_file_header = MDXHeader(ident, version, name, num_frames,
                                     num_bones, ofs_frames, ofs_bone_infos,

@@ -935,8 +935,9 @@ class MDMHeader:
                             file.read(MDMHeader.format_size))
 
         if ident != MDMHeader.ident:
-            raise Exception("Failed reading MDM file. Reason: MDMHeader.ident."
-                            " Make sure the file is indeed MDM.")
+            reporter_m("MDMHeader.ident mismatch. Found '{}'. Used '{}'"
+                       " Make sure the file is indeed MDM."
+                       .format(ident, MDMHeader.ident))
 
         mdm_file_header = MDMHeader(ident, version, name, lod_scale, lod_bias,
                                     num_surfaces, ofs_surfaces, num_tags,

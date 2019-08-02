@@ -911,8 +911,9 @@ class MD3Header:
                             file.read(MD3Header.format_size))
 
         if ident != MD3Header.ident:
-            raise Exception("Failed reading MD3 file. Reason: MD3Header.ident."
-                            " Make sure the file is indeed MD3.")
+            reporter_m.warning("MD3Header.ident mismatch. Found '{}'. Used"
+                       " '{}'. Make sure the file is indeed MD3."
+                       .format(ident, MD3Header.ident))
 
         md3_header = MD3Header(ident, version, name, flags, num_frames,
                                num_tags, num_surfaces, num_skins,

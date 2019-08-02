@@ -1256,8 +1256,9 @@ class MDSHeader:
                             file.read(MDSHeader.format_size))
 
         if ident != MDSHeader.ident:
-            raise Exception("Failed reading MDS file. Reason: MDSHeader.ident."
-                            " Make sure the file is indeed MDS.")
+            reporter_m.warning("MDSHeader.ident mismatch. Found '{}'. Used"
+                       " '{}'. Make sure the file is indeed MDS."
+                       .format(ident, MDSHeader.ident))
 
         mds_header = MDSHeader(ident, version, name, lod_scale, lod_bias,
                                num_frames, num_bones, ofs_frames,
