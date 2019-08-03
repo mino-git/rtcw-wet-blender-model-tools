@@ -29,6 +29,18 @@ import rtcw_et_model_tools.blender.core.fcurve as fcurve_m
 import rtcw_et_model_tools.common.reporter as reporter_m
 
 
+def get_active_action_fcurves(blender_object):
+
+    fcurves = None
+
+    if blender_object.animation_data and \
+       blender_object.animation_data.action and \
+       blender_object.animation_data.action.fcurves:
+
+       fcurves = blender_object.animation_data.action.fcurves
+
+    return fcurves
+
 def from_ps_to_ws(mdi_object, blender_object, frame_start, frame_end):
     """Transform the data in an mdi object to world space by applying parent
     space transforms. The data in an mdi object is assumed to be given with
@@ -36,8 +48,6 @@ def from_ps_to_ws(mdi_object, blender_object, frame_start, frame_end):
     """
 
     # TODO this could use some optimization
-    # TODO scale on certain objects
-
     if isinstance(mdi_object, mdi_m.MDISurface):
 
         sample_vertex = mdi_object.vertices[0]
@@ -164,7 +174,7 @@ def apply_parent_space_transforms(mdi_model, mesh_objects, armature_object,
         else:
             pass  # TODO
 
-    if armature_object:
+    if armature_object and mdi_model.skeleton:
         from_ps_to_ws(mdi_model.skeleton,
                       armature_object,
                       frame_start,
@@ -184,9 +194,8 @@ def is_object_supported(mdi_object, blender_object):
 
     is_supported = True
 
-    # TODO drivers
-
     # constraints not supported
+    # TODO only fixed dist constraint on bones
     if len(blender_object.constraints) > 0:
 
         reporter_m.warning("Constraints for objects '{}' are generally not"
@@ -194,30 +203,46 @@ def is_object_supported(mdi_object, blender_object):
                             .format(mdi_object.name))
         is_supported = False
 
-    # TODO pose bones, edit bones?
-
     # modifiers
-    # only for mesh objects supported
+    # only armature modifier for rigged meshes
     if len(blender_object.modifiers) > 0:
 
         if isinstance(mdi_object, mdi_m.MDISurface):
 
-            if len(blender_object.modifiers) == 1:
+            has_armature_modifier = False
+            try:
+                blender_object.modifiers['Armature']
+                has_armature_modifier = True
+            except:
+                pass
 
-                try:
-                    blender_object.modifiers['Armature']
-                except:
-                    reporter_m.warning("Only armature modifier allowed for"
-                                       " this type of object '{}'"
-                                   .format(mdi_object.name))
-                    is_supported = False
+            sample_vertex = mdi_object.vertices[0]
+            if isinstance(sample_vertex, mdi_m.MDIMorphVertex):
 
-            else:  # more than 1
-
-                reporter_m.warning("Only armature modifier allowed for this"
-                                   " type of object '{}'"
+                reporter_m.warning("Modifiers for mesh objects '{}' are"
+                                   " generally not supported except the"
+                                   " armature modifier"
                                    .format(mdi_object.name))
                 is_supported = False
+
+            elif isinstance(sample_vertex, mdi_m.MDIRiggedVertex):
+
+                if has_armature_modifier:
+
+                    if len(blender_object.modifiers) > 1:
+
+                        reporter_m.warning("Found multiple modifiers for"
+                                        " object '{}', but only armature"
+                                        " modifier supported"
+                                        .format(mdi_object.name))
+                        is_supported = False
+
+                else:
+
+                    reporter_m.warning("Could not find armature modifier for"
+                                       " object '{}'"
+                                       .format(mdi_object.name))
+                    is_supported = False
 
         else:
 
@@ -231,65 +256,115 @@ def is_object_supported(mdi_object, blender_object):
         pass  # ok
 
     # object space animation
-    # not supported for rigged mesh objects and certain types of tags
+    # morph mesh: ok
+    # rigged mesh: not supported
+    # skeleton: scale not supported
+    # free tag: scale not supported
+    # bone tag: not supported
+    # bone tag off: not supported
     if isinstance(mdi_object, mdi_m.MDISurface):
 
         if mdi_object.vertices:
 
             sample_vertex = mdi_object.vertices[0]
-            if isinstance(sample_vertex, mdi_m.MDIRiggedVertex):
+            if isinstance(sample_vertex, mdi_m.MDIMorphVertex):
 
-                if blender_object.animation_data and \
-                    blender_object.animation_data.action and \
-                    blender_object.animation_data.action.fcurves:
+                pass  # ok
 
-                    fcurves = blender_object.animation_data.action.fcurves
+            elif isinstance(sample_vertex, mdi_m.MDIRiggedVertex):
 
-                    fcurve_1 = fcurves.find(fcurve_m.DP_LOCATION)
-                    fcurve_2 = fcurves.find(fcurve_m.DP_EULER)
-                    fcurve_3 = fcurves.find(fcurve_m.DP_AXIS_ANGLE)
-                    fcurve_4 = fcurves.find(fcurve_m.DP_QUATERNION)
-                    fcurve_5 = fcurves.find(fcurve_m.DP_SCALE)
+                animation_found = False
 
-                    if fcurve_1 or fcurve_2 or fcurve_3 or fcurve_4 or \
-                       fcurve_5:
+                fcurves = get_active_action_fcurves(blender_object)
+                if fcurves:
 
-                        reporter_m.warning("Object space animation of rigged"
-                                           " mesh object '{}' not supported"
-                                        .format(mdi_object.name))
-                        is_supported = False
+                    animation_found = \
+                        fcurve_m.is_animated(fcurves,
+                                             rotation_mode = \
+                                                 blender_object.rotation_mode,
+                                             check_loc=True,
+                                             check_rot=True,
+                                             check_scale=True)
+
+                if animation_found:
+
+                    reporter_m.warning("Object space animation of rigged"
+                                        " mesh object '{}' not supported"
+                                    .format(mdi_object.name))
+                    is_supported = False
+
+            else:
+
+                raise Exception("Found unknown object type")
 
     elif isinstance(mdi_object, mdi_m.MDISkeleton):
 
-        pass  # ok
+        animation_found = False
+
+        fcurves = get_active_action_fcurves(blender_object)
+        if fcurves:
+
+            animation_found = \
+                fcurve_m.is_animated(fcurves,
+                                     rotation_mode = \
+                                         blender_object.rotation_mode,
+                                     check_scale=True)
+
+        if animation_found:
+
+            reporter_m.warning("Scaling in object space animation of armature"
+                                " object '{}' not supported"
+                            .format(mdi_object.name))
+            is_supported = False
 
     elif isinstance(mdi_object, mdi_m.MDIFreeTag):
 
-        pass  # ok
+        animation_found = False
+
+        fcurves = get_active_action_fcurves(blender_object)
+        if fcurves:
+
+            animation_found = \
+                fcurve_m.is_animated(fcurves,
+                                     rotation_mode = \
+                                         blender_object.rotation_mode,
+                                     check_scale=True)
+
+        if animation_found:
+
+            reporter_m.warning("Scaling in object space animation of arrow"
+                                " object '{}' not supported"
+                            .format(mdi_object.name))
+            is_supported = False
 
     elif isinstance(mdi_object, mdi_m.MDIBoneTag) or \
          isinstance(mdi_object, mdi_m.MDIBoneTagOff):
 
-        if blender_object.animation_data and \
-           blender_object.animation_data.action and \
-           blender_object.animation_data.action.fcurves:
+        animation_found = False
 
-            fcurves = blender_object.animation_data.action.fcurves
+        fcurves = get_active_action_fcurves(blender_object)
+        if fcurves:
 
-            fcurve_1 = fcurves.find(fcurve_m.DP_LOCATION)
-            fcurve_2 = fcurves.find(fcurve_m.DP_EULER)
-            fcurve_3 = fcurves.find(fcurve_m.DP_AXIS_ANGLE)
-            fcurve_4 = fcurves.find(fcurve_m.DP_QUATERNION)
-            fcurve_5 = fcurves.find(fcurve_m.DP_SCALE)
+            animation_found = \
+                fcurve_m.is_animated(fcurves,
+                                     rotation_mode = \
+                                        blender_object.rotation_mode,
+                                     check_loc=True,
+                                     check_rot=True,
+                                     check_scale=True)
 
-            if fcurve_1 or fcurve_2 or fcurve_3 or fcurve_4 or fcurve_5:
+        if animation_found:
 
-                reporter_m.warning("Arrow object '{}' object space animation"
-                                   " not supported for arrow objects parented"
-                                   " to a bone. They can only be animated by"
-                                   " animating the bone"
-                                   .format(mdi_object.name))
-                is_supported = False
+            reporter_m.warning("Arrow object '{}' object space animation"
+                                " not supported for arrow objects parented"
+                                " to a bone. They can only be animated by"
+                                " animating the bone"
+                                .format(mdi_object.name))
+            is_supported = False
+
+    else:
+
+        raise Exception("Found unknown object type")
 
     return is_supported
 
@@ -363,11 +438,11 @@ def apply_object_transform(mdi_object, blender_object, frame_start, frame_end):
 
     elif isinstance(mdi_object, mdi_m.MDIBoneTag):
 
-        pass  # TODO
+        pass  # no animations allowed
 
     elif isinstance(mdi_object, mdi_m.MDIBoneTagOff):
 
-        pass  # TODO
+        pass  # stays in bone space
 
     else:
 
