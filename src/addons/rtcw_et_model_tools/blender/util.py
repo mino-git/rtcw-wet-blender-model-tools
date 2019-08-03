@@ -207,8 +207,7 @@ def from_ps_to_ws(mdi_object, blender_object, frame_start, frame_end):
 def apply_parent_space_transforms(mdi_model, mesh_objects, armature_object,
                                   arrow_objects, frame_start = 0,
                                   frame_end = 0):
-    """Only for mesh object and armature object if the parent is an empty with
-    no other parents.
+    """Only if the parent is an empty with no other parents.
     """
 
     for mesh_object in mesh_objects:
