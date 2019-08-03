@@ -71,8 +71,8 @@ def is_parent_empty(parent_object):
 
     return is_supported_parent
 
-def from_ps_to_ws(mdi_object, blender_object, frame_start, frame_end):
-    """Transform the data in an mdi object to world space by applying a parent
+def to_ps(mdi_object, blender_object, frame_start, frame_end):
+    """Transform the data in an mdi object to parent space by applying a parent
     space transform. The data in an mdi object is assumed to be given with
     all object space transforms already applied.
     """
@@ -214,21 +214,18 @@ def apply_parent_space_transforms(mdi_model, mesh_objects, armature_object,
 
         mdi_surface = mdi_model.find_surface_by_name(mesh_object.name)
         if mdi_surface:
-            from_ps_to_ws(mdi_surface, mesh_object, frame_start, frame_end)
+            to_ps(mdi_surface, mesh_object, frame_start, frame_end)
         else:
             reporter_m.warning("Found unknown object during parent transform")
 
     if armature_object and mdi_model.skeleton:
-        from_ps_to_ws(mdi_model.skeleton,
-                      armature_object,
-                      frame_start,
-                      frame_end)
+        to_ps(mdi_model.skeleton, armature_object, frame_start, frame_end)
 
     for arrow_object in arrow_objects:
 
         mdi_tag = mdi_model.find_tag_by_name(arrow_object.name)
         if mdi_tag:
-            from_ps_to_ws(mdi_tag, arrow_object, frame_start, frame_end)
+            to_ps(mdi_tag, arrow_object, frame_start, frame_end)
         else:
             reporter_m.warning("Found unknown object during parent transform")
 
