@@ -298,6 +298,8 @@ def _write_pose_bone_lr(armature_object, bone_name, locations, rotations,
                                          frame_start,
                                          bone_name)
 
+        fcurve_m.set_interpolation_mode(fcurves, 'LINEAR')
+
     else:  # nothing to write
 
         pass

@@ -29,7 +29,7 @@ import rtcw_et_model_tools.common.reporter as reporter_m
 
 
 # =====================================
-# DATAPATHS
+# MISC
 # =====================================
 
 DP_LOCATION = 'location'
@@ -43,6 +43,15 @@ DP_BONE_QUATERNION = 'pose.bones["{}"].rotation_quaternion'
 DP_BONE_EULER = 'pose.bones["{}"].rotation_euler'
 DP_BONE_AXIS_ANGLE = 'pose.bones["{}"].rotation_axis_angle'
 DP_BONE_SCALE = 'pose.bones["{}"].scale'
+
+def set_interpolation_mode(fcurves, interpolation_mode):
+
+    if not fcurves:
+        return
+
+    for fcurve in fcurves:
+        for keyframe_point in fcurve.keyframe_points:
+            keyframe_point.interpolation = interpolation_mode
 
 # =====================================
 # READ
