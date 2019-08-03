@@ -53,6 +53,69 @@ def set_interpolation_mode(fcurves, interpolation_mode):
         for keyframe_point in fcurve.keyframe_points:
             keyframe_point.interpolation = interpolation_mode
 
+def is_animated(fcurves, rotation_mode='XYZ', bone_name=None,
+                check_loc=False, check_rot=False, check_scale=False):
+
+    if not fcurves:
+        return False
+
+    if bone_name:
+
+        dp_location = DP_BONE_LOCATION.format(bone_name)
+        dp_euler = DP_BONE_EULER.format(bone_name)
+        dp_quaternion = DP_BONE_QUATERNION.format(bone_name)
+        dp_axis_angle = DP_BONE_AXIS_ANGLE.format(bone_name)
+        dp_scale = DP_BONE_SCALE.format(bone_name)
+
+    else:
+
+        dp_location = DP_LOCATION
+        dp_euler = DP_EULER
+        dp_quaternion = DP_QUATERNION
+        dp_axis_angle = DP_AXIS_ANGLE
+        dp_scale = DP_SCALE
+
+    animation_found = False
+    if check_loc:
+
+        fcurve_loc = fcurves.find(dp_location)
+        if fcurve_loc:
+            animation_found = True
+
+    if check_rot:
+
+        if rotation_mode == 'XYZ' or rotation_mode == 'XZY' or \
+           rotation_mode == 'YXZ' or rotation_mode == 'YZX' or \
+           rotation_mode == 'ZXY' or rotation_mode == 'ZYX':
+
+            fcurve_euler = fcurves.find(dp_euler)
+            if fcurve_euler:
+                animation_found = True
+
+        elif rotation_mode == 'AXIS_ANGLE':
+
+            fcurve_axis_angle = fcurves.find(dp_axis_angle)
+            if fcurve_axis_angle:
+                animation_found = True
+
+        elif rotation_mode == 'QUATERNION':
+
+            fcurve_quaternion = fcurves.find(dp_quaternion)
+            if fcurve_quaternion:
+                animation_found = True
+
+        else:
+
+            raise Exception("Found unknown rotation mode")
+
+    if check_scale:
+
+        fcurve_scale = fcurves.find(dp_scale)
+        if fcurve_scale:
+            animation_found = True
+
+    return animation_found
+
 # =====================================
 # READ
 # =====================================
