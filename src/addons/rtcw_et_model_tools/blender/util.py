@@ -41,9 +41,39 @@ def get_active_action_fcurves(blender_object):
 
     return fcurves
 
+def rotation_matrix_scaled(matrix, scale):
+
+    new_matrix = matrix.copy()
+
+    new_matrix[0][0] *= scale[0]
+    new_matrix[1][0] *= scale[0]
+    new_matrix[2][0] *= scale[0]
+
+    new_matrix[0][1] *= scale[1]
+    new_matrix[1][1] *= scale[1]
+    new_matrix[2][1] *= scale[1]
+
+    new_matrix[0][2] *= scale[2]
+    new_matrix[1][2] *= scale[2]
+    new_matrix[2][2] *= scale[2]
+
+    return new_matrix
+
+def is_parent_empty(parent_object):
+
+    is_supported_parent = False
+
+    if parent_object and \
+       parent_object.type == 'EMPTY' and \
+       not parent_object.parent:
+
+        is_supported_parent = True
+
+    return is_supported_parent
+
 def from_ps_to_ws(mdi_object, blender_object, frame_start, frame_end):
-    """Transform the data in an mdi object to world space by applying parent
-    space transforms. The data in an mdi object is assumed to be given with
+    """Transform the data in an mdi object to world space by applying a parent
+    space transform. The data in an mdi object is assumed to be given with
     all object space transforms already applied.
     """
 
@@ -54,49 +84,56 @@ def from_ps_to_ws(mdi_object, blender_object, frame_start, frame_end):
         if isinstance(sample_vertex, mdi_m.MDIMorphVertex):
 
             parent_object = blender_object.parent
-            while parent_object:
+            is_supported_parent = is_parent_empty(parent_object)
+            if is_supported_parent:
 
-                loc_pc, _, _ = blender_object.matrix_parent_inverse.decompose()
-
+                loc_pi, rot_pi, scale_pi = \
+                    blender_object.matrix_parent_inverse.decompose()
+                rot_pi = rot_pi.to_matrix()
+                rot_scaled_pi = rotation_matrix_scaled(rot_pi, scale_pi)
                 locs_p, rots_p, scales_p = read_object_space_lrs(parent_object,
-                                                                frame_start,
-                                                                frame_end)
+                                                                 frame_start,
+                                                                 frame_end)
 
                 for num_frame in range(len(locs_p)):
 
                     for mdi_morph_vertex in mdi_object.vertices:
 
-                        location_c = mdi_morph_vertex.locations[num_frame]
+                        loc_c = mdi_morph_vertex.locations[num_frame]
                         normal_c = mdi_morph_vertex.normals[num_frame]
-                        location_p = locs_p[num_frame]
-                        rotation_p = rots_p[num_frame]
-                        # scale_p = scales_p[num_frame]
 
-                        location = location_p + \
-                                   rotation_p @ (location_c + loc_pc)
-                        normal = rotation_p @ normal_c
+                        loc_p = locs_p[num_frame]
+                        rot_p = rots_p[num_frame]
+                        scale_p = scales_p[num_frame]
+                        rotation_scaled_p = \
+                            rotation_matrix_scaled(rot_p, scale_p)
+
+                        location = loc_pi + rot_scaled_pi @ loc_c
+                        location = loc_p + rotation_scaled_p @ location
+                        normal = rot_scaled_pi @ normal_c
+                        normal = rotation_scaled_p @ normal
 
                         mdi_morph_vertex.locations[num_frame] = location
                         mdi_morph_vertex.normals[num_frame] = normal
 
-                blender_object = parent_object
-                parent_object = parent_object.parent
-
         elif isinstance(sample_vertex, mdi_m.MDIRiggedVertex):
 
-            pass  # rigged vertices are given in armature space
+            pass  # rigged vertices are given in armature space, ok
 
         else:
 
-            raise Exception("Found unkown type")
+            raise Exception("Found unknown vertex type")
 
     elif isinstance(mdi_object, mdi_m.MDISkeleton):
 
         parent_object = blender_object.parent
-        while parent_object:
+        is_supported_parent = is_parent_empty(parent_object)
+        if is_supported_parent:
 
-            loc_pc, _, _ = blender_object.matrix_parent_inverse.decompose()
-
+            loc_pi, rot_pi, scale_pi = \
+                blender_object.matrix_parent_inverse.decompose()
+            rot_pi = rot_pi.to_matrix()
+            rot_scaled_pi = rotation_matrix_scaled(rot_pi, scale_pi)
             locs_p, rots_p, scales_p = read_object_space_lrs(parent_object,
                                                              frame_start,
                                                              frame_end)
@@ -105,50 +142,55 @@ def from_ps_to_ws(mdi_object, blender_object, frame_start, frame_end):
 
                 for mdi_bone in mdi_object.bones:
 
-                    location_c = mdi_bone.locations[num_frame]
-                    orientation_c = mdi_bone.orientations[num_frame]
+                    loc_c = mdi_bone.locations[num_frame]
+                    ori_c = mdi_bone.orientations[num_frame]
 
-                    location_p = locs_p[num_frame]
-                    rotation_p = rots_p[num_frame]
+                    loc_p = locs_p[num_frame]
+                    rot_p = rots_p[num_frame]
                     scale_p = scales_p[num_frame]
+                    rotation_scaled_p = \
+                        rotation_matrix_scaled(rot_p, scale_p)
 
-                    location = location_p + rotation_p @ (location_c + loc_pc)
-                    orientation = rotation_p @ orientation_c
+                    location = loc_pi + rot_scaled_pi @ loc_c
+                    location = loc_p + rotation_scaled_p @ location
+                    orientation = rot_pi @ ori_c
+                    orientation = rot_p @ orientation
 
                     mdi_bone.locations[num_frame] = location
                     mdi_bone.orientations[num_frame] = orientation
 
-            blender_object = parent_object
-            parent_object = parent_object.parent
-
     elif isinstance(mdi_object, mdi_m.MDIFreeTag):
 
         parent_object = blender_object.parent
-        while parent_object:
+        is_supported_parent = is_parent_empty(parent_object)
+        if is_supported_parent:
 
-            loc_pc, _, _ = blender_object.matrix_parent_inverse.decompose()
-
+            loc_pi, rot_pi, scale_pi = \
+                blender_object.matrix_parent_inverse.decompose()
+            rot_pi = rot_pi.to_matrix()
+            rot_scaled_pi = rotation_matrix_scaled(rot_pi, scale_pi)
             locs_p, rots_p, scales_p = read_object_space_lrs(parent_object,
                                                              frame_start,
                                                              frame_end)
 
             for num_frame in range(len(locs_p)):
 
-                location_c = mdi_object.locations[num_frame]
-                orientation_c = mdi_object.orientations[num_frame]
+                loc_c = mdi_object.locations[num_frame]
+                ori_c = mdi_object.orientations[num_frame]
 
-                location_p = locs_p[num_frame]
-                rotation_p = rots_p[num_frame]
+                loc_p = locs_p[num_frame]
+                rot_p = rots_p[num_frame]
                 scale_p = scales_p[num_frame]
+                rotation_scaled_p = \
+                    rotation_matrix_scaled(rot_p, scale_p)
 
-                location = location_p + rotation_p @ (location_c + loc_pc)
-                orientation = rotation_p @ orientation_c
+                location = loc_pi + rot_scaled_pi @ loc_c
+                location = loc_p + rotation_scaled_p @ location
+                orientation = rot_pi @ ori_c
+                orientation = rot_p @ orientation
 
                 mdi_object.locations[num_frame] = location
                 mdi_object.orientations[num_frame] = orientation
-
-            blender_object = parent_object
-            parent_object = parent_object.parent
 
     elif isinstance(mdi_object, mdi_m.MDIBoneTag):
 
@@ -156,7 +198,7 @@ def from_ps_to_ws(mdi_object, blender_object, frame_start, frame_end):
 
     elif isinstance(mdi_object, mdi_m.MDIBoneTagOff):
 
-        pass  # # given in bone space
+        pass  # given in bone space
 
     else:
 
@@ -165,6 +207,9 @@ def from_ps_to_ws(mdi_object, blender_object, frame_start, frame_end):
 def apply_parent_space_transforms(mdi_model, mesh_objects, armature_object,
                                   arrow_objects, frame_start = 0,
                                   frame_end = 0):
+    """Only for mesh object and armature object if the parent is an empty with
+    no other parents.
+    """
 
     for mesh_object in mesh_objects:
 
@@ -172,7 +217,7 @@ def apply_parent_space_transforms(mdi_model, mesh_objects, armature_object,
         if mdi_surface:
             from_ps_to_ws(mdi_surface, mesh_object, frame_start, frame_end)
         else:
-            pass  # TODO
+            reporter_m.warning("Found unknown object during parent transform")
 
     if armature_object and mdi_model.skeleton:
         from_ps_to_ws(mdi_model.skeleton,
@@ -186,10 +231,11 @@ def apply_parent_space_transforms(mdi_model, mesh_objects, armature_object,
         if mdi_tag:
             from_ps_to_ws(mdi_tag, arrow_object, frame_start, frame_end)
         else:
-            pass  # TODO
+            reporter_m.warning("Found unknown object during parent transform")
 
 def is_object_supported(mdi_object, blender_object):
-    """Checks for constraints, modifiers and object space animation.
+    """Checks for constraints, modifiers, object space animation and
+    parent-child-relationships.
     """
 
     is_supported = True
@@ -366,6 +412,122 @@ def is_object_supported(mdi_object, blender_object):
 
         raise Exception("Found unknown object type")
 
+    # parent-child-relationships
+    # no parenting supported except:
+    # - rigged mesh objects and bone tags to skeleton
+    # - mesh objects and arrow objects to empty objects
+    # - skeleton objects to empty objects without scale
+    if isinstance(mdi_object, mdi_m.MDISurface):
+
+        if mdi_object.vertices:
+
+            sample_vertex = mdi_object.vertices[0]
+            if isinstance(sample_vertex, mdi_m.MDIMorphVertex):
+
+                if blender_object.parent:
+
+                    if is_parent_empty(blender_object.parent):
+
+                        pass  # ok
+
+                    else:
+
+                        reporter_m.warning("Parenting for mesh object '{}'"
+                                           " only supported if empty object"
+                                           .format(mdi_object.name))
+                        is_supported = False
+
+            elif isinstance(sample_vertex, mdi_m.MDIRiggedVertex):
+
+                parent_object = blender_object.parent
+
+                if parent_object:
+
+                    if not parent_object.type == 'ARMATURE':
+
+                        reporter_m.warning("Rigged mesh object '{}' needs a"
+                                           " parent of type armature, but"
+                                           " found different type"
+                                           .format(mdi_object.name))
+                        is_supported = False
+
+                else:
+
+                    pass  # ok
+
+            else:
+
+                raise Exception("Found unknown object type")
+
+    elif isinstance(mdi_object, mdi_m.MDISkeleton):
+
+        if blender_object.parent:
+
+            if is_parent_empty(blender_object.parent):
+
+                is_scaled_static = False
+                is_scaled_anim = False
+
+                _, _, scale = \
+                    blender_object.parent.matrix_basis.decompose()
+                if scale[0] != 1.0 or scale[1] != 1.0 or scale[2] != 1.0:
+                    is_scaled_static = True
+
+                fcurves = get_active_action_fcurves(blender_object.parent)
+                if fcurves:
+
+                    is_scaled_anim = \
+                        fcurve_m.is_animated(fcurves, check_scale=True)
+
+                if is_scaled_static or is_scaled_anim:
+
+                    reporter_m.warning("Parenting for armature object '{}'"
+                                        " to empty object only supported"
+                                        " if empty object not scaled"
+                                        .format(mdi_object.name))
+                    is_supported = False
+
+                pass  # ok
+
+            else:
+
+                reporter_m.warning("Parenting for armature object '{}' only"
+                                    " supported if empty object"
+                                    .format(mdi_object.name))
+                is_supported = False
+
+    elif isinstance(mdi_object, mdi_m.MDIFreeTag):
+
+        if blender_object.parent:
+
+            if is_parent_empty(blender_object.parent):
+
+                pass  # ok
+
+            else:
+
+                reporter_m.warning("Parenting for arrow object '{}' only"
+                                    " supported if empty object"
+                                    .format(mdi_object.name))
+                is_supported = False
+
+    elif isinstance(mdi_object, mdi_m.MDIBoneTag) or \
+         isinstance(mdi_object, mdi_m.MDIBoneTagOff):
+
+        parent_bone = blender_object.parent_bone
+        parent_type = blender_object.parent_type
+
+        if not parent_type == 'BONE' or not parent_bone:
+
+            reporter_m.warning("Arrow object '{}' can only be parented to pose"
+                               " bone, but found different"
+                               .format(mdi_object.name))
+            is_supported = False
+
+    else:
+
+        raise Exception("Found unknown object type")
+
     return is_supported
 
 def apply_object_transform(mdi_object, blender_object, frame_start, frame_end):
@@ -398,6 +560,7 @@ def apply_object_transform(mdi_object, blender_object, frame_start, frame_end):
                         # we can't do this inplace since some mdi_vertex objects
                         # might be duplicated during uv map pass, so just create
                         # a new vector
+                        # TODO deep copy
                         sx = location_cs[0] * scale_os[0]
                         sy = location_cs[1] * scale_os[1]
                         sz = location_cs[2] * scale_os[2]
@@ -427,7 +590,7 @@ def apply_object_transform(mdi_object, blender_object, frame_start, frame_end):
                 orientation_cs = mdi_bone.orientations[num_frame]
                 loc_os = locs[num_frame]
                 rot_os = rots[num_frame]
-                scale_os = scales[num_frame]
+                # scale_os = scales[num_frame]  TODO
 
                 mdi_bone.locations[num_frame] = loc_os + rot_os @ location_cs
                 mdi_bone.orientations[num_frame] = rot_os @ orientation_cs
@@ -438,11 +601,11 @@ def apply_object_transform(mdi_object, blender_object, frame_start, frame_end):
 
     elif isinstance(mdi_object, mdi_m.MDIBoneTag):
 
-        pass  # no animations allowed
+        pass  # TODO
 
     elif isinstance(mdi_object, mdi_m.MDIBoneTagOff):
 
-        pass  # stays in bone space
+        pass  # TODO
 
     else:
 
