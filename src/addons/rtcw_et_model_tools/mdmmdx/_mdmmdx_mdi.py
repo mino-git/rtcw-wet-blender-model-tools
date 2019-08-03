@@ -722,7 +722,17 @@ class ModelToMDI:
         mdi_model = mdi_m.MDI()
 
         mdi_model.name = mdi_util_m.from_c_string_padded(mdm_model.header.name)
-        mdi_model.root_frame = root_frame
+
+        if root_frame >= mdx_model.header.num_frames:
+
+            reporter_m.warning("Given bind pose frame '{}' out of range."
+                               " Defaulting to '0'"
+                               .format(root_frame))
+            mdi_model.root_frame = 0
+
+        else:
+
+            mdi_model.root_frame = root_frame
 
         # mdi surfaces
         for num_surface in range(len(mdm_model.surfaces)):
