@@ -231,11 +231,9 @@ class MDIToModel:
                 num_comp_frames * num_vertices * \
                 mdc_m.MDCCompFrameVertex.format_size
             ofs_comp_frame_indices = ofs_base_frame_indices + \
-                (num_comp_frames + num_base_frames) * num_vertices * \
-                mdc_m.MDCBaseFrameIndices.format_size
+                num_frames * mdc_m.MDCBaseFrameIndices.format_size
             ofs_end = ofs_comp_frame_indices + \
-                (num_comp_frames + num_base_frames) * num_vertices * \
-                mdc_m.MDCCompFrameIndices.format_size
+                num_frames * mdc_m.MDCCompFrameIndices.format_size
 
             mdc_surface.header = \
                 mdc_m.MDCSurfaceHeader(ident, name, flags, num_comp_frames,
@@ -372,12 +370,17 @@ class MDIToModel:
         location_scale = mdc_m.MDCCompFrameVertex.location_scale
         max_ofs = mdc_m.MDCCompFrameVertex.max_ofs
 
-        off_x = int( ( abs( ( off[0] + location_scale * 0.5 ) * \
-            ( 1.0 / location_scale ) + max_ofs ) ) )
-        off_y = int( ( abs( ( off[1] + location_scale * 0.5 ) * \
-            ( 1.0 / location_scale ) + max_ofs ) ) )
-        off_z = int( ( abs( ( off[2] + location_scale * 0.5 ) * \
-            ( 1.0 / location_scale ) + max_ofs ) ) )
+        off_x = off[0] + location_scale * 0.5  # rounding
+        off_x = off_x / location_scale
+        off_x = int(off_x + max_ofs)
+
+        off_y = off[1] + location_scale * 0.5  # rounding
+        off_y = off_y / location_scale
+        off_y = int(off_y + max_ofs)
+
+        off_z = off[2] + location_scale * 0.5  # rounding
+        off_z = off_z / location_scale
+        off_z = int(off_z + max_ofs)
 
         location_offset = (off_x, off_y, off_z)
 
@@ -420,26 +423,13 @@ class MDIToModel:
     @staticmethod
     def _can_compress_vertex(base_frame_pos, cur_frame_pos):
 
-        # main criteria
+        can_compress = True
         delta = cur_frame_pos - base_frame_pos
         for i in range(0, 3):
-            if abs(delta[i]) > MAX_DIST:
-                return False
+            if abs(delta[i]) > mdc_m.MDC.max_dist:
+                can_compress = False
 
-        # additionally check compressed result
-        location_offset, _ = \
-            MDIToModel._compress_vertex(base_frame_pos, cur_frame_pos)
-
-        uc_location_offset, _ = \
-            MDIToModel._decompress_vertex(location_offset)
-
-        new_frame_pos = base_frame_pos + uc_location_offset
-
-        new_delta = (cur_frame_pos - new_frame_pos)
-        if new_delta.length > mdc_m.MDCCompFrameVertex.max_compression_delta:
-            return False
-
-        return True
+        return can_compress
 
     @staticmethod
     def _calc_vertices(mdi_model, num_surface, comp_frame_normals,
@@ -454,6 +444,8 @@ class MDIToModel:
         mdc_base_vertices = []
         mdc_comp_vertices = []
 
+        num_base_frame = 0
+
         for num_frame, comp_frame_index in \
             enumerate(comp_frame_indices.indices):
 
@@ -466,9 +458,8 @@ class MDIToModel:
 
                     cur_frame_location = mdi_morph_vertex.locations[num_frame]
 
-                    base_frame_index = base_frame_indices.indices[num_frame]
                     base_frame_location = \
-                        mdi_morph_vertex.locations[base_frame_index]
+                        mdi_morph_vertex.locations[num_base_frame]
 
                     normal = mdi_morph_vertex.normals[num_frame]
 
@@ -485,6 +476,8 @@ class MDIToModel:
                 mdc_comp_vertices.append(comp_frame_vertices)
 
             else:  # frame is not compressed
+
+                num_base_frame = num_frame
 
                 base_frame_vertices = []
 
@@ -854,12 +847,13 @@ class ModelToMDI:
         mdc_comp_frame_indices = \
             mdc_model.surfaces[num_surface].comp_frame_indices.indices
 
+        num_base_frame = 0
+
         for num_frame in range(len(mdc_base_frame_indices)):
 
             frame_is_compressed = mdc_comp_frame_indices[num_frame] != -1
             if frame_is_compressed:
 
-                base_frame_index = mdc_base_frame_indices[num_frame]
                 comp_frame_index = mdc_comp_frame_indices[num_frame]
                 mdc_comp_frame_vertex = \
                     mdc_comp_frame_vertices[comp_frame_index][num_vertex]
@@ -875,7 +869,7 @@ class ModelToMDI:
                 off_z = off_z * mdc_m.MDCCompFrameVertex.location_scale
 
                 location_offset = mathutils.Vector((off_x, off_y, off_z))
-                location_base = mdi_morph_vertex.locations[base_frame_index]
+                location_base = mdi_morph_vertex.locations[num_base_frame]
                 location = location_base + location_offset
 
                 # normal
@@ -883,6 +877,8 @@ class ModelToMDI:
                 normal = mathutils.Vector(normal)
 
             else:
+
+                num_base_frame = num_frame
 
                 base_frame_index = mdc_base_frame_indices[num_frame]
                 mdc_base_frame_vertex = \

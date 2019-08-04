@@ -300,17 +300,11 @@ class MDCCompFrameVertex:
 
         file.seek(file_ofs)
 
-        try:
-
-            file.write(struct.pack(MDCCompFrameVertex.format,
-                                self.location_offset[0],
-                                self.location_offset[1],
-                                self.location_offset[2],
-                                self.normal))
-        except:
-
-            if self.location_offset[1] > 255 or self.location_offset[2] > 255:
-                print("1")
+        file.write(struct.pack(MDCCompFrameVertex.format,
+                            self.location_offset[0],
+                            self.location_offset[1],
+                            self.location_offset[2],
+                            self.normal))
 
 class MDCBaseFrameVertex:
     """Vertex location and normal in a base frame.
