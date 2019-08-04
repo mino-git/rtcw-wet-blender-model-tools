@@ -853,10 +853,10 @@ def write_object_space_lrs(blender_object, locations=None, rotations=None,
 
             pass  # nothing to write
 
-    if needs_animation_data:
+    # if needs_animation_data:
 
-        fcurves = blender_object.animation_data.action.fcurves
-        fcurve_m.set_interpolation_mode(fcurves, 'LINEAR')
+    #     fcurves = blender_object.animation_data.action.fcurves
+    #     fcurve_m.set_interpolation_mode(fcurves, 'LINEAR')
 
 def matrix_to_axis_angle(matrix):
     """Converts rotation matrix to axis angle representation.

@@ -295,8 +295,6 @@ def _write_pose_bone_lr(armature_object, bone_name, locations, rotations,
                                          frame_start,
                                          bone_name)
 
-        fcurve_m.set_interpolation_mode(fcurves, 'LINEAR')
-
     else:  # nothing to write
 
         pass
@@ -404,6 +402,11 @@ def _animate_bones(mdi_skeleton, root_frame, armature_object):
                             locations,
                             rotations,
                             frame_start=0)
+
+
+    # fcurves = blender_util_m.get_active_action_fcurves(armature_object)
+    # if fcurves:
+    #     fcurve_m.set_interpolation_mode(fcurves, 'LINEAR')
 
     time = timer.time()
     reporter_m.debug("Animating bones DONE (time={})".format(time))
