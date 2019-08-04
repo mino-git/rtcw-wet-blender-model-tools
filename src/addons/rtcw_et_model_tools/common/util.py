@@ -24,7 +24,16 @@
 import os
 
 def join_rel_paths_with_path(path, rel_paths):
-    """TODO
+    """Take a list of relative paths and joins them to path.
+
+    Args:
+
+        path
+        rel_paths
+
+    Returns:
+
+        new_paths
     """
 
     new_paths = []

@@ -85,7 +85,7 @@ class SkinData:
 
 
 def read(file_path):
-    """TODO
+    """Read skin file data.
     """
 
     skin_data = None

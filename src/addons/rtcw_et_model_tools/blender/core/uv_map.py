@@ -29,6 +29,16 @@ import rtcw_et_model_tools.common.reporter as reporter_m
 
 
 def create_zero_map(mesh_object):
+    """Creates a uv map with all coords at (0, 0)
+
+    Args:
+
+        mesh_object
+
+    Returns:
+
+        mdi_uv_map
+    """
 
     mdi_uv_map = mdi_m.MDIUVMapBijective()
 
@@ -49,7 +59,12 @@ def read(mesh_object):
     """Read UV map.
 
     Args:
-        TODO
+
+        mesh_object
+
+    Returns:
+
+        mdi_uv_map_surjective
     """
 
     if len(mesh_object.data.uv_layers) > 1:

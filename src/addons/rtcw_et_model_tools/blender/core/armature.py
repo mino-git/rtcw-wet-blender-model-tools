@@ -36,8 +36,7 @@ import rtcw_et_model_tools.common.reporter as reporter_m
 # READ
 # =====================================
 
-def _read_pose_bone_lr(armature_object, bone_name, frame_start = 0,
-                       frame_end = 0):
+def _read_pose_bone_lr(armature_object, bone_name, frame_start=0, frame_end=0):
     """Read pose bone location and rotation values. If not animated, return
     static values across frames. The values are returned in bind pose space.
     Scale is not supported.
@@ -55,7 +54,6 @@ def _read_pose_bone_lr(armature_object, bone_name, frame_start = 0,
     """
 
     # find out if its animated by searching for the fcurve of an action
-    # TODO nla
     fcurves = None
     if armature_object.animation_data:
 
@@ -106,12 +104,14 @@ def _read_pose_bone_lr(armature_object, bone_name, frame_start = 0,
 
     return (locations, rotations)
 
-def read(armature_object):
+def read(armature_object, frame_start, frame_end):
     """Read armature object and convert to mdi.
 
     Args:
 
         armature_object
+        frame_start
+        frame_end
 
     Returns:
 
@@ -183,9 +183,6 @@ def read(armature_object):
             mdi_skeleton.torso_parent_bone = num_bone
         except:
             pass  # it's ok
-
-        frame_start = bpy.context.scene.frame_start
-        frame_end = bpy.context.scene.frame_end
 
         locations, rotations = \
             _read_pose_bone_lr(armature_object,

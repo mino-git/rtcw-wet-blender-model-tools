@@ -77,7 +77,6 @@ def to_ps(mdi_object, blender_object, frame_start, frame_end):
     all object space transforms already applied.
     """
 
-    # TODO this could use some optimization
     if isinstance(mdi_object, mdi_m.MDISurface):
 
         sample_vertex = mdi_object.vertices[0]
@@ -205,7 +204,7 @@ def to_ps(mdi_object, blender_object, frame_start, frame_end):
         raise Exception("Found unkown type")
 
 def apply_parent_space_transforms(mdi_model, mesh_objects, armature_object,
-                                  arrow_objects, frame_start = 0,
+                                  arrow_objects, frame_start=0,
                                   frame_end = 0):
     """Only if the parent is an empty with no other parents.
     """
@@ -237,7 +236,6 @@ def is_object_supported(mdi_object, blender_object):
     is_supported = True
 
     # constraints not supported
-    # TODO only fixed dist constraint on bones
     if len(blender_object.constraints) > 0:
 
         reporter_m.warning("Constraints for objects '{}' are generally not"
@@ -586,7 +584,6 @@ def apply_object_transform(mdi_object, blender_object, frame_start, frame_end):
                 orientation_cs = mdi_bone.orientations[num_frame]
                 loc_os = locs[num_frame]
                 rot_os = rots[num_frame]
-                # scale_os = scales[num_frame]  TODO
 
                 mdi_bone.locations[num_frame] = loc_os + rot_os @ location_cs
                 mdi_bone.orientations[num_frame] = rot_os @ orientation_cs
@@ -597,19 +594,19 @@ def apply_object_transform(mdi_object, blender_object, frame_start, frame_end):
 
     elif isinstance(mdi_object, mdi_m.MDIBoneTag):
 
-        pass  # TODO
+        pass
 
     elif isinstance(mdi_object, mdi_m.MDIBoneTagOff):
 
-        pass  # TODO
+        pass
 
     else:
 
         raise Exception("Unknown object type during object transform")
 
-def read_object_space_lrs(blender_object, frame_start = 0, frame_end = 0,
-                          read_locs = True, read_rots = True,
-                          read_scales = True):
+def read_object_space_lrs(blender_object, frame_start=0, frame_end=0,
+                          read_locs=True, read_rots=True,
+                          read_scales=True):
     """Read object space location, rotation and scale values of an object. If
     not animated, return static values across frames. The returned values are
     assumed to be given without constraints, parents or modifiers applied.
@@ -629,7 +626,6 @@ def read_object_space_lrs(blender_object, frame_start = 0, frame_end = 0,
     """
 
     # find out if its animated by searching for the fcurve of an action
-    # TODO nla
     fcurves = None
     if blender_object.animation_data:
 
@@ -749,8 +745,8 @@ def read_object_space_lrs(blender_object, frame_start = 0, frame_end = 0,
 
     return (locations, rotations, scales)
 
-def write_object_space_lrs(blender_object, locations = None, rotations = None,
-                           scales = None, frame_start = 0):
+def write_object_space_lrs(blender_object, locations=None, rotations=None,
+                           scales=None, frame_start=0):
     """Write object space location, rotation and scale values of an object. The
     values are assumed to be given without constraints, parents or modifiers
     applied.
@@ -863,7 +859,7 @@ def write_object_space_lrs(blender_object, locations = None, rotations = None,
         fcurve_m.set_interpolation_mode(fcurves, 'LINEAR')
 
 def matrix_to_axis_angle(matrix):
-    """TODO
+    """Converts rotation matrix to axis angle representation.
     """
 
     axis_angle = None
@@ -874,7 +870,7 @@ def matrix_to_axis_angle(matrix):
     return axis_angle
 
 def axis_angle_to_matrix(axis_angle):
-    """TODO
+    """Converts axis angle representation to rotation matrix.
     """
 
     matrix = None
@@ -886,7 +882,7 @@ def axis_angle_to_matrix(axis_angle):
 
 # calculates a vector (x, y, z) orthogonal to v
 def getOrthogonal(v):
-    """TODO
+    """Calculate a vector orthogonal to v.
     """
 
     x = 0
@@ -926,7 +922,7 @@ def getOrthogonal(v):
 
 def draw_normals_in_frame(mdi_vertices, num_frame, collection,
                           mdi_skeleton = None):
-    """TODO
+    """Draw normals in frame.
     """
 
     for mdi_vertex in mdi_vertices:
@@ -994,10 +990,19 @@ def draw_normals_in_frame(mdi_vertices, num_frame, collection,
 
         else:
 
-            pass  # TODO
+            raise Exception("Unknown type during draw normals")
 
 def get_verts_from_bounds(min_bound, max_bound):
-    """TODO
+    """Returns vertices of a cube defined by min/max.
+
+    Args:
+
+        min_bound
+        max_bound
+
+    Returns:
+
+        vertices
     """
 
     vertices = []
@@ -1024,7 +1029,11 @@ def get_verts_from_bounds(min_bound, max_bound):
     return vertices
 
 def draw_bounding_volume(mdi_bounding_volume):
-    """TODO
+    """Draw bounding volume across all frames.
+
+    Args:
+
+        mdi_bounding_volume
     """
 
     min_bound = mdi_bounding_volume.aabbs[0].min_bound

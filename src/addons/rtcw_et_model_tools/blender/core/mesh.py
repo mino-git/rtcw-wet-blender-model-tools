@@ -37,13 +37,15 @@ import rtcw_et_model_tools.common.reporter as reporter_m
 # READ
 # =====================================
 
-def _read_static_vertices(mesh_object):
+def _read_static_vertices(mesh_object, frame_start=0, frame_end=0):
     """Reads a mesh object vertices assuming no animation and converts to a
     list of MDIMorphVertex. List is empty if no success.
 
     Args:
 
         mesh_object
+        frame_start
+        frame_end
 
     Returns:
 
@@ -55,9 +57,6 @@ def _read_static_vertices(mesh_object):
 
     mesh_vertices = [vertex.co for vertex in mesh_object.data.vertices]
     mesh_normals = [vertex.normal for vertex in mesh_object.data.vertices]
-
-    frame_start = bpy.context.scene.frame_start
-    frame_end = bpy.context.scene.frame_end
 
     for num_vertex in range(len(mesh_vertices)):
 
@@ -77,7 +76,7 @@ def _read_static_vertices(mesh_object):
 
     return mdi_morph_vertices
 
-def _read_rigged_vertices(mesh_object, armature_object, root_frame):
+def _read_rigged_vertices(mesh_object, armature_object):
     """Reads a mesh object vertices assuming it was rigged and converts to a
     list of MDIRiggedVertex.
 
@@ -85,7 +84,6 @@ def _read_rigged_vertices(mesh_object, armature_object, root_frame):
 
         mesh_object
         armature_object
-        root_frame
 
     Returns:
 
@@ -152,7 +150,7 @@ def _read_rigged_vertices(mesh_object, armature_object, root_frame):
                             bone_bind_pose_location)
 
                 mdi_weight = mdi_m.MDIVertexWeight(bone_index, weight_value,
-                                                    location)
+                                                   location)
                 mdi_rigged_vertex.weights.append(mdi_weight)
 
                 # normal
@@ -197,13 +195,15 @@ def _read_rigged_vertices(mesh_object, armature_object, root_frame):
 
     return mdi_rigged_vertices
 
-def _read_morph_vertices(mesh_object):
+def _read_morph_vertices(mesh_object, frame_start=0, frame_end=0):
     """Reads a mesh objects vertices assuming it was shape keyed and converts
     to a list of MDIMorphVertex.
 
     Args:
 
         mesh_object
+        frame_start
+        frame_end
 
     Returns:
 
@@ -213,7 +213,10 @@ def _read_morph_vertices(mesh_object):
 
     mdi_morph_vertices = []
 
-    vertex_locations, vertex_normals = shape_key_m.read_shape_keys(mesh_object)
+    vertex_locations, vertex_normals = \
+        shape_key_m.read_shape_keys(mesh_object,
+                                    frame_start,
+                                    frame_end)
     if vertex_locations and vertex_normals:
 
         num_vertices = len(mesh_object.data.vertices)
@@ -226,14 +229,15 @@ def _read_morph_vertices(mesh_object):
 
     return mdi_morph_vertices
 
-def read(mesh_object, armature_object = None, root_frame = 0):
+def read(mesh_object, armature_object=None, frame_start=0, frame_end=0):
     """Reads a mesh object and converts it to MDISurface.
 
     Args:
 
         mesh_object
         armature_object
-        root_frame
+        frame_start
+        frame_end
 
     Returns:
 
@@ -272,17 +276,19 @@ def read(mesh_object, armature_object = None, root_frame = 0):
     # read the vertices
     if is_morph_mesh:
 
-        mdi_vertices = _read_morph_vertices(mesh_object)
+        mdi_vertices = _read_morph_vertices(mesh_object,
+                                            frame_start,
+                                            frame_end)
 
     elif is_skeletal_mesh:
 
-        mdi_vertices = _read_rigged_vertices(mesh_object,
-                                             armature_object,
-                                             root_frame)
+        mdi_vertices = _read_rigged_vertices(mesh_object, armature_object)
 
     else:
 
-        mdi_vertices = _read_static_vertices(mesh_object)
+        mdi_vertices = _read_static_vertices(mesh_object,
+                                             frame_start,
+                                             frame_end)
 
     if mdi_vertices:
 

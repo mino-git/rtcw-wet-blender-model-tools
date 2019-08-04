@@ -764,7 +764,8 @@ class MDCSurface:
 
     Notes:
 
-        TODO how base frames are calculated.
+        Frame vertex compression is done by a distance formular from base
+        vertex to compressed vertex.
 
     Background:
 
@@ -1140,8 +1141,8 @@ class MDCFrameInfo:
             bounding box as tuple of floats.
         max_bound (tuple): location coordinates of max corner of minimum
             bounding box as tuple of floats.
-        local_origin (tuple): TODO
-        radius (float): TODO
+        local_origin (tuple): local origin of bounding sphere.
+        radius (float): radius of bounding sphere.
         name (bytes): name of frame, ASCII encoded, null-terminated, length 16,
             does not seem to be used.
 
@@ -1155,7 +1156,7 @@ class MDCFrameInfo:
 
     Notes:
 
-        Describes mostly bounding box information. (TODO For frustum culling?)
+        Describes mostly bounding box information.
     """
 
     format = '<10f16s'

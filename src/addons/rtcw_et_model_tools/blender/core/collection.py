@@ -124,7 +124,7 @@ def read(collapse_frame = -1):
         _collect_objects_for_export(active_collection)
 
     # mdi skeleton
-    mdi_skeleton = armature_m.read(armature_object)
+    mdi_skeleton = armature_m.read(armature_object, frame_start, frame_end)
     if mdi_skeleton:
 
         is_supported = \
@@ -139,9 +139,12 @@ def read(collapse_frame = -1):
 
         else:
 
-            # TODO drop with warning, but also drop all rigged surfaces
-            raise Exception("A property of armature object '{}' is unsupported"
-                            .format(armature_object.name))
+            reporter_m.warning("A property of armature object '{}' is"
+                               "unsupported. Dropping armature object and"
+                               " rigged mesh objects"
+                                .format(armature_object.name))
+            mdi_skeleton = None
+            armature_object = None
 
     else:
 
@@ -150,7 +153,10 @@ def read(collapse_frame = -1):
     # mdi surfaces
     for mesh_object in mesh_objects:
 
-        mdi_surface = mesh_m.read(mesh_object, armature_object)
+        mdi_surface = mesh_m.read(mesh_object,
+                                  armature_object,
+                                  frame_start,
+                                  frame_end)
         if mdi_surface:
 
             is_supported = \
@@ -177,7 +183,10 @@ def read(collapse_frame = -1):
     # mdi tags
     for arrow_object in arrow_objects:
 
-        mdi_tag = arrow_m.read(arrow_object, armature_object)
+        mdi_tag = arrow_m.read(arrow_object,
+                               armature_object,
+                               frame_start,
+                               frame_end)
         if mdi_tag:
 
             is_supported = \
@@ -230,8 +239,6 @@ def write(mdi_model):
 
         collection (Collection(ID)): blender collection.
     """
-
-    # TODO return value
 
     timer = timer_m.Timer()
     reporter_m.info("Writing collection: {} ...".format(mdi_model.name))

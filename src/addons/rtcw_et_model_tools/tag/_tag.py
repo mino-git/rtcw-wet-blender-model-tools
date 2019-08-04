@@ -30,7 +30,9 @@ Notes:
 
 Background:
 
-    TODO
+    Server tags. They are a copy client tags on frame 0. Their use case is
+    rare. During original development they were used on tanks for attachment
+    of script mover collision models, and probably more.
 """
 
 import struct
@@ -40,7 +42,7 @@ import rtcw_et_model_tools.common.reporter as reporter_m
 
 
 class TAGData:
-    """TODO.
+    """Tag data.
 
     Attributes:
 

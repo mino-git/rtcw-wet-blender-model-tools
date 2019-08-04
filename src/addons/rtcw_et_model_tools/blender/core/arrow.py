@@ -158,21 +158,25 @@ def _attach_by_skin_file(game_path, skin_file_path):
     """
 
     skin_data = skin_file_m.read(skin_file_path)
+    if skin_data:
 
-    # TODO check warnings
+        collection = bpy.context.view_layer.active_layer_collection.collection
 
-    collection = bpy.context.view_layer.active_layer_collection.collection
+        for mapping in skin_data.tag_to_model_mappings:
 
-    for mapping in skin_data.tag_to_model_mappings:
+            tag_name = mapping.tag_name
+            tag_object = _find_tag_object(tag_name, collection)
 
-        tag_name = mapping.tag_name
-        tag_object = _find_tag_object(tag_name, collection)
+            model_path = mapping.model_path
+            new_collection = \
+                _import_tag_model(game_path, skin_file_path, tag_name,
+                                  model_path)
 
-        model_path = mapping.model_path
-        new_collection = \
-            _import_tag_model(game_path, skin_file_path, tag_name, model_path)
+            _attach_by_collection(new_collection, tag_object)
 
-        _attach_by_collection(new_collection, tag_object)
+    else:
+
+        raise Exception("Could not parse skin file data")
 
 def _attach_by_collection(collection = None, tag_object = None):
     """Attach all objects from active collection to tag by setting a
@@ -257,13 +261,15 @@ def attach_to_tag(method, game_path = None, skin_file_path = None):
 # READ
 # =====================================
 
-def read(arrow_object, armature_object = None):
+def read(arrow_object, armature_object=None, frame_start=0, frame_end=0):
     """Read arrow object and convert to mdi.
 
     Args:
 
         arrow_object
         armature_object
+        frame_start
+        frame_end
 
     Returns:
 
@@ -304,8 +310,6 @@ def read(arrow_object, armature_object = None):
 
         mdi_tag.name = arrow_object.name
 
-        frame_start = bpy.context.scene.frame_start
-        frame_end = bpy.context.scene.frame_end
         locations, rotations, _ = \
             blender_util_m.read_object_space_lrs(arrow_object,
                                                  frame_start,

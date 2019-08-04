@@ -387,7 +387,6 @@ class MDSWeight:
         bone_weight (float): amount of influence from the bone over the vertex
             location.
         location (tuple): location coordinates given in bone space.
-            TODO recheck with source code.
 
     File encodings:
 
@@ -576,7 +575,7 @@ class MDSSurfaceHeader:
         ident (bytes): magic number, ASCII encoded, length 4.
         name (bytes): surface name, ASCII encoded, null-terminated, length 64.
         shader (bytes): shader name, ASCII encoded, null-terminated, length 64.
-        shader_index (int): TODO.
+        shader_index (int): used ingame.
         min_lod (int): minimum amount of vertices for the surface or maximum
             amount of collapse operations during runtime.
         ofs_header (int): relative offset from this surface to start of file.
@@ -998,9 +997,9 @@ class MDSFrameInfo:
             bounding box as tuple of floats.
         max_bound (tuple): location coordinates of max corner of minimum
             bounding box as tuple of floats.
-        local_origin (tuple): TODO
-        radius (float): TODO
-        root_bone_location (tuple): TODO
+        local_origin (tuple): local origin of bounding sphere.
+        radius (float): radius of bounding sphere.
+        root_bone_location (tuple): location of root bone.
 
     File encodings:
 
@@ -1012,7 +1011,7 @@ class MDSFrameInfo:
 
     Notes:
 
-        Describes mostly bounding box information. (TODO For frustum culling?)
+        Describes mostly bounding box information.
     """
 
     format = '<3f3f3f1f3f'
@@ -1164,13 +1163,15 @@ class MDSHeader:
         version (int): version number, latest known is 4.
         name (bytes): model name, usually its pathname, ASCII encoded,
             null-terminated, length 64.
-        lod_scale (int): TODO.
-        lod_bias (int): TODO.
+        lod_scale (int): determines when and how the collapse operations
+            take palce ingame.
+        lod_bias (int): determines when and how the collapse operations
+            take palce ingame. Seems to be fudge factor.
         num_frames (int): number of animation frames.
         num_bones (int): number of bones.
         ofs_frames (int): file offset to field of frames.
         ofs_bone_infos (int): file offset to field of bone infos.
-        torso_parent_bone (int): TODO.
+        torso_parent_bone (int): index of torso parent bone.
         num_surfaces (int): number of surfaces.
         ofs_surfaces (int): file offset to field of surfaces.
         num_tags (int): number of tags.

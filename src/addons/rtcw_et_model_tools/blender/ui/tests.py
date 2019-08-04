@@ -18,7 +18,7 @@
 
 # <pep8-80 compliant>
 
-"""TODO.
+"""Testing.
 """
 
 import bpy

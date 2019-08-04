@@ -36,11 +36,9 @@ import rtcw_et_model_tools.common.reporter as reporter_m
 # SHADING OPERATION
 # =====================================
 
-def apply_basic_shader_nodes(mesh_object,
-                             possible_texture_paths,
-                             material = None):
-
-    # TODO clear all nodes option or if nodes in material present escape
+def _apply_basic_shader_nodes(mesh_object,
+                              possible_texture_paths,
+                              material = None):
 
     material_created = False
     if not material:
@@ -160,9 +158,9 @@ def _apply_shaders_by_skin_file(collection, game_path, skin_file_path):
                 common_util_m.join_rel_paths_with_path(game_path,
                                                        texture_paths)
 
-            apply_basic_shader_nodes(mesh_object,
-                                     texture_paths,
-                                     None)
+            _apply_basic_shader_nodes(mesh_object,
+                                      texture_paths,
+                                      None)
 
         else:
 
@@ -192,9 +190,9 @@ def _apply_shaders_by_material_names(collection, game_path):
                 common_util_m.join_rel_paths_with_path(game_path,
                                                        texture_paths)
 
-            apply_basic_shader_nodes(mesh_object,
-                                     texture_paths,
-                                     material)
+            _apply_basic_shader_nodes(mesh_object,
+                                      texture_paths,
+                                      material)
 
         else:
 
@@ -235,11 +233,15 @@ def apply_shaders(method, game_path, skin_file_path):
 # =====================================
 
 def read(mesh_object):
-    """TODO
+    """Reads material from mesh object and converts to mdi shader.
 
     Args:
 
-        TODO
+        mesh_object
+
+    Returns:
+
+        mdi_shader_paths
     """
 
     mdi_shader_paths = mdi_m.MDIShaderPaths()
@@ -263,7 +265,13 @@ def read(mesh_object):
 # =====================================
 
 def write_empty_material_by_name(mesh_object, material_name):
-    """Creates a new empty material just by name. Will not create if exists."""
+    """Creates a new empty material just by name. Will not create if exists.
+
+    Args:
+
+        mesh_object
+        material_name
+    """
 
     material = None
     if material_name:
@@ -283,11 +291,12 @@ def write_empty_material_by_name(mesh_object, material_name):
     return material
 
 def write(mdi_shader, mesh_object):
-    """TODO
+    """Write mdi shader to mesh object.
 
     Args:
 
-        TODO
+        mdi_shader
+        mesh_object
     """
 
     material = None

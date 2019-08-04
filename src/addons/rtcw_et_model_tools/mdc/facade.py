@@ -49,7 +49,9 @@ def read(file_path, bind_frame, encoding="binary"):
     elif encoding == "json":
         pass  # TODO
     else:
-        print("encoding option '{}' not supported".format(encoding))
+        exception_string = \
+            "Encoding option '{}' not supported".format(encoding)
+        raise Exception(exception_string)
 
     mdi_model = mdc_mdi_m.ModelToMDI.convert(mdc_model, bind_frame)
 
@@ -79,4 +81,6 @@ def write(mdi_model, file_path, encoding="binary"):
     elif encoding == "json":
         pass  # TODO
     else:
-        print("encoding option '{}' not supported".format(encoding))
+        exception_string = \
+            "Encoding option '{}' not supported".format(encoding)
+        raise Exception(exception_string)

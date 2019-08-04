@@ -31,18 +31,23 @@ import rtcw_et_model_tools.blender.core.fcurve as fcurve_m
 # READ
 # =====================================
 
-def read_shape_keys(blender_object):
-    '''TODO
-    '''
+def read_shape_keys(blender_object, frame_start=0, frame_end=0):
+    '''Read shape key from a blender object and convert list of tuples for
+    locations and normals between the frame range.
 
-    # TODO check on shape key retime
-    # TODO interpolation mode
+    Args:
+
+        blender_object
+        frame_start
+        frame_end
+
+    Returns:
+
+        (vertex_locations, vertex_normals)
+    '''
 
     vertex_locations = []
     vertex_normals = []
-
-    frame_start = bpy.context.scene.frame_start
-    frame_end = bpy.context.scene.frame_end
 
     shape_key = blender_object.data.shape_keys
     if not shape_key:
@@ -141,7 +146,7 @@ def read_shape_keys(blender_object):
 
     else:  # relative shape key
 
-        pass  # TODO
+        pass  # TODO not supported yet
 
     return (vertex_locations, vertex_normals)
 
@@ -151,7 +156,6 @@ def read_shape_keys(blender_object):
 
 def write_shape_keys(mesh_object, vertex_locations, vertex_normals):
 
-    # TODO vertex normals
     num_vertices = len(vertex_locations)
     for _ in range(num_vertices):
 

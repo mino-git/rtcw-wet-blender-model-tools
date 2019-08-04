@@ -421,7 +421,7 @@ def read_rotation_matrices(fcurves, rotation_mode, frame_start, frame_end,
 # WRITE
 # =====================================
 
-def write_locations(fcurves, data_path, locations, frame_start = 0):
+def write_locations(fcurves, data_path, locations, frame_start=0):
     """Write fcurve location values across frames. Location values are assumed
     to be sequential in the number of frames (step size 1).
 
@@ -449,7 +449,7 @@ def write_locations(fcurves, data_path, locations, frame_start = 0):
         fcurve_y.keyframe_points[num_frame].co = num_frame, location.y
         fcurve_z.keyframe_points[num_frame].co = num_frame, location.z
 
-def write_quaternions(fcurves, data_path, quaternions, frame_start = 0):
+def write_quaternions(fcurves, data_path, quaternions, frame_start=0):
     """Write fcurve quaternion values across frames. Quaternion values are
     assumed to be sequential in the number of frames (step size 1).
 
@@ -480,7 +480,7 @@ def write_quaternions(fcurves, data_path, quaternions, frame_start = 0):
         fcurve_y.keyframe_points[num_frame].co = num_frame, quaternion.y
         fcurve_z.keyframe_points[num_frame].co = num_frame, quaternion.z
 
-def write_eulers(fcurves, data_path, eulers, frame_start = 0):
+def write_eulers(fcurves, data_path, eulers, frame_start=0):
     """Write fcurve euler values across frames. Euler values are
     assumed to be sequential in the number of frames (step size 1).
 
@@ -508,7 +508,7 @@ def write_eulers(fcurves, data_path, eulers, frame_start = 0):
         fcurve_y.keyframe_points[num_frame].co = num_frame, euler.y
         fcurve_z.keyframe_points[num_frame].co = num_frame, euler.z
 
-def write_axis_angles(fcurves, data_path, axis_angles, frame_start = 0):
+def write_axis_angles(fcurves, data_path, axis_angles, frame_start=0):
     """Write fcurve axis angle values across frames. Axis angle values are
     assumed to be sequential in the number of frames (step size 1).
 
@@ -539,7 +539,7 @@ def write_axis_angles(fcurves, data_path, axis_angles, frame_start = 0):
         fcurve_y.keyframe_points[num_frame].co = num_frame, axis_angle[2]
         fcurve_z.keyframe_points[num_frame].co = num_frame, axis_angle[3]
 
-def write_scales(fcurves, data_path, scales, frame_start = 0):
+def write_scales(fcurves, data_path, scales, frame_start=0):
     """Write fcurve scale values across frames. Scale values are assumed
     to be sequential in the number of frames (step size 1).
 
@@ -567,8 +567,8 @@ def write_scales(fcurves, data_path, scales, frame_start = 0):
         fcurve_y.keyframe_points[num_frame].co = num_frame, scale.y
         fcurve_z.keyframe_points[num_frame].co = num_frame, scale.z
 
-def write_rotation_matrices(fcurves, rotations, rotation_mode, frame_start = 0,
-                            bone_name = None):
+def write_rotation_matrices(fcurves, rotations, rotation_mode, frame_start=0,
+                            bone_name=None):
     """Convencience function. Writes rotation matrices to selected fcurves
     across frames.
 

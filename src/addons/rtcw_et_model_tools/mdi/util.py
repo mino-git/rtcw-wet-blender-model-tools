@@ -34,11 +34,12 @@ def to_c_string_padded(src_str, target_len):
 
     Args:
 
-        TODO
+        src_str
+        target_len
 
     Returns:
 
-        TODO
+        c_string_padded
     """
 
     if len(src_str) < target_len:
@@ -55,18 +56,22 @@ def from_c_string_padded(c_string_padded):
 
     Args:
 
-        TODO
+        c_string_padded
 
     Returns:
 
-        TODO
+        python_string
     """
 
     pad_start = c_string_padded.find(b"\x00")
     if pad_start != -1:
         c_string_padded = c_string_padded[0:pad_start]
 
-    return str(object = c_string_padded, encoding = 'utf-8', errors = 'strict')
+    python_string = str(object = c_string_padded,
+                        encoding = 'utf-8',
+                        errors = 'strict')
+
+    return python_string
 
 # =====================================
 # direction

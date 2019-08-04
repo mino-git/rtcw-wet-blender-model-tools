@@ -451,7 +451,6 @@ class MDMWeight:
         bone_weight (float): amount of influence from the bone over the vertex
             location.
         location (tuple): location coordinates given in bone space.
-            TODO recheck with source code
 
     File encodings:
 
@@ -875,8 +874,10 @@ class MDMHeader:
         version (int): version number, latest known is 4.
         name (bytes): model name, usually its pathname, ASCII encoded,
             null-terminated, length 64.
-        lod_scale (int): TODO.
-        lod_bias (int): TODO.
+        lod_scale (int): determines when and how the collapse operations
+            take palce ingame.
+        lod_bias (int): determines when and how the collapse operations
+            take palce ingame. Seems to be fudge factor.
         num_surfaces (int): number of surfaces.
         ofs_surfaces (int): file offset to field of surfaces.
         num_tags (int): number of tags.
