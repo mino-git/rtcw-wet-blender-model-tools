@@ -1,6 +1,8 @@
 
 # RtCW/ET Model tools for Blender
 
+**Status: version 1.0.0 (rc2)**
+
 ## Introduction
 
 This addon adds support for MD3, MDC, MDS, MDM/MDX and TAG file formats for the 3D modeling software Blender. These file formats make up parts of the game assets for Return to Castle Wolfenstein and Wolfenstein: Enemy Territory.
