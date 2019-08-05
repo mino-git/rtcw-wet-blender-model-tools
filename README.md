@@ -9,14 +9,14 @@ This addon adds support for MD3, MDC, MDS, MDM/MDX and TAG file formats for the 
 
 Its main features are:
 
-* **Import/Export** of all formats
-* **Direct Conversion** with certain limitations due to the nature of the formats
+* Import/Export of all formats
+* Direct Conversion with certain limitations due to the nature of the formats
 
 But there is also:
 
-* **Attachment** of external models to tag objects in Blender, for example by using .skin files
-* **Shading** by material names or .skin files of mesh objects in Blender
-* **Exctracting PK3** files so the contained data can be used by the tool
+* Attachment of external models to tag objects in Blender, for example by using .skin files
+* Shading by material names or .skin files of mesh objects in Blender
+* Exctracting PK3 files so the contained data can be used by the tool
 
 ## Getting started
 
