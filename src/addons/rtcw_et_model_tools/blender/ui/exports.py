@@ -156,6 +156,11 @@ class REMT_OT_MD3Export(bpy.types.Operator):
             time = timer.time()
             reporter_m.info("MD3 export DONE (time={})".format(time))
 
+            num_warnings = len(reporter_m.get_warnings())
+            reporter_m.info("Number of warnings: {}".format(num_warnings))
+
+            self.report({'INFO'}, "MD3 export DONE")
+
         except Exception as error:
 
             reporter_m.exception(error)
@@ -206,6 +211,11 @@ class REMT_OT_MDCExport(bpy.types.Operator):
             time = timer.time()
             reporter_m.info("MDC export DONE (time={})".format(time))
 
+            num_warnings = len(reporter_m.get_warnings())
+            reporter_m.info("Number of warnings: {}".format(num_warnings))
+
+            self.report({'INFO'}, "MDC export DONE")
+
         except Exception as error:
 
             reporter_m.exception(error)
@@ -253,10 +263,15 @@ class REMT_OT_MDSExport(bpy.types.Operator):
             reporter_m.info("MDS export started ...")
 
             mdi_model = collection_m.read(collapse_frame)
-            mds_facade_m.write(mdi_model, mds_file_path)
+            mds_facade_m.write(mdi_model, mds_file_path, collapse_frame)
 
             time = timer.time()
             reporter_m.info("MDS export DONE (time={})".format(time))
+
+            num_warnings = len(reporter_m.get_warnings())
+            reporter_m.info("Number of warnings: {}".format(num_warnings))
+
+            self.report({'INFO'}, "MDS export DONE")
 
         except Exception as error:
 
@@ -323,6 +338,11 @@ class REMT_OT_MDMMDXExport(bpy.types.Operator):
             time = timer.time()
             reporter_m.info("MDM/MDX  export DONE (time={})".format(time))
 
+            num_warnings = len(reporter_m.get_warnings())
+            reporter_m.info("Number of warnings: {}".format(num_warnings))
+
+            self.report({'INFO'}, "MDM/MDX export DONE")
+
         except Exception as error:
 
             reporter_m.exception(error)
@@ -372,6 +392,11 @@ class REMT_OT_TAGExport(bpy.types.Operator):
 
             time = timer.time()
             reporter_m.info("TAG export DONE (time={})".format(time))
+
+            num_warnings = len(reporter_m.get_warnings())
+            reporter_m.info("Number of warnings: {}".format(num_warnings))
+
+            self.report({'INFO'}, "TAG export DONE")
 
         except Exception as error:
 

@@ -161,6 +161,11 @@ class REMT_OT_MD3Import(bpy.types.Operator):
             time = timer.time()
             reporter_m.info("MD3 import DONE (time={})".format(time))
 
+            num_warnings = len(reporter_m.get_warnings())
+            reporter_m.info("Number of warnings: {}".format(num_warnings))
+
+            self.report({'INFO'}, "MD3 import DONE")
+
         except Exception as error:
 
             reporter_m.exception(error)
@@ -216,6 +221,11 @@ class REMT_OT_MDCImport(bpy.types.Operator):
             time = timer.time()
             reporter_m.info("MDC import DONE (time={})".format(time))
 
+            num_warnings = len(reporter_m.get_warnings())
+            reporter_m.info("Number of warnings: {}".format(num_warnings))
+
+            self.report({'INFO'}, "MDC import DONE")
+
         except Exception as error:
 
             reporter_m.exception(error)
@@ -270,6 +280,11 @@ class REMT_OT_MDSImport(bpy.types.Operator):
 
             time = timer.time()
             reporter_m.info("MDS import DONE (time={})".format(time))
+
+            num_warnings = len(reporter_m.get_warnings())
+            reporter_m.info("Number of warnings: {}".format(num_warnings))
+
+            self.report({'INFO'}, "MDS import DONE")
 
         except Exception as error:
 
@@ -341,6 +356,11 @@ class REMT_OT_MDMMDXImport(bpy.types.Operator):
             time = timer.time()
             reporter_m.info("Import DONE (time={})".format(time))
 
+            num_warnings = len(reporter_m.get_warnings())
+            reporter_m.info("Number of warnings: {}".format(num_warnings))
+
+            self.report({'INFO'}, "MDM/MDX import DONE")
+
         except Exception as error:
 
             reporter_m.exception(error)
@@ -348,7 +368,6 @@ class REMT_OT_MDMMDXImport(bpy.types.Operator):
             return {'CANCELLED'}
 
         return {'FINISHED'}
-
 
 
 class REMT_OT_TAGImport(bpy.types.Operator):
@@ -400,6 +419,11 @@ class REMT_OT_TAGImport(bpy.types.Operator):
 
             time = timer.time()
             reporter_m.info("Import DONE (time={})".format(time))
+
+            num_warnings = len(reporter_m.get_warnings())
+            reporter_m.info("Number of warnings: {}".format(num_warnings))
+
+            self.report({'INFO'}, "TAG import DONE")
 
         except Exception as error:
 
