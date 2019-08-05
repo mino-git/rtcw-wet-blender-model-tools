@@ -21,7 +21,7 @@
 bl_info = {
     "name": "RtCW/ET Model Tools",
     "author": "Norman Mitschke",
-    "version": (0, 9, 0),
+    "version": (1, 0, 0),
     "blender": (2, 80, 0),
     "location": "View3D",
     "description": "RtCW/ET Model Tools for Blender",
