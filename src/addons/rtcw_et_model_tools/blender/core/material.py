@@ -36,16 +36,21 @@ import rtcw_et_model_tools.common.reporter as reporter_m
 # SHADING OPERATION
 # =====================================
 
-def _has_material_some_nodes(material):
+def _set_material_active_all(mesh_object, material):
 
-    has_material_nodes = False
-    num_nodes = len(material.node_tree.nodes)
-    if num_nodes > 0:
-        has_material_nodes = True
+    material_index = _get_index_for_material(mesh_object, material)
+    if material_index == -1:
 
-    return has_material_nodes
+        mesh_object.data.materials.append(material)
+        material_index = \
+            _get_index_for_material(mesh_object, material)
 
-def _get_mesh_objects_material_index(mesh_object, material):
+    mesh_object.active_material_index = material_index
+
+    for polygon in mesh_object.data.polygons:
+        polygon.material_index = material_index
+
+def _get_index_for_material(mesh_object, material):
 
     material_index = -1
     for index, material_tmp in enumerate(mesh_object.data.materials):
@@ -66,100 +71,48 @@ def _get_material_by_name(material_name):
 
     return material
 
-def _apply_basic_shader_nodes(mesh_object,
-                              possible_texture_paths,
-                              material = None,
-                              game_path = None):
+def _apply_nodes_to_material(material, possible_texture_paths):
 
-    material_created = False
-    if not material:
-        abs_path = possible_texture_paths[0]
-        rel_path = common_util_m.abs_path_to_game_path_rel(game_path, abs_path)
-        if rel_path:
-            material = bpy.data.materials.new(rel_path)
-        else:
-            material = bpy.data.materials.new(possible_texture_paths[0])
-        material_created = True
-
-    use_nodes_prev = material.use_nodes
     material.use_nodes = True
 
-    node_tex_image = material.node_tree.nodes.new('ShaderNodeTexImage')
-    node_bsdf_transparent = \
-        material.node_tree.nodes.new('ShaderNodeBsdfTransparent')
-    node_mix_shader = material.node_tree.nodes.new('ShaderNodeMixShader')
-    node_bsdf_principled = material.node_tree.nodes.get('Principled BSDF')
-    node_material_output = material.node_tree.nodes.get('Material Output')
+    nodes = material.node_tree.nodes
+    nodes.clear()
 
-    if not node_bsdf_principled:
-        node_bsdf_principled = material.node_tree.nodes.new('Principled BSDF')
+    # create
+    node_tex_image = nodes.new('ShaderNodeTexImage')
+    node_diffuse_bsdf = nodes.new('ShaderNodeBsdfDiffuse')
+    node_material_output = nodes.new('ShaderNodeOutputMaterial')
 
-    if not node_material_output:
-        node_material_output = material.node_tree.nodes.new('Material Output')
+    # links
+    material.node_tree.links.new(
+        node_diffuse_bsdf.inputs.get("Color"),
+        node_tex_image.outputs.get("Color")
+        )
 
-    node_tex_image.location = (-700, 300)
-    node_bsdf_transparent.location = (-300, 400)
-    node_mix_shader.location = (50, 300)
-    node_bsdf_principled.location = (-300, 200)
+    material.node_tree.links.new(
+        node_material_output.inputs.get("Surface"),
+        node_diffuse_bsdf.outputs.get("BSDF")
+        )
 
-    material.node_tree.links.new(node_bsdf_transparent.inputs.get("Color"),
-                                    node_tex_image.outputs.get("Color"))
+    # locations
+    node_tex_image.location = (-300, 300)
+    node_diffuse_bsdf.location = (0, 300)
+    node_material_output.location = (300, 300)
 
-    material.node_tree.links.new(node_mix_shader.inputs.get("Fac"),
-                                    node_tex_image.outputs.get("Alpha"))
-
-    material.node_tree.links.new(node_bsdf_principled.inputs \
-        .get("Base Color"), node_tex_image.outputs.get("Color"))
-
-    material.node_tree.links.new(node_mix_shader.inputs.get("Shader"),
-                                    node_bsdf_transparent.outputs.get("BSDF"))
-
-    material.node_tree.links.new(node_mix_shader.inputs[2],
-                                    node_bsdf_principled.outputs.get("BSDF"))
-
-    material.node_tree.links.new(node_material_output.inputs.get("Surface"),
-                                    node_mix_shader.outputs.get("Shader"))
-
-    node_bsdf_principled.inputs.get("Specular").default_value = 0
-    node_bsdf_principled.inputs.get("Roughness").default_value = 0
-    node_bsdf_principled.inputs.get("Sheen Tint").default_value = 0
-
-    applied = False
+    # load texture
+    texture_found = False
     for possible_texture_path in possible_texture_paths:
 
         if os.path.isfile(possible_texture_path):
 
             node_tex_image.image = bpy.data.images.load(possible_texture_path)
-            if mesh_object.data.materials:
-
-                mesh_object.data.materials.append(material)
-
-                # switch slots
-                slot_material = mesh_object.data.materials[0]
-                mesh_object.data.materials[0] = material
-                mesh_object.data.materials[-1] = slot_material
-
-            else:
-
-                mesh_object.data.materials.append(material)
-
-            applied = True
+            texture_found = True
             break
 
-    if not applied:
+    # if not texture_found:
+    #     nodes.clear()
 
-        material.use_nodes = use_nodes_prev
-
-        reporter_m.warning("Could not apply shader nodes for material"
-                            " name: '{}'".format(material.name))
-
-        if material_created:
-
-            bpy.data.materials.remove(material)
-
-        return False
-
-    return True
+    return texture_found
 
 def _apply_shaders_by_skin_file(collection, game_path, skin_file_path):
 
@@ -190,40 +143,37 @@ def _apply_shaders_by_skin_file(collection, game_path, skin_file_path):
         if shader_reference:
 
             material = _get_material_by_name(shader_reference)
-            if not material:
+            if material:
 
-                exts = ('tga', 'jpg')
-                shader_names_exts = \
-                    common_util_m.create_exts(shader_reference, exts, True)
-
-                possible_texture_paths = \
-                    common_util_m.join_rel_paths_with_path(game_path,
-                                                           shader_names_exts)
-
-                _apply_basic_shader_nodes(mesh_object,
-                                          possible_texture_paths,
-                                          material,
-                                          game_path)
+                _set_material_active_all(mesh_object, material)
 
             else:
 
-                material_index = _get_mesh_objects_material_index(mesh_object,
-                                                                  material)
+                material = bpy.data.materials.new(shader_reference)
 
-                if material_index != -1:
+                possible_texture_paths = \
+                    common_util_m.prepare_texture_paths(game_path,
+                                                        shader_reference,
+                                                        True)
+                success = \
+                    _apply_nodes_to_material(material, possible_texture_paths)
 
-                    first_material = mesh_object.data.materials[0]
-                    mesh_object.data.materials[material_index] = first_material
-                    mesh_object.data.materials[0] = material
+                if not success:
+
+                    reporter_m.warning("Could not apply shader nodes for"
+                                        " material: '{}'"
+                                        .format(material.name))
+                    bpy.data.materials.remove(material)
 
                 else:
 
-                    mesh_object.data.materials.append(material)
+                    _set_material_active_all(mesh_object, material)
 
         else:
 
-            raise Exception("Mesh object not found defined in .skin file '{}'"
-                            .format(mesh_object.name))
+            reporter_m.warning("Could not find mesh object '{}' defined in"
+                               " .skin file "
+                               .format(mesh_object.name))
 
 def _apply_shaders_by_material_names(collection, game_path):
 
@@ -237,28 +187,33 @@ def _apply_shaders_by_material_names(collection, game_path):
 
     for mesh_object in mesh_objects:
 
-        material = mesh_object.active_material
+        material = None
+        material_index = mesh_object.active_material_index
+        if material_index >= 0:
+
+            try:
+                material = mesh_object.data.materials[material_index]
+            except:
+                pass
+
         if material:
 
-            has_material_nodes = _has_material_some_nodes(material)
-            if not has_material_nodes:
+            possible_texture_paths = \
+                common_util_m.prepare_texture_paths(game_path,
+                                                    material.name,
+                                                    True)
+            success = \
+                _apply_nodes_to_material(material, possible_texture_paths)
 
-                exts = ('tga', 'jpg')
-                shader_names = \
-                    common_util_m.create_exts(material.name, exts, True)
+            if not success:
 
-                texture_paths = \
-                    common_util_m.join_rel_paths_with_path(game_path,
-                                                        shader_names)
+                reporter_m.warning("Could not apply shader nodes for"
+                                    " material: '{}'"
+                                    .format(material.name))
 
-                _apply_basic_shader_nodes(mesh_object,
-                                        texture_paths,
-                                        material)
+            else:
 
-        else:
-
-            raise Exception("Material not found on mesh object '{}'"
-                            .format(mesh_object.name))
+                _set_material_active_all(mesh_object, material)
 
 def apply_shaders(method, game_path, skin_file_path):
     """Apply shaders operation.
@@ -334,12 +289,7 @@ def write_empty_material_by_name(mesh_object, material_name):
     material = None
     if material_name:
 
-        for existing_material in bpy.data.materials:
-
-            if existing_material.name == material_name:
-
-                material = existing_material
-                break
+        material = _get_material_by_name(material_name)
 
         if not material:
 
@@ -364,16 +314,16 @@ def write(mdi_shader, mesh_object):
 
             material = \
                 write_empty_material_by_name(mesh_object, mdi_shader_path.path)
-            if material:
-                # last one will be active
-                mesh_object.active_material = material
+
+        if material:
+            _set_material_active_all(mesh_object, material)
 
     elif isinstance(mdi_shader, mdi_m.MDIShaderPath):
 
         material = \
             write_empty_material_by_name(mesh_object, mdi_shader.path)
         if material:
-            mesh_object.active_material = material
+            _set_material_active_all(mesh_object, material)
 
     else:
 

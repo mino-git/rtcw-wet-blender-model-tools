@@ -23,6 +23,14 @@
 
 import os
 
+def prepare_texture_paths(game_path, shader_name, include_original=False):
+
+    exts = ('tga', 'jpg')
+    shader_names_exts = create_exts(shader_name, exts, include_original)
+    texture_paths = join_rel_paths_with_path(game_path, shader_names_exts)
+
+    return texture_paths
+
 def abs_path_to_game_path_rel(game_path, abs_path):
     """Creates a relative path starting from the game_path.
 
@@ -70,7 +78,7 @@ def join_rel_paths_with_path(path, rel_paths):
 
     return new_paths
 
-def create_exts(name, exts, include_stripped = False):
+def create_exts(name, exts, include_original = False):
     """Takes a name and returns a formatted list of strings with the intended
     suffixes. Format = <name>.<ext>.
     """
@@ -81,7 +89,7 @@ def create_exts(name, exts, include_stripped = False):
     if i != -1:
         name = name[0:i]
 
-    if include_stripped:
+    if include_original:
         names.append(name)
 
     for ext in exts:
