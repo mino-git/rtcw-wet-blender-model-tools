@@ -23,6 +23,31 @@
 
 import os
 
+def abs_path_to_game_path_rel(game_path, abs_path):
+    """Creates a relative path starting from the game_path.
+
+    Args:
+
+        game_path
+        abs_path
+
+    Returns:
+
+        new_paths
+    """
+
+    if not game_path or not abs_path:
+        return None
+
+    rel_path = None
+
+    i = abs_path.find(game_path)
+    if i != -1 and i == 0:
+
+        rel_path = abs_path[len(game_path):]
+
+    return rel_path
+
 def join_rel_paths_with_path(path, rel_paths):
     """Take a list of relative paths and joins them to path.
 

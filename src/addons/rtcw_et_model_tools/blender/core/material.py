@@ -38,12 +38,21 @@ import rtcw_et_model_tools.common.reporter as reporter_m
 
 def _apply_basic_shader_nodes(mesh_object,
                               possible_texture_paths,
-                              material = None):
+                              material = None,
+                              game_path = None):
 
     material_created = False
     if not material:
-        material = bpy.data.materials.new(possible_texture_paths[0])
+        abs_path = possible_texture_paths[0]
+        rel_path = common_util_m.abs_path_to_game_path_rel(game_path, abs_path)
+        if rel_path:
+            material = bpy.data.materials.new(rel_path)
+        else:
+            material = bpy.data.materials.new(possible_texture_paths[0])
         material_created = True
+
+    if not material_created:
+        return False
 
     use_nodes_prev = material.use_nodes
     material.use_nodes = True
@@ -160,7 +169,8 @@ def _apply_shaders_by_skin_file(collection, game_path, skin_file_path):
 
             _apply_basic_shader_nodes(mesh_object,
                                       texture_paths,
-                                      None)
+                                      None,
+                                      game_path)
 
         else:
 
