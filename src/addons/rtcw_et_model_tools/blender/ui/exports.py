@@ -150,7 +150,7 @@ class REMT_OT_MD3Export(bpy.types.Operator):
             timer = timer_m.Timer()
             reporter_m.info("MD3 export started ...")
 
-            mdi_model = collection_m.read()
+            mdi_model, _ = collection_m.read()
             md3_facade_m.write(mdi_model, md3_file_path)
 
             time = timer.time()
@@ -205,7 +205,7 @@ class REMT_OT_MDCExport(bpy.types.Operator):
             timer = timer_m.Timer()
             reporter_m.info("MDC export started ...")
 
-            mdi_model = collection_m.read()
+            mdi_model, _ = collection_m.read()
             mdc_facade_m.write(mdi_model, mdc_file_path)
 
             time = timer.time()
@@ -262,7 +262,7 @@ class REMT_OT_MDSExport(bpy.types.Operator):
             timer = timer_m.Timer()
             reporter_m.info("MDS export started ...")
 
-            mdi_model = collection_m.read(collapse_frame)
+            mdi_model, collapse_frame = collection_m.read(collapse_frame)
             mds_facade_m.write(mdi_model, mds_file_path, collapse_frame)
 
             time = timer.time()
@@ -332,8 +332,9 @@ class REMT_OT_MDMMDXExport(bpy.types.Operator):
             timer = timer_m.Timer()
             reporter_m.info("MDM/MDX export started ...")
 
-            mdi_model = collection_m.read(collapse_frame)
-            mdmmdx_facade_m.write(mdi_model, mdm_file_path, mdx_file_path)
+            mdi_model, collapse_frame = collection_m.read(collapse_frame)
+            mdmmdx_facade_m.write(mdi_model, mdm_file_path, mdx_file_path,
+                                  collapse_frame)
 
             time = timer.time()
             reporter_m.info("MDM/MDX  export DONE (time={})".format(time))
@@ -387,7 +388,7 @@ class REMT_OT_TAGExport(bpy.types.Operator):
             timer = timer_m.Timer()
             reporter_m.info("TAG export started ...")
 
-            mdi_model = collection_m.read()
+            mdi_model, _ = collection_m.read()
             tag_facade_m.write(mdi_model, tag_file_path)
 
             time = timer.time()

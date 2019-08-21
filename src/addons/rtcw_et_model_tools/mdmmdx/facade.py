@@ -72,7 +72,8 @@ def read(file_path_mdm, file_path_mdx, bind_frame, encoding="binary"):
     return mdi_model
 
 
-def write(mdi_model, file_path_mdm, file_path_mdx, encoding="binary"):
+def write(mdi_model, file_path_mdm, file_path_mdx, collapse_frame,
+          encoding="binary"):
     """Converts MDI data to MDM/MDX, then writes it back to file.
 
     Args:
@@ -82,7 +83,8 @@ def write(mdi_model, file_path_mdm, file_path_mdx, encoding="binary"):
         encoding (str): encoding to use for MDS.
     """
 
-    mdx_model, mdm_model = mdmmdx_mdi_m.MDIToModel.convert(mdi_model)
+    mdx_model, mdm_model = mdmmdx_mdi_m.MDIToModel.convert(mdi_model,
+                                                           collapse_frame)
 
     if encoding == "binary":
         mdx_model.write(file_path_mdx)

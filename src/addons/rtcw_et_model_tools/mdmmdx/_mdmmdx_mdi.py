@@ -384,7 +384,7 @@ class MDIToModel:
         return mdx_frame
 
     @staticmethod
-    def convert(mdi_model):
+    def convert(mdi_model, collapse_frame):
         """Converts MDI to MDM/MDX.
 
         Args:
@@ -411,7 +411,7 @@ class MDIToModel:
             mdi_surface.vertices_to_type(mdi_m.MDIRiggedVertex, mdi_model)
 
         mdi_model.tags_to_type(mdi_m.MDIBoneTagOff)
-        mdi_model.lod_to_type(mdi_m.MDICollapseMap)
+        mdi_model.lod_to_type(mdi_m.MDICollapseMap, collapse_frame)
 
         # mdx frames
         for num_frame in range(len(mdi_model.bounds.aabbs)):

@@ -362,7 +362,7 @@ class MDIToModel:
         return mds_frame
 
     @staticmethod
-    def convert(mdi_model):
+    def convert(mdi_model, collapse_frame):
         """Converts MDI to MDS.
 
         Args:
@@ -387,7 +387,7 @@ class MDIToModel:
             mdi_surface.vertices_to_type(mdi_m.MDIRiggedVertex, mdi_model)
 
         mdi_model.tags_to_type(mdi_m.MDIBoneTag)
-        mdi_model.lod_to_type(mdi_m.MDICollapseMap)  # TODO collapse frame
+        mdi_model.lod_to_type(mdi_m.MDICollapseMap, collapse_frame)
 
         # mds frames
         for num_frame in range(len(mdi_model.bounds.aabbs)):

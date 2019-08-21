@@ -212,7 +212,7 @@ def read(collapse_frame = -1):
     time = timer.time()
     reporter_m.info("Reading collection DONE (time={})".format(time))
 
-    return mdi_model
+    return (mdi_model, collapse_frame)
 
 def write(mdi_model):
     """Converts MDI model and writes it to a new collection in blender.

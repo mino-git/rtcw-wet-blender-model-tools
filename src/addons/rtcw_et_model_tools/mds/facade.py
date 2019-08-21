@@ -62,7 +62,7 @@ def read(file_path, bind_frame, encoding="binary"):
     return mdi_model
 
 
-def write(mdi_model, file_path, encoding="binary"):
+def write(mdi_model, file_path, collapse_frame, encoding="binary"):
 
     """Converts MDI data to MDS, then writes it back to file.
 
@@ -72,7 +72,7 @@ def write(mdi_model, file_path, encoding="binary"):
         encoding (str): encoding to use for MDS.
     """
 
-    mds_model = mds_mdi_m.MDIToModel.convert(mdi_model)
+    mds_model = mds_mdi_m.MDIToModel.convert(mdi_model, collapse_frame)
 
     if encoding == "binary":
         mds_model.write(file_path)
