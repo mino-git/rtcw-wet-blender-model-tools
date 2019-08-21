@@ -36,7 +36,7 @@ import rtcw_et_model_tools.common.reporter as reporter_m
 # READ
 # =====================================
 
-def _read_pose_bone_lr(armature_object, bone_name, frame_start=0, frame_end=0):
+def read_pose_bone_lr(armature_object, bone_name, frame_start=0, frame_end=0):
     """Read pose bone location and rotation values. If not animated, return
     static values across frames. The values are returned in bind pose space.
     Scale is not supported.
@@ -104,7 +104,7 @@ def _read_pose_bone_lr(armature_object, bone_name, frame_start=0, frame_end=0):
 
     return (locations, rotations)
 
-def read(armature_object, frame_start, frame_end):
+def read(armature_object, transforms, frame_start, frame_end):
     """Read armature object and convert to mdi.
 
     Args:
@@ -126,40 +126,30 @@ def read(armature_object, frame_start, frame_end):
     mdi_skeleton.name = armature_object.name
     mdi_skeleton.torso_parent_bone = 0  # calculated later
 
-    # bones
-    bpy.context.view_layer.objects.active = \
-        bpy.data.objects[armature_object.name]
-    bpy.ops.object.mode_set(mode='EDIT')
-
-    # extract and tmp store all bones bind pose locations and orientations
-    # for faster access
+    # cache bones bind pose locations
     bind_pose_locations = []
-    bind_pose_orientations = []
-    for edit_bone in armature_object.data.edit_bones:
+    for bone in armature_object.data.bones:
 
-        bl_ms, bo_ms, _ = edit_bone.matrix.decompose()
-        bo_ms = bo_ms.to_matrix()
+        matrix_local = armature_object.data.bones[bone.name].matrix_local
+        bl_ms, _, _ = matrix_local.decompose()
 
         bind_pose_locations.append(bl_ms)
-        bind_pose_orientations.append(bo_ms)
 
     # create the mdi bones
-    for num_bone, edit_bone in enumerate(armature_object.data.edit_bones):
-
-        cbl_ms = bind_pose_locations[num_bone]
-        cbo_ms = bind_pose_orientations[num_bone]
+    for num_bone, bone in enumerate(armature_object.data.bones):
 
         mdi_bone = mdi_m.MDIBone()
 
-        mdi_bone.name = edit_bone.name
+        mdi_bone.name = bone.name
 
         parent_index = -1
-        if edit_bone.parent:
+        if bone.parent:
             parent_index = \
-                armature_object.data.edit_bones.find(edit_bone.parent.name)
+                armature_object.data.bones.find(bone.parent.name)
         mdi_bone.parent_bone = parent_index
 
         # parent_dist
+        cbl_ms = bind_pose_locations[num_bone]
         if parent_index >= 0:
 
             pbl_ms = bind_pose_locations[parent_index]
@@ -167,78 +157,31 @@ def read(armature_object, frame_start, frame_end):
 
         else:  # root bone
 
-            cbl_ms = bind_pose_locations[num_bone]
             mdi_bone.parent_dist = cbl_ms.length
+
+        pose_bone = armature_object.pose.bones[mdi_bone.name]
 
         # torso_weight
         try:
-            torso_weight = edit_bone['Torso Weight']
+            torso_weight = pose_bone['Torso Weight']
             mdi_bone.torso_weight = torso_weight
         except:
             pass  # it's ok
 
-        # sneak in check for torso parent
+        # torso_parent
         try:
-            _ = edit_bone['Torso Parent']
+            _ = pose_bone['Torso Parent']
             mdi_skeleton.torso_parent_bone = num_bone
         except:
             pass  # it's ok
 
-        locations, rotations = \
-            _read_pose_bone_lr(armature_object,
-                               mdi_bone.name,
-                               frame_start,
-                               frame_end)
+        # locations, orientations
+        transform = blender_util_m.Transform.get(bone, transforms)
 
-        # calculate locations and orientations based on extracted offsets
-        if mdi_bone.parent_bone >= 0:
-
-            # use already calculated parent for faster access
-            mdi_parent_bone = mdi_skeleton.bones[mdi_bone.parent_bone]
-
-            pbl_ms = bind_pose_locations[mdi_bone.parent_bone]
-            pbo_ms = bind_pose_orientations[mdi_bone.parent_bone]
-
-            for num_frame in range(len(locations)):
-
-                location_off = locations[num_frame]
-                rotation_off = rotations[num_frame]
-
-                pfl_ms = mdi_parent_bone.locations[num_frame]
-                pfo_ms = mdi_parent_bone.orientations[num_frame]
-
-                # express the childs bind pose in parent space
-                cbl_ps = pbo_ms.transposed() @ (cbl_ms - pbl_ms)
-                cbo_ps = pbo_ms.transposed() @ cbo_ms
-
-                # calculate the model space coordinates of the child in
-                # blenders bind pose
-                cbl_dash_ms = pfl_ms + pfo_ms @ cbl_ps
-                cbo_dash_ms = pfo_ms @ cbo_ps
-
-                # calculate model space values for frame
-                location = cbl_dash_ms + cbo_dash_ms @ location_off
-                orientation = cbo_dash_ms @ rotation_off
-
-                mdi_bone.locations.append(location)
-                mdi_bone.orientations.append(orientation)
-
-        else:  # root bone
-
-            for num_frame in range(len(locations)):
-
-                location_off = locations[num_frame]
-                rotation_off = rotations[num_frame]
-
-                location = cbl_ms + cbo_ms @ location_off
-                orientation = cbo_ms @ rotation_off
-
-                mdi_bone.locations.append(location)
-                mdi_bone.orientations.append(orientation)
+        mdi_bone.locations = transform.locs
+        mdi_bone.orientations = transform.rots
 
         mdi_skeleton.bones.append(mdi_bone)
-
-    bpy.ops.object.mode_set(mode='OBJECT')
 
     return mdi_skeleton
 
@@ -299,22 +242,17 @@ def _write_pose_bone_lr(armature_object, bone_name, locations, rotations,
 
         pass
 
-def _set_constraints(mdi_skeleton, armature_object):
+def _set_properties(mdi_skeleton, armature_object):
 
     timer = timer_m.Timer()
-    reporter_m.debug("Setting contraints ...")
+    reporter_m.debug("Setting properties ...")
 
-    bpy.context.view_layer.objects.active = \
-        bpy.data.objects[armature_object.name]
-    bpy.ops.object.mode_set(mode='POSE')
+    for num_bone, mdi_bone in enumerate(mdi_skeleton.bones):
 
-    for mdi_bone in mdi_skeleton.bones:
-
+        pose_bone = armature_object.pose.bones[mdi_bone.name]
         mdi_bone_parent_name = mdi_skeleton.bones[mdi_bone.parent_bone].name
 
         if mdi_bone.parent_bone >= 0:
-
-            pose_bone = armature_object.pose.bones[mdi_bone.name]
 
             pose_bone.constraints.new(type="LIMIT_DISTANCE")
 
@@ -327,10 +265,14 @@ def _set_constraints(mdi_skeleton, armature_object):
             pose_bone.constraints["Limit Distance"].limit_mode \
                 = "LIMITDIST_ONSURFACE"
 
-    bpy.ops.object.mode_set(mode='OBJECT')
+        pose_bone['Torso Weight'] = mdi_bone.torso_weight
+
+        if num_bone == mdi_skeleton.torso_parent_bone:
+
+            pose_bone['Torso Parent'] = True
 
     time = timer.time()
-    reporter_m.debug("Setting contraints DONE (time={})".format(time))
+    reporter_m.debug("Setting properties DONE (time={})".format(time))
 
 def _animate_bones(mdi_skeleton, root_frame, armature_object):
 
@@ -439,12 +381,6 @@ def _add_edit_bones(mdi_skeleton, root_frame, armature_object):
                 bind_pose_orientation.to_4x4()
         edit_bone.matrix = bind_pose_matrix
 
-        edit_bone['Torso Weight'] = mdi_bone.torso_weight
-
-        if num_bone == mdi_skeleton.torso_parent_bone:
-
-            edit_bone['Torso Parent'] = True
-
     # set parent-child-relationship
     for mdi_bone in mdi_skeleton.bones:
 
@@ -503,7 +439,7 @@ def write(mdi_skeleton, root_frame, collection):
 
     _animate_bones(mdi_skeleton, root_frame, armature_object)
 
-    _set_constraints(mdi_skeleton, armature_object)
+    _set_properties(mdi_skeleton, armature_object)
 
     time = timer.time()
     reporter_m.debug("Writing armature DONE (time={})".format(time))

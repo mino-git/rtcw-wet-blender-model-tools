@@ -103,14 +103,9 @@ def _read_rigged_vertices(mesh_object, armature_object):
 
     mdi_rigged_vertices = []
 
-    bpy.context.view_layer.objects.active = \
-        bpy.data.objects[armature_object.name]
-    bpy.ops.object.mode_set(mode='EDIT')
-
     bind_pose_bones = \
-        [edit_bone.matrix for edit_bone in armature_object.data.edit_bones]
+        [bone.matrix_local for bone in armature_object.data.bones]
 
-    bpy.ops.object.mode_set(mode='OBJECT')
     bpy.context.view_layer.objects.active = mesh_object
 
     bind_pose_vertices = [vertex.co for vertex in mesh_object.data.vertices]
@@ -229,13 +224,13 @@ def _read_morph_vertices(mesh_object, frame_start=0, frame_end=0):
 
     return mdi_morph_vertices
 
-def read(mesh_object, armature_object=None, frame_start=0, frame_end=0):
+def read(mesh_object, transforms, frame_start=0, frame_end=0):
     """Reads a mesh object and converts it to MDISurface.
 
     Args:
 
         mesh_object
-        armature_object
+        transforms
         frame_start
         frame_end
 
@@ -260,8 +255,8 @@ def read(mesh_object, armature_object=None, frame_start=0, frame_end=0):
        shape_key.animation_data.action:  # TODO nla
        is_morph_mesh = True
 
-    armature_object_found = mesh_object.find_armature()
-    if armature_object_found:
+    armature_object = mesh_object.find_armature()
+    if armature_object:
         is_skeletal_mesh = True
 
     if is_morph_mesh and is_skeletal_mesh:
@@ -291,6 +286,28 @@ def read(mesh_object, armature_object=None, frame_start=0, frame_end=0):
                                              frame_end)
 
     if mdi_vertices:
+
+        sample_vertex = mdi_vertices[0]
+        if isinstance(sample_vertex, mdi_m.MDIMorphVertex):
+
+            transform = blender_util_m.Transform.get(mesh_object, transforms)
+
+            for mdi_vertex in mdi_vertices:
+
+                for num_frame in range(len(mdi_vertex.locations)):
+
+                    pfl = transform.locs[num_frame]
+                    pfr = transform.rots[num_frame]
+                    pfs = transform.scales[num_frame]
+
+                    cfl = mdi_vertex.locations[num_frame]
+                    cfn = mdi_vertex.normals[num_frame]
+
+                    loc = pfl + pfr @ cfl
+                    normal = pfr @ cfn
+
+                    mdi_vertex.locations[num_frame] = loc
+                    mdi_vertex.normals[num_frame] = normal
 
         mdi_surface.vertices = mdi_vertices
 

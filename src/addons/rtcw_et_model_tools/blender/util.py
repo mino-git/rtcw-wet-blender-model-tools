@@ -25,9 +25,301 @@ import bpy
 import mathutils
 
 import rtcw_et_model_tools.mdi.mdi as mdi_m
+import rtcw_et_model_tools.blender.core.armature as armature_m
 import rtcw_et_model_tools.blender.core.fcurve as fcurve_m
 import rtcw_et_model_tools.common.reporter as reporter_m
 
+
+class Transform:
+
+    def __init__(self, blender_object):
+
+        self.blender_object = blender_object
+
+        self.num_parents = 0
+        self.parent_transform = None
+
+        self.locs = []
+        self.rots = []
+        self.scales = []
+
+    @staticmethod
+    def get(blender_object, transforms):
+
+        if blender_object == None:
+            return None
+
+        transform = None
+        for t in transforms:
+
+            if t.blender_object == blender_object:
+                transform = t
+                break
+
+        return transform
+
+    def calc_parent_props(self, transforms):
+
+        # num_parents
+        num_parents = -1
+
+        cur_object = self.blender_object
+        while cur_object:
+
+            num_parents += 1
+
+            if isinstance(cur_object, bpy.types.Bone):
+
+                if not cur_object.parent:
+
+                    tmp = Transform.get(cur_object, transforms)
+                    cur_object = tmp.parent_armature
+
+                else:
+
+                    cur_object = cur_object.parent
+
+            else:
+
+                if cur_object.parent_type == 'BONE':
+
+                    armature_object = cur_object.parent
+                    bone_name = cur_object.parent_bone
+                    bone = armature_object.data.bones[bone_name]
+                    cur_object = bone
+
+                else:
+
+                    cur_object = cur_object.parent
+
+        self.num_parents = num_parents
+
+        # parent_transform
+        parent_transform = None
+
+        blender_object = self.blender_object
+        if isinstance(blender_object, bpy.types.Bone):
+
+            if not blender_object.parent:
+
+                # get the armature transform
+                bone_transform = \
+                    Transform.get(blender_object, transforms)
+                parent_transform = \
+                    Transform.get(bone_transform.parent_armature, transforms)
+
+            else:
+
+                # get the bone transform
+                parent_bone = blender_object.parent
+                parent_transform = Transform.get(parent_bone, transforms)
+
+        else:
+
+            if blender_object.parent_type == 'BONE':
+
+                # get the bone transform
+                armature_object = blender_object.parent
+                bone_name = blender_object.parent_bone
+                bone = armature_object.data.bones[bone_name]
+                parent_transform = Transform.get(bone, transforms)
+
+            else:
+
+                # it's a normal object
+                parent_transform = \
+                    Transform.get(blender_object.parent, transforms)
+
+        self.parent_transform = parent_transform
+
+    def read_local(self, frame_start, frame_end):
+
+        if isinstance(self.blender_object, bpy.types.Bone):
+
+            armature_object = self.parent_armature
+            bone_name = self.blender_object.name
+            self.locs, self.rots = \
+                armature_m.read_pose_bone_lr(armature_object,
+                                             bone_name,
+                                             frame_start,
+                                             frame_end)
+
+        else:
+
+            self.locs, self.rots, self.scales = \
+                read_object_space_lrs(self.blender_object,
+                                      frame_start,
+                                      frame_end)
+
+
+    def transform_world(self, transforms, frame_start, frame_end):
+
+        if isinstance(self.blender_object, bpy.types.Bone):
+
+            armature_object = self.parent_armature
+            matrix_local = armature_object.data.bones[self.blender_object.name].matrix_local
+
+            cbl_ms, cbo_ms, cbs_ms = matrix_local.decompose()
+            cbo_ms = cbo_ms.to_matrix()
+
+            bone_parent = self.blender_object.parent
+            if bone_parent:
+
+                matrix_local = armature_object.data.bones[bone_parent.name].matrix_local
+
+                pbl_ms, pbo_ms, pbs_ms = matrix_local.decompose()
+                pbo_ms = pbo_ms.to_matrix()
+
+                for num_frame in range(len(self.locs)):
+
+                    location_off = self.locs[num_frame]
+                    rotation_off = self.rots[num_frame]
+
+                    pfl_ms = self.parent_transform.locs[num_frame]
+                    pfo_ms = self.parent_transform.rots[num_frame]
+
+                    # express the childs bind pose in parent space
+                    cbl_ps = pbo_ms.transposed() @ (cbl_ms - pbl_ms)
+                    cbo_ps = pbo_ms.transposed() @ cbo_ms
+
+                    # calculate the model space coordinates of the child in
+                    # blenders bind pose
+                    cbl_dash_ms = pfl_ms + pfo_ms @ cbl_ps
+                    cbo_dash_ms = pfo_ms @ cbo_ps
+
+                    # calculate model space values for frame
+                    location = cbl_dash_ms + cbo_dash_ms @ location_off
+                    orientation = cbo_dash_ms @ rotation_off
+
+                    self.locs[num_frame] = location
+                    self.rots[num_frame] = orientation
+
+            else:  # root bone
+
+                for num_frame in range(len(self.locs)):
+
+                    location_off = self.locs[num_frame]
+                    rotation_off = self.rots[num_frame]
+
+                    location = cbl_ms + cbo_ms @ location_off
+                    orientation = cbo_ms @ rotation_off
+
+                    self.locs[num_frame] = location
+                    self.rots[num_frame] = orientation
+
+                armature_transform = Transform.get(armature_object, transforms)
+                for num_frame in range(len(self.locs)):
+
+                    pfl = armature_transform.locs[num_frame]
+                    pfr = armature_transform.rots[num_frame]
+                    #pfs = armature_transform.scales[num_frame]
+
+                    cfl = self.locs[num_frame]
+                    cfr = self.rots[num_frame]
+                    #cfs = transform.scales[num_frame]
+
+                    location = pfl + pfr @ cfl
+                    orientation = pfr @ cfr
+
+                    self.locs[num_frame] = location
+                    self.rots[num_frame] = orientation
+
+        else:
+
+            if self.parent_transform:
+
+                if self.blender_object.parent_type == 'BONE':
+
+                    # parented to tail, but we need head
+                    off_y = mathutils.Vector((0, -1, 0))
+
+                    for num_frame in range(len(self.locs)):
+
+                        cfl = self.locs[num_frame] - off_y
+                        cfr = self.rots[num_frame]
+                        #cfs = self.scales[num_frame]
+
+                        pfl = self.parent_transform.locs[num_frame]
+                        pfr = self.parent_transform.rots[num_frame]
+                        #pfs = self.parent_transform.scales[num_frame]
+
+                        location = pfl + pfr @ cfl
+                        orientation = pfr @ cfr
+
+                        self.locs[num_frame] = location
+                        self.rots[num_frame] = orientation
+
+                else:
+
+                    mi = self.blender_object.matrix_parent_inverse
+                    pil_ms, pir_ms, pbs_ms = mi.decompose()
+                    pir_ms = pir_ms.to_matrix()
+
+                    for num_frame in range(len(self.locs)):
+
+                        cfl_ls = self.locs[num_frame]
+                        cfr_ls = self.rots[num_frame]
+                        cfs_ls = self.scales[num_frame]
+
+                        pfl_ms = self.parent_transform.locs[num_frame]
+                        pfr_ms = self.parent_transform.rots[num_frame]
+
+                        location = pfl_ms + pfr_ms @ (pil_ms + pir_ms @ cfl_ls)
+
+                        cfr_ls = rotation_matrix_scaled(cfr_ls, cfs_ls)
+                        orientation = pfr_ms @ pir_ms @ cfr_ls
+
+                        self.locs[num_frame] = location
+                        self.rots[num_frame] = orientation
+
+            else:
+
+                for num_frame in range(len(self.locs)):
+
+                    cfl_ls = self.locs[num_frame]
+                    cfr_ls = self.rots[num_frame]
+                    cfs_ls = self.scales[num_frame]
+
+                    cfr_ls = rotation_matrix_scaled(cfr_ls, cfs_ls)
+                    self.rots[num_frame] = cfr_ls
+
+
+def build_transforms_ws(collection, frame_start, frame_end):
+
+    transforms = []
+
+    # initial reading
+    for blender_object in collection.all_objects:
+
+        transform = Transform(blender_object)
+        transforms.append(transform)
+
+        if blender_object.type == 'ARMATURE':
+
+            # need an extra run for the bones
+            for bone in blender_object.data.bones:
+
+                transform = Transform(bone)
+                transforms.append(transform)
+
+                # hack this in, so we have access to it later
+                transform.parent_armature = blender_object
+
+    # sort them based on num_parents
+    for transform in transforms:
+        transform.calc_parent_props(transforms)
+
+    transforms.sort(key=lambda x: x.num_parents)
+
+    # read local transforms: locs, rots, scales
+    for transform in transforms:
+        transform.read_local(frame_start, frame_end)
+
+    # transform to world space
+    for transform in transforms:
+        transform.transform_world(transforms, frame_start, frame_end)
+
+    return transforms
 
 def get_active_action_fcurves(blender_object):
 
@@ -59,178 +351,8 @@ def rotation_matrix_scaled(matrix, scale):
 
     return new_matrix
 
-def is_parent_empty(parent_object):
-
-    is_supported_parent = False
-
-    if parent_object and \
-       parent_object.type == 'EMPTY' and \
-       not parent_object.parent:
-
-        is_supported_parent = True
-
-    return is_supported_parent
-
-def to_ps(mdi_object, blender_object, frame_start, frame_end):
-    """Transform the data in an mdi object to parent space by applying a parent
-    space transform. The data in an mdi object is assumed to be given with
-    all object space transforms already applied.
-    """
-
-    if isinstance(mdi_object, mdi_m.MDISurface):
-
-        sample_vertex = mdi_object.vertices[0]
-        if isinstance(sample_vertex, mdi_m.MDIMorphVertex):
-
-            parent_object = blender_object.parent
-            is_supported_parent = is_parent_empty(parent_object)
-            if is_supported_parent:
-
-                loc_pi, rot_pi, scale_pi = \
-                    blender_object.matrix_parent_inverse.decompose()
-                rot_pi = rot_pi.to_matrix()
-                rot_scaled_pi = rotation_matrix_scaled(rot_pi, scale_pi)
-                locs_p, rots_p, scales_p = read_object_space_lrs(parent_object,
-                                                                 frame_start,
-                                                                 frame_end)
-
-                for num_frame in range(len(locs_p)):
-
-                    for mdi_morph_vertex in mdi_object.vertices:
-
-                        loc_c = mdi_morph_vertex.locations[num_frame]
-                        normal_c = mdi_morph_vertex.normals[num_frame]
-
-                        loc_p = locs_p[num_frame]
-                        rot_p = rots_p[num_frame]
-                        scale_p = scales_p[num_frame]
-                        rotation_scaled_p = \
-                            rotation_matrix_scaled(rot_p, scale_p)
-
-                        location = loc_pi + rot_scaled_pi @ loc_c
-                        location = loc_p + rotation_scaled_p @ location
-                        normal = rot_scaled_pi @ normal_c
-                        normal = rotation_scaled_p @ normal
-
-                        mdi_morph_vertex.locations[num_frame] = location
-                        mdi_morph_vertex.normals[num_frame] = normal
-
-        elif isinstance(sample_vertex, mdi_m.MDIRiggedVertex):
-
-            pass  # rigged vertices are given in armature space, ok
-
-        else:
-
-            raise Exception("Found unknown vertex type")
-
-    elif isinstance(mdi_object, mdi_m.MDISkeleton):
-
-        parent_object = blender_object.parent
-        is_supported_parent = is_parent_empty(parent_object)
-        if is_supported_parent:
-
-            loc_pi, rot_pi, scale_pi = \
-                blender_object.matrix_parent_inverse.decompose()
-            rot_pi = rot_pi.to_matrix()
-            rot_scaled_pi = rotation_matrix_scaled(rot_pi, scale_pi)
-            locs_p, rots_p, scales_p = read_object_space_lrs(parent_object,
-                                                             frame_start,
-                                                             frame_end)
-
-            for num_frame in range(len(locs_p)):
-
-                for mdi_bone in mdi_object.bones:
-
-                    loc_c = mdi_bone.locations[num_frame]
-                    ori_c = mdi_bone.orientations[num_frame]
-
-                    loc_p = locs_p[num_frame]
-                    rot_p = rots_p[num_frame]
-                    scale_p = scales_p[num_frame]
-                    rotation_scaled_p = \
-                        rotation_matrix_scaled(rot_p, scale_p)
-
-                    location = loc_pi + rot_scaled_pi @ loc_c
-                    location = loc_p + rotation_scaled_p @ location
-                    orientation = rot_pi @ ori_c
-                    orientation = rot_p @ orientation
-
-                    mdi_bone.locations[num_frame] = location
-                    mdi_bone.orientations[num_frame] = orientation
-
-    elif isinstance(mdi_object, mdi_m.MDIFreeTag):
-
-        parent_object = blender_object.parent
-        is_supported_parent = is_parent_empty(parent_object)
-        if is_supported_parent:
-
-            loc_pi, rot_pi, scale_pi = \
-                blender_object.matrix_parent_inverse.decompose()
-            rot_pi = rot_pi.to_matrix()
-            rot_scaled_pi = rotation_matrix_scaled(rot_pi, scale_pi)
-            locs_p, rots_p, scales_p = read_object_space_lrs(parent_object,
-                                                             frame_start,
-                                                             frame_end)
-
-            for num_frame in range(len(locs_p)):
-
-                loc_c = mdi_object.locations[num_frame]
-                ori_c = mdi_object.orientations[num_frame]
-
-                loc_p = locs_p[num_frame]
-                rot_p = rots_p[num_frame]
-                scale_p = scales_p[num_frame]
-                rotation_scaled_p = \
-                    rotation_matrix_scaled(rot_p, scale_p)
-
-                location = loc_pi + rot_scaled_pi @ loc_c
-                location = loc_p + rotation_scaled_p @ location
-                orientation = rot_pi @ ori_c
-                orientation = rot_p @ orientation
-
-                mdi_object.locations[num_frame] = location
-                mdi_object.orientations[num_frame] = orientation
-
-    elif isinstance(mdi_object, mdi_m.MDIBoneTag):
-
-        pass  # given in bone space
-
-    elif isinstance(mdi_object, mdi_m.MDIBoneTagOff):
-
-        pass  # given in bone space
-
-    else:
-
-        raise Exception("Found unkown type")
-
-def apply_parent_space_transforms(mdi_model, mesh_objects, armature_object,
-                                  arrow_objects, frame_start=0,
-                                  frame_end = 0):
-    """Only if the parent is an empty with no other parents.
-    """
-
-    for mesh_object in mesh_objects:
-
-        mdi_surface = mdi_model.find_surface_by_name(mesh_object.name)
-        if mdi_surface:
-            to_ps(mdi_surface, mesh_object, frame_start, frame_end)
-        else:
-            reporter_m.warning("Found unknown object during parent transform")
-
-    if armature_object and mdi_model.skeleton:
-        to_ps(mdi_model.skeleton, armature_object, frame_start, frame_end)
-
-    for arrow_object in arrow_objects:
-
-        mdi_tag = mdi_model.find_tag_by_name(arrow_object.name)
-        if mdi_tag:
-            to_ps(mdi_tag, arrow_object, frame_start, frame_end)
-        else:
-            reporter_m.warning("Found unknown object during parent transform")
-
 def is_object_supported(mdi_object, blender_object):
-    """Checks for constraints, modifiers, object space animation and
-    parent-child-relationships.
+    """Checks for constraints, modifiers, object space animation.
     """
 
     is_supported = True
@@ -296,12 +418,6 @@ def is_object_supported(mdi_object, blender_object):
         pass  # ok
 
     # object space animation
-    # morph mesh: ok
-    # rigged mesh: not supported
-    # skeleton: scale not supported
-    # free tag: scale not supported
-    # bone tag: not supported
-    # bone tag off: not supported
     if isinstance(mdi_object, mdi_m.MDISurface):
 
         if mdi_object.vertices:
@@ -337,46 +453,6 @@ def is_object_supported(mdi_object, blender_object):
 
                 raise Exception("Found unknown object type")
 
-    elif isinstance(mdi_object, mdi_m.MDISkeleton):
-
-        animation_found = False
-
-        fcurves = get_active_action_fcurves(blender_object)
-        if fcurves:
-
-            animation_found = \
-                fcurve_m.is_animated(fcurves,
-                                     rotation_mode = \
-                                         blender_object.rotation_mode,
-                                     check_scale=True)
-
-        if animation_found:
-
-            reporter_m.warning("Scaling in object space animation of armature"
-                                " object '{}' not supported"
-                            .format(mdi_object.name))
-            is_supported = False
-
-    elif isinstance(mdi_object, mdi_m.MDIFreeTag):
-
-        animation_found = False
-
-        fcurves = get_active_action_fcurves(blender_object)
-        if fcurves:
-
-            animation_found = \
-                fcurve_m.is_animated(fcurves,
-                                     rotation_mode = \
-                                         blender_object.rotation_mode,
-                                     check_scale=True)
-
-        if animation_found:
-
-            reporter_m.warning("Scaling in object space animation of arrow"
-                                " object '{}' not supported"
-                            .format(mdi_object.name))
-            is_supported = False
-
     elif isinstance(mdi_object, mdi_m.MDIBoneTag) or \
          isinstance(mdi_object, mdi_m.MDIBoneTagOff):
 
@@ -402,214 +478,14 @@ def is_object_supported(mdi_object, blender_object):
                                 .format(mdi_object.name))
             is_supported = False
 
-    else:
-
-        raise Exception("Found unknown object type")
-
-    # parent-child-relationships
-    # no parenting supported except:
-    # - rigged mesh objects and bone tags to skeleton
-    # - mesh objects and arrow objects to empty objects
-    # - skeleton objects to empty objects without scale
-    if isinstance(mdi_object, mdi_m.MDISurface):
-
-        if mdi_object.vertices:
-
-            sample_vertex = mdi_object.vertices[0]
-            if isinstance(sample_vertex, mdi_m.MDIMorphVertex):
-
-                if blender_object.parent:
-
-                    if is_parent_empty(blender_object.parent):
-
-                        pass  # ok
-
-                    else:
-
-                        reporter_m.warning("Parenting for mesh object '{}'"
-                                           " only supported if empty object"
-                                           .format(mdi_object.name))
-                        is_supported = False
-
-            elif isinstance(sample_vertex, mdi_m.MDIRiggedVertex):
-
-                parent_object = blender_object.parent
-
-                if parent_object:
-
-                    if not parent_object.type == 'ARMATURE':
-
-                        reporter_m.warning("Rigged mesh object '{}' needs a"
-                                           " parent of type armature, but"
-                                           " found different type"
-                                           .format(mdi_object.name))
-                        is_supported = False
-
-                else:
-
-                    pass  # ok
-
-            else:
-
-                raise Exception("Found unknown object type")
-
-    elif isinstance(mdi_object, mdi_m.MDISkeleton):
-
-        if blender_object.parent:
-
-            if is_parent_empty(blender_object.parent):
-
-                is_scaled_static = False
-                is_scaled_anim = False
-
-                _, _, scale = \
-                    blender_object.parent.matrix_basis.decompose()
-                if scale[0] != 1.0 or scale[1] != 1.0 or scale[2] != 1.0:
-                    is_scaled_static = True
-
-                fcurves = get_active_action_fcurves(blender_object.parent)
-                if fcurves:
-
-                    is_scaled_anim = \
-                        fcurve_m.is_animated(fcurves, check_scale=True)
-
-                if is_scaled_static or is_scaled_anim:
-
-                    reporter_m.warning("Parenting for armature object '{}'"
-                                        " to empty object only supported"
-                                        " if empty object not scaled"
-                                        .format(mdi_object.name))
-                    is_supported = False
-
-                pass  # ok
-
-            else:
-
-                reporter_m.warning("Parenting for armature object '{}' only"
-                                    " supported if empty object"
-                                    .format(mdi_object.name))
-                is_supported = False
-
-    elif isinstance(mdi_object, mdi_m.MDIFreeTag):
-
-        if blender_object.parent:
-
-            if is_parent_empty(blender_object.parent):
-
-                pass  # ok
-
-            else:
-
-                reporter_m.warning("Parenting for arrow object '{}' only"
-                                    " supported if empty object"
-                                    .format(mdi_object.name))
-                is_supported = False
-
-    elif isinstance(mdi_object, mdi_m.MDIBoneTag) or \
-         isinstance(mdi_object, mdi_m.MDIBoneTagOff):
-
-        parent_bone = blender_object.parent_bone
-        parent_type = blender_object.parent_type
-
-        if not parent_type == 'BONE' or not parent_bone:
-
-            reporter_m.warning("Arrow object '{}' can only be parented to pose"
-                               " bone, but found different"
-                               .format(mdi_object.name))
-            is_supported = False
-
-    else:
-
-        raise Exception("Found unknown object type")
-
     return is_supported
-
-def apply_object_transform(mdi_object, blender_object, frame_start, frame_end):
-    """Applies the transforms given in object space including animation.
-    """
-
-    if isinstance(mdi_object, mdi_m.MDISurface):
-
-        if mdi_object.vertices:
-
-            # only for morph vertices
-            sample_vertex = mdi_object.vertices[0]
-            if isinstance(sample_vertex, mdi_m.MDIMorphVertex):
-
-                locs, rots, scales = \
-                    read_object_space_lrs(blender_object,
-                                          frame_start,
-                                          frame_end)
-
-                for mdi_vertex in mdi_object.vertices:
-
-                    for num_frame in range(len(locs)):
-
-                        location_cs = mdi_vertex.locations[num_frame]
-                        normal_cs = mdi_vertex.normals[num_frame]
-                        loc_os = locs[num_frame]
-                        rot_os = rots[num_frame]
-                        scale_os = scales[num_frame]
-
-                        # we can't do this inplace since some mdi_vertex objects
-                        # might be duplicated during uv map pass, so just create
-                        # a new vector
-                        # TODO deep copy
-                        sx = location_cs[0] * scale_os[0]
-                        sy = location_cs[1] * scale_os[1]
-                        sz = location_cs[2] * scale_os[2]
-                        location_scaled = mathutils.Vector((sx, sy, sz))
-
-                        mdi_vertex.locations[num_frame] = \
-                            loc_os + rot_os @ location_scaled
-
-                        mdi_vertex.normals[num_frame] = rot_os @ normal_cs
-
-            else:
-
-                pass  # checked else where
-
-    elif isinstance(mdi_object, mdi_m.MDISkeleton):
-
-        locs, rots, scales = \
-            read_object_space_lrs(blender_object,
-                                  frame_start,
-                                  frame_end)
-
-        for mdi_bone in mdi_object.bones:
-
-            for num_frame in range(len(locs)):
-
-                location_cs = mdi_bone.locations[num_frame]
-                orientation_cs = mdi_bone.orientations[num_frame]
-                loc_os = locs[num_frame]
-                rot_os = rots[num_frame]
-
-                mdi_bone.locations[num_frame] = loc_os + rot_os @ location_cs
-                mdi_bone.orientations[num_frame] = rot_os @ orientation_cs
-
-    elif isinstance(mdi_object, mdi_m.MDIFreeTag):
-
-        pass  # already done
-
-    elif isinstance(mdi_object, mdi_m.MDIBoneTag):
-
-        pass
-
-    elif isinstance(mdi_object, mdi_m.MDIBoneTagOff):
-
-        pass
-
-    else:
-
-        raise Exception("Unknown object type during object transform")
 
 def read_object_space_lrs(blender_object, frame_start=0, frame_end=0,
                           read_locs=True, read_rots=True,
                           read_scales=True):
     """Read object space location, rotation and scale values of an object. If
     not animated, return static values across frames. The returned values are
-    assumed to be given without constraints, parents or modifiers applied.
+    assumed to be given without constraints or modifiers applied.
 
     Args:
 

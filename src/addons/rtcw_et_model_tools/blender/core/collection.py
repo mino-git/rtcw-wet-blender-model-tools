@@ -120,21 +120,47 @@ def read(collapse_frame = -1):
     mdi_model.name = active_collection.name
     # mdi_model.root_frame = 0  # only used during import
 
+    transforms = blender_util_m.build_transforms_ws(active_collection,
+                                                    frame_start,
+                                                    frame_end)
+
     mesh_objects, armature_object, arrow_objects = \
         _collect_objects_for_export(active_collection)
 
+    # mdi surfaces
+    for mesh_object in mesh_objects:
+
+        mdi_surface = mesh_m.read(mesh_object,
+                                  transforms,
+                                  frame_start,
+                                  frame_end)
+        if mdi_surface:
+
+            is_supported = \
+                blender_util_m.is_object_supported(mdi_surface, mesh_object)
+            if is_supported:
+
+                mdi_model.surfaces.append(mdi_surface)
+
+            else:
+
+                reporter_m.warning("Dropped mesh object with name '{}'."
+                                   " A property is unsupported"
+                                   .format(mesh_object.name))
+
+        else:
+
+            reporter_m.warning("Could not read mesh object '{}'"
+                               .format(mesh_object.name))
+
     # mdi skeleton
-    mdi_skeleton = armature_m.read(armature_object, frame_start, frame_end)
+    mdi_skeleton = armature_m.read(armature_object, transforms, frame_start, frame_end)
     if mdi_skeleton:
 
         is_supported = \
             blender_util_m.is_object_supported(mdi_skeleton, armature_object)
         if is_supported:
 
-            blender_util_m.apply_object_transform(mdi_skeleton,
-                                                  armature_object,
-                                                  frame_start,
-                                                  frame_end)
             mdi_model.skeleton = mdi_skeleton
 
         else:
@@ -150,40 +176,11 @@ def read(collapse_frame = -1):
 
         pass  # ok
 
-    # mdi surfaces
-    for mesh_object in mesh_objects:
-
-        mdi_surface = mesh_m.read(mesh_object,
-                                  armature_object,
-                                  frame_start,
-                                  frame_end)
-        if mdi_surface:
-
-            is_supported = \
-                blender_util_m.is_object_supported(mdi_surface, mesh_object)
-            if is_supported:
-
-                blender_util_m.apply_object_transform(mdi_surface,
-                                                      mesh_object,
-                                                      frame_start,
-                                                      frame_end)
-                mdi_model.surfaces.append(mdi_surface)
-
-            else:
-
-                reporter_m.warning("Dropped mesh object with name '{}'."
-                                   " A property is unsupported"
-                                   .format(mesh_object.name))
-
-        else:
-
-            reporter_m.warning("Could not read mesh object '{}'"
-                               .format(mesh_object.name))
-
     # mdi tags
     for arrow_object in arrow_objects:
 
         mdi_tag = arrow_m.read(arrow_object,
+                               transforms,
                                armature_object,
                                frame_start,
                                frame_end)
@@ -193,10 +190,6 @@ def read(collapse_frame = -1):
                 blender_util_m.is_object_supported(mdi_tag, arrow_object)
             if is_supported:
 
-                blender_util_m.apply_object_transform(mdi_tag,
-                                                      arrow_object,
-                                                      frame_start,
-                                                      frame_end)
                 mdi_model.tags.append(mdi_tag)
 
             else:
@@ -215,13 +208,6 @@ def read(collapse_frame = -1):
 
     # mdi lod
     mdi_model.lod = mdi_m.MDIDiscreteLOD()
-
-    blender_util_m.apply_parent_space_transforms(mdi_model,
-                                                 mesh_objects,
-                                                 armature_object,
-                                                 arrow_objects,
-                                                 frame_start,
-                                                 frame_end)
 
     time = timer.time()
     reporter_m.info("Reading collection DONE (time={})".format(time))

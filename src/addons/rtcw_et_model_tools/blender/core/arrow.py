@@ -261,7 +261,7 @@ def attach_to_tag(method, game_path = None, skin_file_path = None):
 # READ
 # =====================================
 
-def read(arrow_object, armature_object=None, frame_start=0, frame_end=0):
+def read(arrow_object, transforms, armature_object=None, frame_start=0, frame_end=0):
     """Read arrow object and convert to mdi.
 
     Args:
@@ -310,13 +310,9 @@ def read(arrow_object, armature_object=None, frame_start=0, frame_end=0):
 
         mdi_tag.name = arrow_object.name
 
-        locations, rotations, _ = \
-            blender_util_m.read_object_space_lrs(arrow_object,
-                                                 frame_start,
-                                                 frame_end,
-                                                 read_scales=False)
-        mdi_tag.locations = locations
-        mdi_tag.orientations = rotations
+        transform = blender_util_m.Transform.get(arrow_object, transforms)
+        mdi_tag.locations = transform.locs
+        mdi_tag.orientations = transform.rots
 
     elif is_bone_tag:
 
