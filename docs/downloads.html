@@ -6,7 +6,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <link rel="stylesheet" href="./css/bootstrap.min.css">
-  <link rel="stylesheet" href="./css/bootstrap-toc.min.css">
+
   <link rel="stylesheet" href="./css/animate.css">
   <link rel="stylesheet" href="./css/remt.css">
   <title>RtCW:ET Model Tools - User Guide.</title>
@@ -17,58 +17,58 @@
 <body>
 
   <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark">
-      <div class="container">
-        <!-- Brand -->
-        <a class="navbar-brand d-none d-md-block" href="./index.html">
-          <img src="./img/brand/navbar.png" alt="Brand" />
-        </a>
-        <a class="navbar-brand d-block d-md-none" href="./index.html">
-          <img src="./img/brand/navbar_collapsed.png" alt="Brand" />
-        </a>
-        <!-- Toggler -->
-        <button
-          class="navbar-toggler"
-          type="button"
-          data-toggle="collapse"
-          data-target="#remt-navbar-collapse"
-          aria-controls="remt-navbar-collapse"
-          aria-expanded="false"
-          aria-label="Toggle navigation"
-        >
-          <span class="navbar-toggler-icon"></span>
-        </button>
-        <!-- Links -->
-        <div class="collapse navbar-collapse" id="remt-navbar-collapse">
-          <ul class="navbar-nav ml-auto">
-            <!-- Normal Links -->
-            <li class="nav-item">
-              <a class="nav-link" href="./about.html">About</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="./downloads.html">Downloads</a>
-            </li>
-            <!-- Learn Dropdown -->
-            <li class="nav-item dropdown">
-              <a
-                class="nav-link dropdown-toggle"
-                href="#"
-                id="dropdown-learn"
-                data-toggle="dropdown"
-                aria-haspopup="true"
-                aria-expanded="false"
-                >Learn</a
-              >
-              <div class="dropdown-menu" aria-labelledby="dropdown-learn">
-                <a class="dropdown-item" href="./user_guide.html">User Guide</a>
-                <a class="dropdown-item" href="./developer_guide.html">Developer Guide</a>
-                <a class="dropdown-item" href="./tutorials.html">Tutorials</a>
-              </div>
-            </li>
-          </ul>
-        </div>
+  <nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container">
+      <!-- Brand -->
+      <a class="navbar-brand d-none d-md-block" href="./index.html">
+        <img src="./img/brand/navbar.png" alt="Brand" />
+      </a>
+      <a class="navbar-brand d-block d-md-none" href="./index.html">
+        <img src="./img/brand/navbar_collapsed.png" alt="Brand" />
+      </a>
+      <!-- Toggler -->
+      <button
+        class="navbar-toggler"
+        type="button"
+        data-toggle="collapse"
+        data-target="#remt-navbar-collapse"
+        aria-controls="remt-navbar-collapse"
+        aria-expanded="false"
+        aria-label="Toggle navigation"
+      >
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <!-- Links -->
+      <div class="collapse navbar-collapse" id="remt-navbar-collapse">
+        <ul class="navbar-nav ml-auto">
+          <!-- Normal Links -->
+          <li class="nav-item">
+            <a class="nav-link" href="./about.html">About</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="./downloads.html">Downloads</a>
+          </li>
+          <!-- Learn Dropdown -->
+          <li class="nav-item dropdown">
+            <a
+              class="nav-link dropdown-toggle"
+              href="#"
+              id="dropdown-learn"
+              data-toggle="dropdown"
+              aria-haspopup="true"
+              aria-expanded="false"
+              >Learn</a
+            >
+            <div class="dropdown-menu" aria-labelledby="dropdown-learn">
+              <a class="dropdown-item" href="./user_guide.html">User Guide</a>
+              <a class="dropdown-item" href="./developer_guide.html">Developer Guide</a>
+              <a class="dropdown-item" href="./tutorials.html">Tutorials</a>
+            </div>
+          </li>
+        </ul>
       </div>
-    </nav>
+    </div>
+  </nav>
 
   <!-- Content -->
   <div class="container">
@@ -81,21 +81,50 @@
         <div class="remt-title">
           <h1 data-toc-skip>Downloads</h1>
           <hr>
-          <p class="animated fadeInDown">Downloads and links.</p>
+          <p class="animated fadeInDown">Downloads and Links.</p>
           <hr>
         </div>
 
         <!-- Chapter: Introduction -->
         <div class="remt-chapter">
-          <h2 id="introduction">Work in progress</h2>
-          <p>Check back later ...</p>
+          <h2>Download</h2>
+          <p>
+            The addon is compatible with Blender version 2.8.0 and 2.7.9.
+            The version for 2.7.9 is stripped down to import/export functionality.
+          </p>
+          <p>
+            <ul type="circle">
+              <li>For Blender version 2.8.0: <a href="./downloads/rtcw_et_model_tools_bl280_v1.0.0_rc3.zip">rtcw_et_model_tools_bl280_v1.0.0_rc3</a></li>
+              <li>For Blender version 2.7.9: TODO</li>
+            </ul>
+          </p>
+          <p>
+            Install instructions and more can be found in the <a href="./user_guide.html">User Guide</a>
+            or in the <a href="./tutorials.html">Tutorials Section</a>.
+          </p>
+        </div>
+
+        <div class="remt-chapter">
+          <h2>Github</h2>
+          <p>
+            The addon is open source and can be inspected on Github.
+          </p>
+          <p>
+            <ul type="circle">
+              <li>Source Code on GitHub: <a href="https://github.com/mino-git/rtcw-wet-blender-model-tools">Source</a></li>
+            </ul>
+          </p>
+          <p>
+            The source code is documented along with the file formats.
+            Head over to the <a href="./developer_guide.html">Developer Guide</a> for more details.
+          </p>
         </div>
 
       </div>
 
       <div class="col-sm-3">
-        <nav id="toc" data-toggle="toc" class="sticky-top"></nav>
       </div>
+
     </div>
 
   </div>
@@ -110,17 +139,6 @@
   <!-- Javascript -->
   <script src="./js/jquery-3.2.1.slim.min.js"></script>
   <script src="./js/bootstrap.bundle.min.js"></script>
-  <script src="./js/bootstrap-toc.min.js"></script>
-
-  <!-- Scrollspy fix -->
-  <script type="text/javascript">
-    $(document).ready(function () {
-      $('body').scrollspy({
-        target: '#toc',
-        offset: 10
-      });
-    });
-  </script>
 
 </body>
 

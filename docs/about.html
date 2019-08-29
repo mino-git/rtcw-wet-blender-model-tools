@@ -6,7 +6,6 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <link rel="stylesheet" href="./css/bootstrap.min.css">
-  <link rel="stylesheet" href="./css/bootstrap-toc.min.css">
   <link rel="stylesheet" href="./css/animate.css">
   <link rel="stylesheet" href="./css/remt.css">
   <title>RtCW:ET Model Tools - User Guide.</title>
@@ -17,58 +16,58 @@
 <body>
 
   <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark">
-      <div class="container">
-        <!-- Brand -->
-        <a class="navbar-brand d-none d-md-block" href="./index.html">
-          <img src="./img/brand/navbar.png" alt="Brand" />
-        </a>
-        <a class="navbar-brand d-block d-md-none" href="./index.html">
-          <img src="./img/brand/navbar_collapsed.png" alt="Brand" />
-        </a>
-        <!-- Toggler -->
-        <button
-          class="navbar-toggler"
-          type="button"
-          data-toggle="collapse"
-          data-target="#remt-navbar-collapse"
-          aria-controls="remt-navbar-collapse"
-          aria-expanded="false"
-          aria-label="Toggle navigation"
-        >
-          <span class="navbar-toggler-icon"></span>
-        </button>
-        <!-- Links -->
-        <div class="collapse navbar-collapse" id="remt-navbar-collapse">
-          <ul class="navbar-nav ml-auto">
-            <!-- Normal Links -->
-            <li class="nav-item">
-              <a class="nav-link" href="./about.html">About</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="./downloads.html">Downloads</a>
-            </li>
-            <!-- Learn Dropdown -->
-            <li class="nav-item dropdown">
-              <a
-                class="nav-link dropdown-toggle"
-                href="#"
-                id="dropdown-learn"
-                data-toggle="dropdown"
-                aria-haspopup="true"
-                aria-expanded="false"
-                >Learn</a
-              >
-              <div class="dropdown-menu" aria-labelledby="dropdown-learn">
-                <a class="dropdown-item" href="./user_guide.html">User Guide</a>
-                <a class="dropdown-item" href="./developer_guide.html">Developer Guide</a>
-                <a class="dropdown-item" href="./tutorials.html">Tutorials</a>
-              </div>
-            </li>
-          </ul>
-        </div>
+  <nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container">
+      <!-- Brand -->
+      <a class="navbar-brand d-none d-md-block" href="./index.html">
+        <img src="./img/brand/navbar.png" alt="Brand" />
+      </a>
+      <a class="navbar-brand d-block d-md-none" href="./index.html">
+        <img src="./img/brand/navbar_collapsed.png" alt="Brand" />
+      </a>
+      <!-- Toggler -->
+      <button
+        class="navbar-toggler"
+        type="button"
+        data-toggle="collapse"
+        data-target="#remt-navbar-collapse"
+        aria-controls="remt-navbar-collapse"
+        aria-expanded="false"
+        aria-label="Toggle navigation"
+      >
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <!-- Links -->
+      <div class="collapse navbar-collapse" id="remt-navbar-collapse">
+        <ul class="navbar-nav ml-auto">
+          <!-- Normal Links -->
+          <li class="nav-item">
+            <a class="nav-link" href="./about.html">About</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="./downloads.html">Downloads</a>
+          </li>
+          <!-- Learn Dropdown -->
+          <li class="nav-item dropdown">
+            <a
+              class="nav-link dropdown-toggle"
+              href="#"
+              id="dropdown-learn"
+              data-toggle="dropdown"
+              aria-haspopup="true"
+              aria-expanded="false"
+              >Learn</a
+            >
+            <div class="dropdown-menu" aria-labelledby="dropdown-learn">
+              <a class="dropdown-item" href="./user_guide.html">User Guide</a>
+              <a class="dropdown-item" href="./developer_guide.html">Developer Guide</a>
+              <a class="dropdown-item" href="./tutorials.html">Tutorials</a>
+            </div>
+          </li>
+        </ul>
       </div>
-    </nav>
+    </div>
+  </nav>
 
   <!-- Content -->
   <div class="container">
@@ -79,22 +78,70 @@
 
         <!-- Title -->
         <div class="remt-title">
-          <h1 data-toc-skip>About</h1>
+          <h1>About</h1>
           <hr>
-          <p class="animated fadeInDown">Import, Export, Attach and Shade inside Blender.</p>
+          <p class="animated fadeInDown">RtCW:ET Model tools for Blender.</p>
           <hr>
         </div>
 
         <!-- Chapter: Introduction -->
         <div class="remt-chapter">
-          <h2 id="introduction">Work in progress</h2>
-          <p>Check back later ...</p>
+
+          <h2 id="introduction">Introduction</h2>
+          <p>
+            RtCW:ET Blender Model Tools is an addon for the 3D modeling software Blender.
+            It adds support for the MD3, MDC, MDS, MDM/MDX and TAG model formats.
+            These formats make up parts of the assets for the games Return to Castle Wolfenstein and Wolfenstein: Enemy Territory.
+          </p>
+          <p>
+            The addons main focus is on import, export and convertability between the formats.
+            But there are additional tools which help you work with the formats.
+            The current tools include direct conversion, attachment, shading and extracting .pk3 files.
+          </p>
+        </div>
+
+        <!-- Chapter: Features -->
+        <div class="remt-chapter">
+          <h2 id="features">Features</h2>
+          <p>Its main features are:</p>
+          <ul type="circle">
+            <li>Import/Export of all formats</li>
+            <li>Convertability among the formats</li>
+          </ul>
+          <p>But there is also:</p>
+          <ul type="circle">
+            <li>Direct conversion to convert models without writing to Blender</li>
+            <li>Attachment of external models to tag objects in Blender</li>
+            <li>Shading mesh objects in Blender</li>
+            <li>Exctracting PK3 files</li>
+          </ul>
+        </div>
+
+        <!-- Chapter: Getting started -->
+        <div class="remt-chapter">
+          <h2 id="gettingstarted">Getting started</h2>
+          <ul type="circle">
+            <li>Downloads</li>
+            <li><a href="./user_guide.html">User Guide</a></li>
+            <li>Developer Guide (TODO)</li>
+            <li>Tutorials (TODO)</li>
+            <li><a href="https://github.com/mino-git/rtcw-wet-blender-model-tools">Source Code on GitHub</a></li>
+          </ul>
+        </div>
+
+        <!-- Chapter: Notice -->
+        <div class="remt-chapter">
+          <h2 id="noticeofnonaffiliationanddisclaimer">Notice of Non-Affiliation and Disclaimer</h2>
+          <p>
+            This product is in no way affiliated, associated, authorized, endorsed by,
+            or in any way officially connected with the creators and publishers of
+            the games Return to Castle Wolfenstein and Wolfenstein: Enemy Territory.
+          </p>
         </div>
 
       </div>
 
       <div class="col-sm-3">
-        <nav id="toc" data-toggle="toc" class="sticky-top"></nav>
       </div>
     </div>
 
@@ -110,17 +157,6 @@
   <!-- Javascript -->
   <script src="./js/jquery-3.2.1.slim.min.js"></script>
   <script src="./js/bootstrap.bundle.min.js"></script>
-  <script src="./js/bootstrap-toc.min.js"></script>
-
-  <!-- Scrollspy fix -->
-  <script type="text/javascript">
-    $(document).ready(function () {
-      $('body').scrollspy({
-        target: '#toc',
-        offset: 10
-      });
-    });
-  </script>
 
 </body>
 
