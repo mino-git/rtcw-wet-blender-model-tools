@@ -1,0 +1,1515 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="stylesheet" href="./css/bootstrap.min.css">
+  <link rel="stylesheet" href="./css/bootstrap-toc.min.css">
+  <link rel="stylesheet" href="./css/animate.css">
+  <link rel="stylesheet" href="./css/remt.css">
+  <title>RtCW:ET Model Tools - User Guide.</title>
+  <link rel="icon" href="./img/brand/icon.ico">
+
+</head>
+
+<body>
+
+  <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+      <div class="container">
+        <!-- Brand -->
+        <a class="navbar-brand d-none d-md-block" href="./index.html">
+          <img src="./img/brand/navbar.png" alt="Brand" />
+        </a>
+        <a class="navbar-brand d-block d-md-none" href="./index.html">
+          <img src="./img/brand/navbar_collapsed.png" alt="Brand" />
+        </a>
+        <!-- Toggler -->
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-toggle="collapse"
+          data-target="#remt-navbar-collapse"
+          aria-controls="remt-navbar-collapse"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <!-- Links -->
+        <div class="collapse navbar-collapse" id="remt-navbar-collapse">
+          <ul class="navbar-nav ml-auto">
+            <!-- Normal Links -->
+            <li class="nav-item">
+              <a class="nav-link" href="./about.html">About</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="./downloads.html">Downloads</a>
+            </li>
+            <!-- Learn Dropdown -->
+            <li class="nav-item dropdown">
+              <a
+                class="nav-link dropdown-toggle"
+                href="#"
+                id="dropdown-learn"
+                data-toggle="dropdown"
+                aria-haspopup="true"
+                aria-expanded="false"
+                >Learn</a
+              >
+              <div class="dropdown-menu" aria-labelledby="dropdown-learn">
+                <a class="dropdown-item" href="./user_guide.html">User Guide</a>
+                <a class="dropdown-item" href="./developer_guide.html">Developer Guide</a>
+                <a class="dropdown-item" href="./tutorials.html">Tutorials</a>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+  <!-- Content -->
+  <div class="container">
+
+    <div class="row">
+
+      <div class="col-sm-9">
+
+        <!-- Title -->
+        <div class="remt-title">
+          <h1 data-toc-skip>User Guide</h1>
+          <hr>
+          <p class="animated fadeInDown">Learn about using the addon in Blender.</p>
+          <hr>
+        </div>
+
+        <!-- Chapter: Introduction -->
+        <div class="remt-chapter">
+          <h2 id="introduction">Introduction</h2>
+          <p>
+            This guide will cover everything you must know about using the addon in Blender.
+            It shows download and installation, use cases, and will also tell you a bit of game background knowledge.
+          </p>
+        </div>
+
+        <!-- Chapter: Versioning -->
+        <div class="remt-chapter">
+          <h2 id="versioning">Versioning</h2>
+          <table class="table table-dark table-striped table-bordered">
+            <thead>
+              <tr>
+                <th scope="col">Current Version</th>
+                <th scope="col">For</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>1.0</td>
+                <td>User Guide</td>
+              </tr>
+              <tr>
+                <td>1.0</td>
+                <td>Addon for Blender version 2.8</td>
+              </tr>
+              <tr>
+                <td>1.0</td>
+                <td>Addon for Blender version 2.79</td>
+              </tr>
+            </tbody>
+          </table>
+          <p>
+            This guide uses addon version 1.0 for Blender 2.8.
+          </p>
+        </div>
+
+        <!-- Chapter: Installation -->
+        <div class="remt-chapter">
+          <h2 id="installation">Installation</h2>
+          <p>
+            The addon can be installed like any other addon in Blender.
+            We will use the <q>Install Add-on from File</q> method.
+            This method uses a special panel in Blender to read a .zip file.
+          </p>
+          <p>
+            First <a href="./downloads.html">download</a> the addon.
+            Leave the downloaded file unzipped and open Blender.
+            In the <span class="txt-h1">menu bar of Blender click Edit - Preferences</span>.
+          </p>
+          <p>
+            <figure class="remt-pic-explain">
+              <img src="./img/user_guide/install-1.jpg" alt="enable the addon">
+              <figcaption>Figure: user preferences</figcaption>
+            </figure>
+          </p>
+          <p>
+            In the <span class="txt-h1">sidebar click the Add-ons tab</span>
+            and after that <span class="txt-h1">click the Install button</span> on the top right.
+          </p>
+          <p>
+            <figure class="remt-pic-explain">
+              <img src="./img/user_guide/install-2.jpg" alt="enable the addon">
+              <figcaption>Figure: addons tab</figcaption>
+            </figure>
+          </p>
+          <p>
+            In the <span class="txt-h1">file dialog point to your downloaded .zip file</span>,
+            then <span class="txt-h1">click the Install Add-on from File button</span>.
+          </p>
+          <p>
+            <figure class="remt-pic-explain">
+              <img src="./img/user_guide/install-3.jpg" alt="enable the addon">
+              <figcaption>Figure: install addon from file</figcaption>
+            </figure>
+          </p>
+          <p>
+            The addon is now installed, but it needs to be enabled.
+            Search for the addon by <span class="txt-h1">typing <q>rtcw</q> in the search field</span>.
+            <span class="txt-h1">Toggle the checkbox</span> to enable the addon.
+          </p>
+          <p>
+            <figure class="remt-pic-explain">
+              <img src="./img/user_guide/install-4.jpg" alt="enable the addon">
+              <figcaption>Figure: enable the addon</figcaption>
+            </figure>
+          </p>
+          <p>
+            Blender 2.8 by default saves your preferences, but to make sure we check for it.
+            Otherwise the addon will not load on the next start of Blender.
+          </p>
+          <p>
+            <figure class="remt-pic-explain">
+              <img src="./img/user_guide/install-5.jpg" alt="enable the addon">
+              <figcaption>Figure: auto-save preferences</figcaption>
+            </figure>
+          </p>
+        </div>
+
+        <!-- Chapter: First Steps -->
+        <div class="remt-chapter">
+          <h2 id="first-steps">First Steps</h2>
+          <p>
+            In this chapter an overview of the addon, as well as an import and export example is given.
+            If you work yourself through this chapter, you will have seen almost everything about the addon.
+          </p>
+
+          <!-- Overview -->
+          <h3 id="first-steps-overview">Overview</h3>
+          <p>
+            The addon is located in a <span class="txt-h1">Panel called RtCW/ET</span>
+            in the <span class="txt-h1">View Properties</span> of
+            the <span class="txt-h1">3D view port</span> (shortcut 'N').
+            It will be available in <span class="txt-h1">Object Mode</span> only.
+          </p>
+          <p>
+            <figure class="remt-pic-explain">
+              <img src="./img/user_guide/first-steps-1.jpg" alt="addon location in Blender">
+              <figcaption>Figure: addon location in Blender</figcaption>
+            </figure>
+          </p>
+          <p>
+            There are 5 Sub-Panels: Import, Export, Direct Conversion, Attachment, Shading and Unzip PK3s.
+            You can find more details about those panels in chapter <a href="#panel-description">Panel Description</a>.
+          </p>
+          <p>
+            Additionally the addon prints verbose log output to the system console.
+            It will print debug, info and warning messages.
+            You can open the system console under <span class="txt-h1">Window - Toggle System Console</span>.
+          </p>
+          <p>
+            <figure class="remt-pic-explain">
+              <img src="./img/user_guide/first-steps-2.jpg" alt="system console with log output">
+              <figcaption>Figure: system console with log output</figcaption>
+            </figure>
+          </p>
+          <p>
+            In case the addon receives too many warnings, it will redirect you here.
+          </p>
+
+          <!-- Import of a Character -->
+          <h3 id="first-steps-import-of-a-character">Import of a Character</h3>
+          <p>
+            In this section we are going to import and assemble a game character from the game Wolfenstein: Enemy Territory.
+            Game characters are made up of many different parts.
+            The main parts are: body, head, helmet and accessoires like the backpack.
+            These parts are stored in different model formats:
+            MD3 or MDC for head, helmet or accessoire models; and MDS or MDM/MDX for the body models.
+          </p>
+          <p>
+            <figure class="remt-pic-explain">
+              <img src="./img/user_guide/import-character-1.png" alt="the many different model parts of a character">
+              <figcaption>Figure: the many different model parts of a character</figcaption>
+            </figure>
+          </p>
+
+          <!-- Import of a Character: Preparations-->
+          <h4>Preparations</h4>
+          <p>
+            Before we start we should do 2 things:
+            1) extract the game data from pk3 files and
+            2) find out where our different model parts are located on disk.
+          </p>
+
+          <!-- Import of a Character: Extract Game Data -->
+          <h5 id="first-steps-extracting-game-data">Extracting the game data</h5>
+          <p>
+            At some point in this example (during shading or attachment) the addon needs to have a reference to a
+            directory which contains all the game data in uncompressed form.
+            Game data for RtCW and W:ET is mostly located in compressed files whose names end with <q>.pk3</q>.
+          </p>
+          <p>
+            We use the <span class="txt-h1">Unzip PK3s panel</span> to extract all the .pk3 files from the game.
+            See chapter <a href="#panel-description-unzip-pk3s">Unzip PK3s</a> for more details.
+            For the input field called <span class="txt-h1">Source Filepath</span>
+            search for your <span class="txt-h1">W:ET installation path and choose the directory called <q>etmain</q></span>.
+            For the input field called <span class="txt-h1">Target Filepath</span>
+            create a <span class="txt-h1">new and empty folder and use this as input</span>.
+          </p>
+          <p>
+            <figure class="remt-pic-explain">
+              <img src="./img/user_guide/import-character-2.jpg" alt="input fields for the unzip pk3 panel">
+              <figcaption>Figure: input fields for the unzip pk3 panel</figcaption>
+            </figure>
+          </p>
+          <p>
+            Make sure enough space is left on your disk, as the operation will require around 800MBs.
+            <span class="txt-h1">Click the Unzip button</span> and after some time your data will be extracted to your
+            target folder.
+            The operation will search the source directory and all its subdirectories recursively and extract
+            all .pk3 files it finds to the target directory.
+          </p>
+
+          <!-- Import of a Character: Finding the model parts -->
+          <h5 id="first-steps-finding-model-parts">Finding the model parts</h5>
+          <p>
+            W:ET uses a system involving <span class="txt-h2">.char files</span> to assemble its characters during runtime.
+            The .char file for the allied engineer is located at: <q>characters/temperate/allied/engineer.char</q>.
+            The file content reveals some information:
+          </p>
+          <p>
+            <figure class="remt-pic-explain">
+              <img src="./img/user_guide/import-character-3.jpg" alt="a .char file for W:ET">
+              <figcaption>Figure: a .char file for W:ET</figcaption>
+            </figure>
+          </p>
+          <p>
+            The information is either directly containing a reference to the model files (see <q>mesh</q> or
+            <q>hudhead</q> key) or it references other script files (for example <q>animationgroup</q>).
+            The picture above marks the information needed for the body model and the head model. That will be our
+            starting point.
+          </p>
+
+          <!-- Import of a Character: Importing the body -->
+          <h4>Importing the body</h4>
+          <p>
+            <span class="txt-h2">The body models in W:ET are stored in two seperate files.</span>
+            The mesh data for the body is located in .mdm files. The animation data is separated and stored in .mdx files.
+            This way different meshes can <span class="txt-h2">reuse the same animation data</span>.
+            This is different compared to RtCW, as RtCW stores all its data for a body model in a single .mds file.
+          </p>
+          <p>
+            We already have the location of the body file for our allied engineer, but we still need to figure out where
+            its animation data
+            from the .mdx files is located. We can find this information by following the <q>animationgroup</q>
+            key-value pair from the .char file.
+            <span class="txt-h1">Opening the file located at <q>animations/human_base.anim</q></span> reveals many different .mdx locations for
+            this character.
+            We choose <q>body.mdx</q> for this example as it is basically the main animation file used by all 10
+            characters
+            of the game.
+          </p>
+          <p>
+            <figure class="remt-pic-explain">
+              <img src="./img/user_guide/import-character-4.jpg" alt=".anim file for W:ET">
+              <figcaption>Figure: .anim file for W:ET</figcaption>
+            </figure>
+          </p>
+          <p>
+            Now we have all the file paths we need for the body part.
+            All that is left to do is use the <span class="txt-h1">Import Panel</span> of the addon to import the model.
+            Chapter <a href="#panel-description-import">Import</a> has more details on this panel.
+            After you located the panel in Blender,
+            <span class="txt-h1">use the combo box called <q>Format</q> to choose the MDM/MDX file format</span>.
+          </p>
+          <p>
+            <figure class="remt-pic-explain">
+              <img src="./img/user_guide/import-character-5.jpg" alt="choosing the format to import">
+              <figcaption>Figure: choosing the format to import</figcaption>
+            </figure>
+          </p>
+          <p>
+            For the <span class="txt-h1">input field called <q>MDM Filepath</q> choose its absolute path</span>.
+            For the <span class="txt-h1">input field called <q>MDX Filepath</q> choose its absolute path</span>.
+            Lastly, <span class="txt-h1">choose frame 32 for the input field called <q>Bindpose Frame</q></span>.
+            This frame influences the edit mode mesh, which is bound to the skeleton.
+            This is kind of a magic number.
+            The models shipped with the game usually have many different frames representing the bind pose.
+          </p>
+          <p>
+            <figure class="remt-pic-explain">
+              <img src="./img/user_guide/import-character-6.jpg" alt="the import panel input fields">
+              <figcaption>Figure: the import panel input fields</figcaption>
+            </figure>
+          </p>
+          <p>
+            Your input fields should look similar to the picture above.
+            <span class="txt-h1">Click the Import Button</span>
+            and after around 5 to 10 seconds (it is alot of data) your body model will be placed inside a collection in Blender.
+            Make sure you have around 150 MB space left on disk, as the .blend files get rather large if you save them.
+          </p>
+          <p>
+            <figure class="remt-pic-explain">
+              <img src="./img/user_guide/import-character-7.jpg" alt="the body model inside Blender">
+              <figcaption>Figure: the imported body model inside Blender</figcaption>
+            </figure>
+          </p>
+
+          <!-- Import of a Character: Importing and attaching the head -->
+          <h4>Importing and attaching the head</h4>
+          <p>
+            From chapter <a href="#first-steps-finding-model-parts">Finding the model parts</a> we know the location of our head model.
+            <span class="txt-h1">Let's fill in the data into the import panel for the MD3 format</span>.
+            This works the same as in the previous chapter.
+            After import the head model will be placed into a separate collection.
+          </p>
+          <p>
+            <figure class="remt-pic-explain">
+              <img src="./img/user_guide/import-character-8.jpg" alt="the head model inside">
+              <figcaption>Figure: the head model inside</figcaption>
+            </figure>
+          </p>
+          <p>
+            For attachment of the head model to the body model we need to use a little magic again,
+            as this information is hard coded in the source code.
+            During run time, the game will load a lot of information for attaching the models onto special places of other models.
+            These places are called <span class="txt-h2"><q>tags</q></span>.
+            Our magic information tells us that there is a tag called <q>tag_head</q> on the body model.
+            Tags are represented as empties with the prefix <q>tag_</q> and display type <q>ARROWS</q> within Blender.
+            <span class="txt-h1">Let's go into the collection for the body model and find this tag, just so we see how it looks like.</span>
+          </p>
+          <p>
+            <figure class="remt-pic-explain">
+              <img src="./img/user_guide/import-character-9.jpg" alt="a tag is represented as an arrow object">
+              <figcaption>Figure: a tag is represented as an arrow object</figcaption>
+            </figure>
+          </p>
+          <p>
+            There are 3 kind of tags within the model formats. This one is attached to a bone with an offset.
+            But there are also tags for bones without an offset and tags without any parent.
+            We will attach the head model to this tag object by using the <span class="txt-h1">Attachment Panel</span>.
+            As the <span class="txt-h1">method for attachment we choose <q>Collection</q></span>.
+          </p>
+          <p>
+            The method we chose attaches the objects within a selected collection to an active tag object.
+            <span class="txt-h1">First deselect everything, then select the collection for the head model and then select the tag object
+            called <q>tag_head</q> to make it active</span>.
+            It is important that you select the tag object last, as only the active object will be considered a tag object by the addon.
+            <span class="txt-h1">Click the Attach Button</span>.
+            The result is that all objects of the collection (our head collection) will be parented (or attached) to the tag object.
+          </p>
+          <p>
+            <figure class="remt-pic-explain">
+              <img src="./img/user_guide/import-character-11.jpg"
+                alt="steps to attach the head model to the body model">
+              <figcaption>Figure: steps to attach the head model to the body model</figcaption>
+            </figure>
+          </p>
+
+          <!-- Import of a Character: Importing and attaching accessoires -->
+          <h4 id="first-steps-import-accessoires">Importing and attaching accessoires</h4>
+          <p>
+            W:ET uses <span class="txt-h2">.skin files</span> to configure the information for accessoire models of the body model.
+            It is usually located at the same place of the .mdm file we just imported.
+            Let's take a look at <q>models/players/temperate/allied/engineer</q> and beside the .mdm file in this
+            folder you will also find a .skin file called <span class="txt-h1"><q>body_engineer.skin</q></span>.
+            The file encodes shading and attachment information.
+          </p>
+          <p>
+            <figure class="remt-pic-explain">
+              <img src="./img/user_guide/import-character-12.jpg"
+                alt=".skin files encode attachment and shading information">
+              <figcaption>Figure: .skin files encode attachment and shading information</figcaption>
+            </figure>
+          </p>
+          <p>
+            The information is made up of <span class="txt-h1">key-value pairs</span>.
+            For example <q>md3_hat</q> defines the helmet model found at <q>models/players/temperate/allied/helmet.md3</q>.
+            This helmet model is supposed to be attached to a tag object.
+            Unlike the information for shading which describes real surface names (for example <q>l_legs</q>),
+            the name for the tags are again ... magical. You have to browse the source to find out the actual name.
+            For example <q>md3_hat</q> maps to <q>tag_mouth</q>.
+            To make it a bit more confusing, <q>tag_mouth</q> is actually located in the head model, not the body model.
+          </p>
+          <p>
+            The addon provides a method to read these .skin files and automatically import and attach the accessoire models.
+            Go to the <span class="txt-h1">Attachment Panel</span> of the addon and
+            <span class="txt-h1">switch the method to <q>Skinfile</q></span>.
+            For the input field called <q>Game Path</q> enter the path to your game data.
+            This is usually the etmain folder containing all extracted .pk3 files.
+            We prepared this folder in chapter <a href="#first-steps-extracting-game-data">Extracting the game data</a>.
+            For the <span class="txt-h1">input field called <q>Skin Filepath</q></span> choose the absolute path to the skin file from above.
+            It's relative path is: <q>models\players\temperate\allied\engineer\body_engineer.skin</q>.
+          </p>
+          <p>
+            <figure class="remt-pic-explain">
+              <img src="./img/user_guide/import-character-13.jpg" alt="the input fields to attach by skin file">
+              <figcaption>Figure: the input fields to attach by skin file</figcaption>
+            </figure>
+          </p>
+          <p>
+            <span class="txt-h1">Deselect everything, then select the body collection</span> to make it the active collection,
+            and <span class="txt-h1">click the Attach Button</span>.
+            Your models will then be imported and attached to the appropriate tags from the body model.
+            We need to fix the helmet attachment, because as mentioned,
+            the helmet references <q>tag_mouth</q> from the head model, not the body model.
+            <span class="txt-h1">In the Attachment Panel switch the method again to <q>Collection</q></span>.
+            <span class="txt-h1">Then proceed like in the previous chapter</span> to attach the helmet collection
+            to the tag object called <q>tag_mouth</q> from the head model.
+            The same goes for the rank model.
+            It too attaches to tag_mouth. The result should look like this:
+          </p>
+          <p>
+            <figure class="remt-pic-explain">
+              <img src="./img/user_guide/import-character-17.jpg" alt="all models attached inside Blender">
+              <figcaption>Figure: all models attached inside Blender</figcaption>
+            </figure>
+          </p>
+
+          <!-- Import of a Character: Shading -->
+          <h4>Shading</h4>
+          <p>
+            Shading just means we tell the game how to put color on the surfaces (in Blender these are the individual objects) of the model.
+            It basically defines surface properties which tell the game how light interacts with the surface,
+            for example to make it transparent, or to use multiple textures and blend them together.
+            The game uses so called <span class="txt-h2"><q>shader names</q></span> for that.
+          </p>
+          <p>
+            In this addon, the shader name of a surface is encoded into the <span class="txt-h1">material name</span> of an object inside Blender.
+            If there is no material after import, then this is totally normal.
+            This just means the game uses .skin files to shade the model.
+            If we look at our imported models in Blender and expand their outliner views,
+            then we can see that only the backpack model contains materials.
+            Note the names of the materials, these are relative paths to the game path.
+          </p>
+          <p>
+            <figure class="remt-pic-explain">
+              <img src="./img/user_guide/import-character-14.jpg" alt="material names represent shader names">
+              <figcaption>Figure: material names represent shader names</figcaption>
+            </figure>
+          </p>
+          <p>
+            The <span class="txt-h1">Shading Panel</span> therefore provides two methods:
+            shading by "Material Names" or shading by "Skinfile".
+            Let's do the shading by material names first.
+            In the Shading Panel, the <span class="txt-h1">input field called <q>Game Path</q></span>
+            should be already set from the <a href="#first-steps-import-accessoires">previous chapter</a>.
+            To see the shading, we must <span class="txt-h1">switch <q>Viewport Shading</q> to <q>Look Dev</q> mode</span>.
+            Then we <span class="txt-h1">select the backpack collection to make it active</span> and
+            <span class="txt-h1">click the Apply Shading Button</span> in the Shading Panel.
+          </p>
+          <p>
+            <figure class="remt-pic-explain">
+              <img src="./img/user_guide/import-character-15.jpg" alt="steps to shade by material names">
+              <figcaption>Figure: steps to shade by material names</figcaption>
+            </figure>
+          </p>
+          <p>
+            Now for that <span class="txt-h2">shader name</span> again. This is a <span class="txt-h2">reference to either a texture or shader script</span>.
+            Shader scripts are made up of small code snippets defining surface properties.
+            Each code snippet is headed with a shader name.
+            If the game does not find such a shader name in one of these script files,
+            it will <span class="txt-h2">resort to finding a texture</span> with that name.
+            <span class="txt-h2">First it will search for .tga files, then for .jpg files</span>. That is how the game finds its color info for the
+            surfaces of the model.
+          </p>
+          <p>
+            <span class="txt-h1">We need to use .skin files to shade the rest of the objects.</span>
+            The .skin files are usually located in the same directory as the model itself.
+            Here are their locations. Remember to use the absolute path.
+          </p>
+          <ul type="circle">
+            <li>helmet: models/players/temperate/allied/helmet_engineer.skin</li>
+            <li>head: models/players/hud/allied_engineer.skin</li>
+            <li>body: models/players/temperate/allied/engineer/body_engineer.skin</li>
+          </ul>
+          <p>
+            <span class="txt-h1">Shading by Skinfile</span> works the same way as with material names,
+            that means <span class="txt-h1">we select the collection to make it active, fill in our input fields, and click the button.</span>
+            The addon will then read the .skin file information and apply the shading.
+            After doing this for all three collections we get the additional shading information.
+          </p>
+          <p>
+            <figure class="remt-pic-explain">
+              <img src="./img/user_guide/import-character-16.jpg" alt="steps to shade by material names">
+              <figcaption>Figure: all models shaded by skin files</figcaption>
+            </figure>
+          </p>
+          <p>
+            <span class="txt-h2">There are two surfaces which we or the addon did not shade</span>:
+            its the strap surface of the helmet, and the rank model itself.
+            The strap surface shading is a limitation of the addon: it simply can't read shader scripts yet.
+            We have to manually do that in Blender if we want to.
+            The rank model is shaded dependent on the rank of the player ingame and this information is hardcoded within the source code.
+          </p>
+
+          <h5 id="first-steps-fixing-strap">Fixing the strap surface</h5>
+          <p>
+            The shader name for the strap surface is defined in the helmet_engineer.skin file.
+            This is a good time to explain <span class="txt-h2">how shading works for .skin files</span>,
+            because as we saw above, a .skin file can also contain information about attachment.
+            A .skin file uses <span class="txt-h1">key-value pairs</span> to do the shading for a model.
+            The <span class="txt-h1">key is be the object name</span> (or surface name as the game calls them),
+            and the <span class="txt-h1">value is the shader name</span>.
+          </p>
+          <p>
+            <figure class="remt-pic-explain">
+              <img src="./img/user_guide/import-character-18.jpg" alt=".skin file for the helmet model">
+              <figcaption>Figure: .skin file for the helmet model</figcaption>
+            </figure>
+          </p>
+          <p>
+            The strap surface has a <span class="txt-h1">shader name called <q>models/players/temperate/allied/strap</q></span>.
+            After searching all .shader files from the game we can find out that this shader is located in a file at:
+            <q>scripts/models_players.shader</q>.
+            The shader script has 2 lines: the first line tells the engine to draw the surface from both sides (culling disabled).
+            The second line contains the reference to a texture. We will use that texture for shading.
+          </p>
+          <p>
+            <figure class="remt-pic-explain">
+              <img src="./img/user_guide/import-character-19.jpg" alt="a shader name inside a shader script file">
+              <figcaption>Figure: a shader name inside a shader script file</figcaption>
+            </figure>
+          </p>
+          <p>
+            As already mentioned, the addon does not support reading shader scripts, so we just copy the path to the
+            texture which is: <span class="txt-h1"><q>models/players/temperate/allied/inside</q></span>.
+            As it happens, this shader name already exists in our current set up, so we just assign this material in
+            Blender to our strap surface.
+          </p>
+
+          <h5 id="first-steps-fixing-rank">Fixing the rank model</h5>
+          <p>
+            The rank model uses multiple shaders, because each time a player ranks up in xp, another shader is drawn.
+            For that reason the shaders are hard coded inside the source code and change dynamically.
+            Let's apply some magic again and <span class="txt-h1">use the shader name <q>gfx/hud/ranks/rank4</q></span> for the material name of the strap surface.
+            After using the <q>Shading Panel</q> again we see that the rank model is shaded by the texture,
+            but the <span class="txt-h1">texture is meant to be transparent</span>.
+          </p>
+          <p>
+            <figure class="remt-pic-explain">
+              <img src="./img/user_guide/import-character-20.jpg"
+                alt="shading by material names for strap and rank model">
+              <figcaption>Figure: shading by material names for strap and rank model</figcaption>
+            </figure>
+          </p>
+          <p>
+            To apply our last fix we will open up the <span class="txt-h1">Shading Workspace</span>.
+            After opening the workspace, you will see the <span class="txt-h1">standard nodes</span> the addon wrote.
+            These nodes get written when you use the <q>Shading Panel</q>.
+          </p>
+          <p>
+            <figure class="remt-pic-explain">
+              <img src="./img/user_guide/import-character-21.jpg" alt="standard shader nodes written by the addon">
+              <figcaption>Figure: standard shader nodes written by the addon</figcaption>
+            </figure>
+          </p>
+          <p>
+            To make the texture transparent inside Blender we add a <span class="txt-h1">Transparent Shader</span>
+            and a <span class="txt-h1">Mix Shader</span> and connect them.
+            Additionally we open up the <span class="txt-h1">Settings Panel</span> by pressing 'N' in the node editor
+            and go to <span class="txt-h1">Options</span>.
+            There we set the <span class="txt-h1">Blend Mode</span> option to <span class="txt-h1">Additive</span>.
+          </p>
+          <p>
+            <figure class="remt-pic-explain">
+              <img src="./img/user_guide/import-character-22.jpg" alt="the modified shader nodes">
+              <figcaption>Figure: the modified shader nodes</figcaption>
+            </figure>
+          </p>
+          <p>
+            If everything went successful, we have a first basic character going in Blender, ready for screenshots,
+            icons, and the many more possibilities of Blender. That concludes the import example.
+            In the next chapter we will export that same character for use inside the game.
+          </p>
+
+          <!-- Export of the Character -->
+          <h3 id="first-steps-export-character">Export of the Character</h3>
+          <p>
+            In this section we are going to export the character from the previous section to an MD3 model.
+            This model will include the bind pose frame, a walking animation, and an idle animation.
+            But before that, let's review what we already have.
+          </p>
+
+          <!-- Export of the Character: what we have -->
+          <h4>What we have</h4>
+          <p>
+            In the previous section we imported, assembled and shaded a complete character from W:ET.
+            We have 5 models: body, head, backpack, helmet and rank.
+          </p>
+          <p>
+            As we used the shading panel to shade the model in Blender, we now have all shader names in Blender.
+            These are represented as material names.
+            <span class="txt-h2">We will keep on using these material names for export</span>.
+            The alternative is deleting them all again and use the object names inside .skin files for shading, or a mixture of both.
+          </p>
+          <p>
+            The body model and the head model are the only models which contain <span class="txt-h2">animation</span>.
+            The body model is animated by a skeleton.
+            The head model is animated by shape keys.
+            Since we export to MD3, this is totally fine.
+            The <span class="txt-h2">skeletal data will just be converted</span>.
+          </p>
+          <p>
+            Additionally, we <span class="txt-h2">should probably clean up our tags</span>.
+            You might have noticed that some names, for example "tag_mouth", end with ".001".
+            Also, since we don't plan on using them anymore, we should exclude most of them, if not all,
+            from the export by making the objects invisible. But for now we leave everything as is.
+          </p>
+
+          <!-- Export of the Character: preparing the animations -->
+          <h4>Preparing the animations</h4>
+          <p>
+            Before we export, we must prepare our animation data.
+            We have to choose which frame ranges we want to include,
+            and modify the existing animations so that only a couple of animations are exported.
+          </p>
+
+          <h5>Deleting existing animations</h5>
+          <p>
+            We do not need the animations for the head model, so we will remove them.
+            The imported animations are stored as actions inside Blender.
+            We can delete them in the <span class="txt-h1">Outliner editor type</span>.
+            There we switch the <span class="txt-h1">Display Mode to Blender File</span>,
+            locate the <span class="txt-h1">Actions tree</span>,
+            and delete every action except the <q>mdx_skeleton</q> action.
+            We delete the actions by selecting them, right clicking the marked context,
+            and <span class="txt-h1">clicking <q>Delete</q></span>.
+          </p>
+          <p>
+            <figure class="remt-pic-explain">
+              <img src="./img/user_guide/export-character-1.jpg" alt="deleting non needed animations in the outliner">
+              <figcaption>Figure: deleting non needed animations in the outliner</figcaption>
+            </figure>
+          </p>
+
+          <h5>Choosing frame ranges</h5>
+          <p>
+            Animations for models are referenced by <span class="txt-h2">.anim script files</span> by the game.
+            We can look into these files to get an overview.
+            For the head model the script file is located at: <q>animations/human/head/base.anim</q>.
+            For the body model it is located at: <q>animations/human/base/body.aninc</q>.
+          </p>
+          <p>
+            From our body animation we want the bind pose frame, an idle state and a walking state.
+            After opening the file for the body animation we choose the following frame ranges:
+          </p>
+          <table class="table table-dark table-striped table-bordered">
+            <thead>
+              <tr>
+                <th scope="col">Animation Name</th>
+                <th scope="col">Start Frame</th>
+                <th scope="col">End Frame</th>
+                <th scope="col">Duration</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>relaxed_idle_no</td>
+                <td>1094</td>
+                <td>1312</td>
+                <td>219</td>
+              </tr>
+              <tr>
+                <td>relaxed_walk_1h_2</td>
+                <td>1458</td>
+                <td>1553</td>
+                <td>96</td>
+              </tr>
+            </tbody>
+          </table>
+          <p>
+            Additionally, we pick frame 32 for the bind pose frame.
+          </p>
+
+          <h5>Editing frame ranges</h5>
+          <p>
+            We need to delete and move certain keyframes.
+            For deleting the key frames we use markers.
+            The markers will help us to select all key frames in between them, so that we can delete them.
+            To set a marker go to the <span class="txt-h1">Marker menu in the time line and click 'Add Marker'</span>.
+          </p>
+          <p>
+            <figure class="remt-pic-explain">
+              <img src="./img/user_guide/export-character-2.jpg" alt="adding a marker to the time line">
+              <figcaption>Figure: adding a marker to the time line</figcaption>
+            </figure>
+          </p>
+          <p>
+            We put markers on the following frames: 0, 31, 33, 1093, 1313, 1457, 1554, 4862.
+          </p>
+          <p>
+            Next, we need to <span class="txt-h1">switch our editor type from <q>Timeline</q> to <q>Dope Sheet</q></span>.
+            Inside the Dope Sheet Editor we <span class="txt-h1">switch to Action Editor</span> and
+            <span class="txt-h1">select the Action called mdx_skeleton</span>.
+            Then we <span class="txt-h1">select all pose bones</span> by selecting our armature object, switch to pose mode, and select them all.
+            Finally <span class="txt-h1">select the markers at frame 0 and 31</span>,
+            go to the <span class="txt-h1"><q>Select menu</q></span> and <span class="txt-h1">click <q>Between Selected Markers</q></span>.
+            The selected key frames can now be deleted.
+          </p>
+          <p>
+            <figure class="remt-pic-explain">
+              <img src="./img/user_guide/export-character-3.jpg" alt="selecting key frames between markers">
+              <figcaption>Figure: selecting key frames between markers</figcaption>
+            </figure>
+          </p>
+          <p>
+            After doing that for all our frame ranges, we have only 2 animations left.
+            We need to move them to the beginning on the time line.
+            We do this by <span class="txt-h1">selecting them, and pressing 'G' to drag them around</span>.
+            If everything went successful, you should have your key frames set up, ready for export.
+          </p>
+          <p>
+            <figure class="remt-pic-explain">
+              <img src="./img/user_guide/export-character-4.jpg" alt="all key frames in place on the timeline">
+              <figcaption>Figure: all key frames in place on the timeline</figcaption>
+            </figure>
+          </p>
+          <p>
+            For the export we use the Export Panel.
+            First <span class="txt-h1">set the end frame in the time line</span> (in our example it is 315).
+            As we do not want to include the rank model for export, we simply <span class="txt-h1">hide its collection</span> in the outliner.
+            Finally, <span class="txt-h1">fill in the panels input fields</span>,
+            <span class="txt-h1">select the top level collection</span> called <q>Scene Collection</q>
+            and <span class="txt-h1">click the export button</span>.
+          </p>
+          <p>
+            <figure class="remt-pic-explain">
+              <img src="./img/user_guide/export-character-5.jpg" alt="settings for export">
+              <figcaption>Figure: settings for export</figcaption>
+            </figure>
+          </p>
+          <p>
+            That concludes the export example. You can download the final character <a href="./downloads/et_engineer.md3">here</a> if you want.
+            In the next chapter we are going to delve into export in more detail.
+          </p>
+        </div>
+
+        <!-- Chapter: Export -->
+        <div class="remt-chapter">
+          <h2 id="export">Export</h2>
+          <p>
+            This chapter describes how to create and prepare a new model for export.
+            It also gives an overview of the Blender data which will be considered by the addon.
+          </p>
+
+          <h3 id="export-blender-data">Blender Data</h3>
+          <p>
+            During export, the addon will scan for mesh objects, armature objects and arrow objects in the active
+            Blender collection and all its sub-collections.
+            The following gives an overview of the Blender data it might consider.
+          </p>
+          <h4 id="export-blender-data-mesh-object">Mesh Object</h4>
+          <table class="table table-dark table-striped table-bordered">
+            <thead>
+              <tr>
+                <th scope="col">Data</th>
+                <th scope="col">Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>object transforms</td>
+                <td>Location, rotation, scale. Includes animation.
+                </td>
+              </tr>
+              <tr>
+                <td>name</td>
+                <td>Used for .skin file shading.</td>
+              </tr>
+              <tr>
+                <td>vertices</td>
+                <td>
+                  <ul type="circle">
+                    <li>
+                      Animated either by shape keys or an armature. Only one type of animation is supported for each
+                      mesh object.
+                    </li>
+                    <li>
+                      Some vertices might get duplicated to the resulting export during uv map pass.
+                    </li>
+                  </ul>
+                </td>
+              </tr>
+              <tr>
+                <td>faces</td>
+                <td>Have to be triangulated.</td>
+              </tr>
+              <tr>
+                <td>uv maps</td>
+                <td>
+                  <ul type="circle">
+                    <li>
+                      Only the active uv map is exported.
+                    </li>
+                    <li>
+                      The format requires a 1 to 1 mapping of each vertex texture coordinates to the UV map.
+                      For this reason vertices might get added to the export data.
+                      To avoid this you need to reduce the number of seams crossing each vertex and keep your UV island
+                      count as low as possible.
+                    </li>
+                  </ul>
+                </td>
+              </tr>
+              <tr>
+                <td>materials</td>
+                <td>Only the material name will be exported.
+                  The material name will be the shader name for the surface in the export data.
+                  Nodes from the node editor will not be considered.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <h4 id="export-blender-data-armature-object">Armature Object</h4>
+          <table class="table table-dark table-striped table-bordered">
+            <thead>
+              <tr>
+                <th scope="col">Data</th>
+                <th scope="col">Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>object transforms</td>
+                <td>Only location, rotation. Includes animation. Scale is not supported.</td>
+              </tr>
+              <tr>
+                <td>edit bone: name</td>
+                <td>Will get mapped to the bone name.</td>
+              </tr>
+              <tr>
+                <td>pose bone: object transforms</td>
+                <td>Only location, rotation. Scale is not supported.</td>
+              </tr>
+              <tr>
+                <td>pose bone: 'LIMIT_DISTANCE' constraint</td>
+                <td>Needs to be present. This is a format requirement.</td>
+              </tr>
+              <tr>
+                <td>pose bone: 'Torso Weight' custom property</td>
+                <td>Needs to be present. Can be found in the "Bone" context in the properties window under "Custom
+                  Properties".</td>
+              </tr>
+              <tr>
+                <td>pose bone: 'Torso Parent' custom property</td>
+                <td>Needs to be present on only 1 bone. Can be found in the "Bone" context in the properties window
+                  under "Custom Properties".</td>
+              </tr>
+            </tbody>
+          </table>
+          <h4 id="export-blender-data-arrow-object">Arrow Object</h4>
+          <table class="table table-dark table-striped table-bordered">
+            <thead>
+              <tr>
+                <th scope="col">Data</th>
+                <th scope="col">Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>object transforms</td>
+                <td>Location, rotation, scale. Includes animation. If parented to a pose bone, the tag must not be
+                  animated.</td>
+              </tr>
+              <tr>
+                <td>display type</td>
+                <td>Needs to be set to 'ARROWS'.</td>
+              </tr>
+              <tr>
+                <td>name</td>
+                <td>Will get mapped to the tag name. Must start with "tag_".</td>
+              </tr>
+              <tr>
+                <td>'Torso Weight' custom property</td>
+                <td>Needs to be present only if export to MDS.</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h3 id="export-md3-mdc">MD3 and MDC</h3>
+          <p>
+            MD3 and MDC are both morph based formats. You can prepare your model in Blender and export to both of these
+            formats without problems.
+            However, you can not export to MDS or MDM/MDX, because these require a skeleton.
+          </p>
+          <h4 id="export-md3-mdc-basic">Basic</h4>
+          <p>
+            The steps are: create the geometry (a cube for demonstration), triangulate it, uv unwrap it, add a material
+            to it and name the material according to the conventions.
+          </p>
+          <p>
+            For the material name the addon expects a path relative to the game path. This path is called a "shader
+            name" by the game.
+            It is either a script located in .shader file, or it is just a .tga or .jpg texture.
+            For this example we use: "textures/props/box_m05a".
+          </p>
+          <p>
+            <figure class="remt-pic-explain">
+              <img src="./img/user_guide/export-md3-mdc-1.jpg" alt="steps for basic MD3 and MDC export">
+              <figcaption>Figure: steps for basic MD3 and MDC export</figcaption>
+            </figure>
+          </p>
+          <p>
+            If you want to use .skin files instead of material names for shading, you there is no need for a material
+            with a special name,
+            because in that case, the object names become important.
+          </p>
+
+          <h4 id="export-md3-mdc-animation">Animation</h4>
+          <p>
+            Animation can be done by using absolute shape keys (relative shape keys are not supported) or object
+            transforms.
+            If you do not need animation, just set your frame count to 1 in the timeline, but you can also export
+            multiple, static frames.
+          </p>
+          <p>
+            Before you animate with shape keys make sure you have triangulated your objects geometry,
+            because Blender does not support triangulation after the object has been shape keyed.
+          </p>
+          <h4 id="export-md3-mdc-tags">Tags</h4>
+          <p>
+            Tags are represented as Empty objects in Blender. They need to have display type 'Arrows' and their name
+            needs to start with 'tag_'.
+            Tags can be parented to any other object.
+          </p>
+          <p>
+            Some models exclusively contain tags, for example first person models. Therefore the addon supports
+            exporting tags only.
+          </p>
+          <h4 id="export-md3-mdc-export">Export</h4>
+          <p>
+            To export your model, just make the collection containing your objects active and then use the export panel.
+            The addon will read all objects contained in the collection and sub-collections.
+            If you want to exclude certain objects, just make the object invisible in the viewport.
+          </p>
+
+          <h3 id="export-mds-mdm-mdx">MDS and MDM/MDX</h3>
+          <p>
+            MDS and MDM/MDX are both skeletal based formats. You can prepare your model in Blender and export to all of
+            the formats, even morph based ones.
+          </p>
+          <h4 id="export-mds-mdm-mdx-basic">Basic</h4>
+          <p>
+            The steps are: create the geometry (a cylinder for demonstration), triangulate it, uv unwrap it, add a
+            material to it and name the material according to the conventions.
+            Then create an armature and parent your object to the armature. Make sure that each vertex has a maximum of
+            3 weights.
+            This is a format requirement.
+          </p>
+          <p>
+            <figure class="remt-pic-explain">
+              <img src="./img/user_guide/export-mds-mdm-mdx-1.jpg" alt="steps for basic MDS and MDM/MDX export">
+              <figcaption>Figure: steps for basic MDS and MDM/MDX export</figcaption>
+            </figure>
+          </p>
+          <p>
+            See chapter <a href="#export-md3-mdc-basic">MD3 and MDC - Basic</a> for more details on the
+            material name conventions or using .skin files.
+          </p>
+          <p>
+            For the bones: these will need a "Fixed Distance" constraint on each pose bone.
+            Additionally all bones should have a "Torso Weight" property
+            and on one of them there needs to be a "Torso Parent" property present.
+            See section <a href="#export-blender-data-armature-object">Blender Data</a> for more details.
+          </p>
+          <h4 id="export-mds-mdm-mdx-animation">Animation</h4>
+          <p>
+            Animation is done exclusively by animating pose bones or animating the object transforms of the armature.
+            You can not use shape keys alongside skeletal animation, nor can you animate tags themselves
+            (they need to be animated by the bone).
+            There might be problems with scaling the armature.
+            See section <a href="#limitations-armature-scaling">Armature Scaling</a> for more details.
+          </p>
+          <p>
+            If you do not need animation, just set your frame count to 1 in the timeline, but you can also export
+            multiple, static frames.
+          </p>
+          <h4 id="export-mds-mdm-mdx-tags">Tags</h4>
+          <p>
+            Tags are represented as Empty objects in Blender. They need to have display type 'Arrows' and their name
+            needs to start with 'tag_'.
+            Tags can be parented to any other object, but if you export to MDS or MDM/MDX you need to have your tags
+            parented to a pose bone.
+            Additionally, the tag itself can not be animated, the formats require the parent bone to animate the tag.
+          </p>
+          <p>
+            Tags exported for MDS additionally need a "Torso Weight" property.
+            See section <a href="#export-blender-data-arrow-object">Data Overview - Arrow objects</a> for more details.
+          </p>
+          <h4 id="export-mds-mdm-mdx-export">Export</h4>
+          <p>
+            To export your model, just make the collection containing your objects active and then use the export panel.
+            The addon will read all objects contained in the collection and sub-collections.
+            If you want to exclude certain objects, just make the object invisible in the viewport.
+          </p>
+
+          <h3 id="Convertability">Convertability</h3>
+          <p>
+            If you use the "Direct Conversion" Panel or are exporting a model prepared in Blender,
+            then the addon converts your data in a best effort.
+            In a nutshell: you can export or convert your data into all directions except for MD3 and MDC to MDS and
+            MDM/MDX. The reason is that MDS and MDM/MDX require a skeleton to animate their vertices and tags.
+            MD3 and MDC do not contain skeletal data. Reconstructing this data is not easy.
+          </p>
+          <p>
+            The following graph gives an overview.
+          </p>
+          <p>
+            <figure class="remt-pic-explain">
+              <img src="./img/user_guide/convertability.png" alt="convertability between the model formats">
+              <figcaption>Figure: convertability between the formats</figcaption>
+            </figure>
+          </p>
+        </div>
+
+        <!-- Chapter: Panel Description -->
+        <div class="remt-chapter">
+          <h2 id="panel-description">Panel Description</h2>
+          <p>
+            This chapter describes the panels, its input fields, and expected results.
+          </p>
+
+          <!-- Import -->
+          <h3 id="panel-description-import">Import</h3>
+          <p>
+            The import panel allows for import of models.
+          </p>
+          <p>
+            <figure class="remt-pic-explain">
+              <img src="./img/user_guide/panel-description-import-1.jpg" alt="import panel">
+              <figcaption>Figure: import panel</figcaption>
+            </figure>
+          </p>
+          <h4>Input Fields</h4>
+          <table class="table table-dark table-striped table-bordered">
+            <thead>
+              <tr>
+                <th scope="col">Input Field</th>
+                <th scope="col">Type</th>
+                <th scope="col">Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Format</td>
+                <td>Combobox</td>
+                <td>Sets the format to import</td>
+              </tr>
+              <tr>
+                <td>Filepath</td>
+                <td>Textfield</td>
+                <td>Path to model file on disk</td>
+              </tr>
+              <tr>
+                <td>Import</td>
+                <td>Button</td>
+                <td>Starts the import operation</td>
+              </tr>
+              <tr>
+                <td>Bindpose Frame</td>
+                <td>Integer</td>
+                <td>
+                  Sets the bind pose of the skeleton and therefore the edit mode meshes.
+                  Context-sensitive on format input field and optional.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <h4>Results</h4>
+          <p>
+            By clicking the import button the import operation will start.
+            The addon will then read the model data from file and write it into Blender as a collection.
+          </p>
+
+          <!-- Export -->
+          <h3 id="panel-description-export">Export</h3>
+          <p>
+            The export panel allows for export of models.
+          </p>
+          <p>
+            <figure class="remt-pic-explain">
+              <img src="./img/user_guide/panel-description-export-1.jpg" alt="export panel">
+              <figcaption>Figure: export panel</figcaption>
+            </figure>
+          </p>
+          <h4>Input Fields</h4>
+          <table class="table table-dark table-striped table-bordered">
+            <thead>
+              <tr>
+                <th scope="col">Input Field</th>
+                <th scope="col">Type</th>
+                <th scope="col">Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Format</td>
+                <td>Combobox</td>
+                <td>Sets the format to export</td>
+              </tr>
+              <tr>
+                <td>Filepath</td>
+                <td>Textfield</td>
+                <td>Path to model file on disk</td>
+              </tr>
+              <tr>
+                <td>Export</td>
+                <td>Button</td>
+                <td>Starts the export operation</td>
+              </tr>
+              <tr>
+                <td>Collapse Frame</td>
+                <td>Integer</td>
+                <td>
+                  Sets the collapse pose of the skeleton. Context-sensitive.
+                  The collapse pose is used for the LOD algorithm in MDS and MDM/MDX.
+                  It should be a pose with the major joints like knees and elbows bend as far as possible.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <h4>Results</h4>
+          <p>
+            By clicking the export button the export operation will start.
+            The addon will then read all data found in the active collection and all its child-collections.
+            Only mesh-, armature-, and empty objects are considered.
+            Dependent on what format you export to, the model data will be converted in an best effort.
+            See chapter <a href="#export">Export</a> for more details on how to set up your blender data.
+          </p>
+
+          <!-- Direct Conversion -->
+          <h3 id="panel-description-direct-conversion">Direct Conversion</h3>
+          <p>
+            The direct conversion panel allows to directly convert between model formats without writing the data into
+            Blender.
+          </p>
+          <p>
+            <figure class="remt-pic-explain">
+              <img src="./img/user_guide/panel-description-direct-conversion-1.jpg" alt="direct conversion panel">
+              <figcaption>Figure: direct conversion panel</figcaption>
+            </figure>
+          </p>
+          <h4>Input Fields</h4>
+          <table class="table table-dark table-striped table-bordered">
+            <thead>
+              <tr>
+                <th scope="col">Input Field</th>
+                <th scope="col">Type</th>
+                <th scope="col">Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Source Format</td>
+                <td>Combobox</td>
+                <td>Sets the source format to convert from</td>
+              </tr>
+              <tr>
+                <td>Filepath</td>
+                <td>Textfield</td>
+                <td>Path to source model file on disk</td>
+              </tr>
+              <tr>
+                <td>Target Format</td>
+                <td>Combobox</td>
+                <td>Sets the target format to convert to</td>
+              </tr>
+              <tr>
+                <td>Filepath</td>
+                <td>Textfield</td>
+                <td>Path to target model file on disk</td>
+              </tr>
+              <tr>
+                <td>Convert</td>
+                <td>Button</td>
+                <td>Starts the direct conversion operation</td>
+              </tr>
+            </tbody>
+          </table>
+          <h4>Results</h4>
+          <p>
+            By clicking the direct conversion button the direct conversion operation will start.
+            It will read the source model and then convert and write back to the target format without writing to
+            Blender.
+            See chapter <a href="#convertability">Convertability</a> for more details on which formats can be converted
+            between each other.
+          </p>
+
+          <!-- Attachment -->
+          <h3 id="panel-description-attachment">Attachment</h3>
+          <p>
+            The attachment panel allows to attach objects to a tag object inside Blender.
+            It mimics the games attachtotag operation found in mapscripts.
+          </p>
+          <p>
+            <figure class="remt-pic-explain">
+              <img src="./img/user_guide/panel-description-attachment-1.jpg" alt="attachment panel">
+              <figcaption>Figure: attachment panel</figcaption>
+            </figure>
+          </p>
+          <p>
+            The addon uses different methods for finding the objects for attachment:
+          </p>
+          <ul type="circle">
+            <li>Objects: allows to select a set of objects for attachment. First select the objects, then select the tag
+              object to make it active, then click the "Attach" Button.
+            </li>
+            <li>Collection: automatically selects all objects for attachment which are present inside the collection.
+              First select the collection,
+              then select the tag object to make it active, then click the "Attach" Button.
+            </li>
+            <li>Skin File: allows to select the models for attachment by using information from a .skin file. All models
+              found in the .skin file will be imported.
+              First select the collection containing the tags, then fill in the additional input fields and click the
+              "Attach" Button.
+            </li>
+          </ul>
+          <h4>Input Fields</h4>
+          <table class="table table-dark table-striped table-bordered">
+            <thead>
+              <tr>
+                <th scope="col">Input Field</th>
+                <th scope="col">Type</th>
+                <th scope="col">Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Method</td>
+                <td>Combobox</td>
+                <td>Sets the method for attachment</td>
+              </tr>
+              <tr>
+                <td>Attach</td>
+                <td>Button</td>
+                <td>Starts the attachment operation</td>
+              </tr>
+              <tr>
+                <td>Game Path</td>
+                <td>string</td>
+                <td>
+                  Sets the path to the game data. Context-sensitive.
+                  The game data is a folder like etmain in W:ET. It should contain all PK3 files, but extracted, as the
+                  addon will not attempt to extract them during the operation.
+                </td>
+              </tr>
+              <tr>
+                <td>Skinfile Path</td>
+                <td>string</td>
+                <td>
+                  Sets the path to .skin file data. Context-sensitive.
+                  A .skin file contains information for shading or attachment. It consists of a list of key-value pairs.
+                  For attachment the key will describe a surface name.
+                  The value will describe the model path on disk.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <h4>Results</h4>
+          <p>
+            By clicking the attachment button the attachment operation will start. If successful, it will parent a set
+            of objects to a tag object.
+            It will therefore align the objects origin to the location and orientation of the tag object.
+          </p>
+
+          <!-- Shading -->
+          <h3 id="panel-description-shading">Shading</h3>
+          <p>
+            The shading panel allows to shade existing objects inside Blender.
+          </p>
+          <p>
+            <figure class="remt-pic-explain">
+              <img src="./img/user_guide/panel-description-shading-1.jpg" alt="shading panel">
+              <figcaption>Figure: shading panel</figcaption>
+            </figure>
+          </p>
+          <p>
+            The addon uses different methods for finding the textures:
+          </p>
+          <ul type="circle">
+            <li>
+              Material Names: allows to shade all objects inside a collection by using its material name as a reference
+              to a shader name.
+              First select the collection which should be shaded, then fill in the input field for the "Game Path", then
+              click the "Shade" Button.
+            </li>
+            <li>
+              Skin File: allows to shade all objects inside a collection by using information from a .skin file.
+              First select the collection which should be shaded, then fill in the input field for the "Game Path" and
+              "Skin Filepath", then click the "Shade" Button.
+            </li>
+          </ul>
+          <h4>Input Fields</h4>
+          <table class="table table-dark table-striped table-bordered">
+            <thead>
+              <tr>
+                <th scope="col">Input Field</th>
+                <th scope="col">Type</th>
+                <th scope="col">Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Method</td>
+                <td>Combobox</td>
+                <td>Sets the method for shading</td>
+              </tr>
+              <tr>
+                <td>Apply Shading</td>
+                <td>Button</td>
+                <td>Starts the shading operation</td>
+              </tr>
+              <tr>
+                <td>Game Path</td>
+                <td>string</td>
+                <td>
+                  Sets the path to the game data. Context-sensitive.
+                  The game data is a folder like etmain in W:ET. It should contain all PK3 files, but extracted, as the
+                  addon will not attempt to extract them during the operation.
+                </td>
+              </tr>
+              <tr>
+                <td>Skinfile Path</td>
+                <td>string</td>
+                <td>
+                  Sets the path to .skin file data. Context-sensitive.
+                  A .skin file contains information for shading or attachment. It consists of a list of key-value pairs.
+                  For shading the key will describe a surface name.
+                  The value will describe the shader name. This is either a shader name from a script file (not
+                  supported) or a path to a .tga or .jpg texture.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <h4>Results</h4>
+          <p>
+            By clicking the shading button the shading operation will start.
+            If successful, the addon will find a texture and apply a basic set of nodes in the node editor.
+            This data will not be considered during export.
+          </p>
+          <p>
+            <figure class="remt-pic-explain">
+              <img src="./img/user_guide/panel-description-shading-2.jpg" alt="the shader nodes written by the addon">
+              <figcaption>Figure: the shader nodes written by the addon</figcaption>
+            </figure>
+          </p>
+
+          <!-- Unzip PK3s -->
+          <h3 id="panel-description-unzip-pk3s">Unzip PK3s</h3>
+          <p>
+            The Unzip Pk3 panel allows to unzip game data from PK3 files.
+            Its main input fields are text fields to choose the source path of the game files and target path for the
+            directory to copy the extracted data to.
+          </p>
+          <p>
+            <figure class="remt-pic-explain">
+              <img src="./img/user_guide/panel-description-unzip-pk3-1.jpg" alt="unzip pk3s panel">
+              <figcaption>Figure: unzip pk3s panel</figcaption>
+            </figure>
+          </p>
+          <h4>Input Fields</h4>
+          <table class="table table-dark table-striped table-bordered">
+            <thead>
+              <tr>
+                <th scope="col">Input Field</th>
+                <th scope="col">Type</th>
+                <th scope="col">Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Source Filepath</td>
+                <td>string</td>
+                <td>Sets the file path of the folder containing the game data. This is usually the etmain folder
+                  containing all compressed .pk3 files.</td>
+              </tr>
+              <tr>
+                <td>Target Filepath</td>
+                <td>string</td>
+                <td>Sets the file path of the folder which will contain the extracted .pk3 files after the operation.
+                </td>
+              </tr>
+              <tr>
+                <td>Unzip</td>
+                <td>Button</td>
+                <td>Starts the unzip operation</td>
+              </tr>
+            </tbody>
+          </table>
+          <h4>Results</h4>
+          <p>
+            By clicking the unzip button the unzip operation will start.
+            The addon will find all pk3 files in the source directory and all its subdirectories,
+            extract them, and copy them to the target directory.
+            This operation is meant to prepare the game data path which may be required for other panels.
+          </p>
+        </div>
+
+        <!-- Chapter: Limitations -->
+        <div class="remt-chapter margin-for-footer">
+          <h2 id="limitations">Limitations</h2>
+          <p>
+            This chapter describes the current limtations of the addon.
+          </p>
+
+          <h3 id="limitations-armature-scaling">Armature Scaling</h3>
+          <p>
+            When scaling an armature of an imported model, then this will distort the mesh due to a "Fixed Distance"
+            constraint put on each pose bone.
+            If you want to scale the armature nontheless then you need to disable the constraint.
+            However, the addon expects the constraint to be present again during export.
+            Also, if you scaled the armature, then you need to apply the scaling to the object transforms of the bones.
+            This is a current limitation, because the addon does not read the scaling values for bones.
+          </p>
+
+          <h3 id="limitations-modifiers-constraints-drivers">Modifiers, Constraints and Drivers</h3>
+          <p>
+            Modifiers, constraints and drivers are generally not supported with the exception of
+            an "Armature" modifier on an armature and a "Fixed Distance" constraint on the pose bones.
+          </p>
+
+        </div>
+      </div>
+
+      <div class="col-sm-3">
+        <nav id="toc" data-toggle="toc" class="sticky-top"></nav>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <div class="text-center">Copyright 2019 <a href="mailto:n.mitschke@mail.de">Norman Mitschke</a></div>
+    </div>
+  </footer>
+
+  <!-- Javascript -->
+  <script src="./js/jquery-3.2.1.slim.min.js"></script>
+  <script src="./js/bootstrap.bundle.min.js"></script>
+  <script src="./js/bootstrap-toc.min.js"></script>
+
+  <!-- Scrollspy fix -->
+  <script type="text/javascript">
+    $(document).ready(function () {
+      $('body').scrollspy({
+        target: '#toc',
+        offset: 10
+      });
+    });
+  </script>
+
+</body>
+
+</html>
