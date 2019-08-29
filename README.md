@@ -5,30 +5,29 @@
 
 ## Introduction
 
-This addon adds support for MD3, MDC, MDS, MDM/MDX and TAG file formats for the 3D modeling software Blender. These file formats make up parts of the game assets for Return to Castle Wolfenstein and Wolfenstein: Enemy Territory.
+ RtCW:ET Blender Model Tools is an addon for the 3D modeling software Blender. It adds support for the MD3, MDC, MDS, MDM/MDX and TAG model formats. These formats make up parts of the assets for the games Return to Castle Wolfenstein and Wolfenstein: Enemy Territory.
+
+The addons main focus is on import, export and convertability between the formats. But there are additional tools which help you work with the formats. The current state of those tools is attachment and shading inside Blender.
 
 ## Features
 
 Its main features are:
 
 * Import/Export of all formats
-* Direct Conversion with certain limitations due to the nature of the formats
+* Convertability among the formats
 
 But there is also:
 
-* Attachment of external models to tag objects in Blender, for example by using .skin files
-* Shading by material names or .skin files of mesh objects in Blender
-* Exctracting PK3 files so the contained data can be used by the tool
+* Direct conversion to convert models without writing to Blender
+* Attachment of external models to tag objects in Blender
+* Shading mesh objects in Blender
+* Exctracting PK3 files
 
 ## Getting started
 
-* User Manual (TODO)
-* Developer Manual (TODO)
+* [User Guide](https://mino-git.github.io/rtcw-wet-blender-model-tools/user_guide.html)
+* Developer Guide (TODO)
 * Tutorial (TODO)
-
-## Background
-
-This addon is part of my ongoing studies of 3D model formats. It first started with creating Import/Export-Addons for MDC and MDM/MDX for Blender. As there were also requests to add support for the very similar model format MDS, i decided to make a unified addon including MD3. This is the result.
 
 ## Notice of Non-Affiliation and Disclaimer
 
