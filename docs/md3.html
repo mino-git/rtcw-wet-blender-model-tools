@@ -1,0 +1,621 @@
+<!doctype html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <link rel="stylesheet" href="./css/bootstrap.min.css" />
+    <link rel="stylesheet" href="./css/bootstrap-toc.min.css" />
+    <link rel="stylesheet" href="./css/remt.css" />
+    <title>
+      RtCW:ET Blender Model Tools - Unofficial MD3 Format Specification.
+    </title>
+
+    <meta name="description" content="MD3, MDC, MDS, MDM/MDX and TAG format support for the 3D modeling software Blender."/>
+    <meta name="keywords" content="MD3, MDC, MDS, MDM/MDX, TAG, file format, 3D model format, import, export,
+    interoperability, Return to Castle Wolfenstein, Wolfenstein: Enemy Territory"/>
+
+    <meta property="og:title" content="RtCW:ET Blender Model Tools - Tutorials"/>
+    <meta property="og:description" content="MD3, MDC, MDS, MDM/MDX and TAG format support for the 3D modeling software Blender."/>
+    <meta property="og:url" content="https://mino-git.github.io/rtcw-wet-blender-model-tools/index.html"/>
+    <meta property="og:site_name" content="mino-git.github.io" />
+    <meta property="og:keywords" content="MD3, MDC, MDS, MDM/MDX, TAG, file format, 3D model format, import, export,
+    interoperability, Return to Castle Wolfenstein, Wolfenstein: Enemy Territory"/>
+    <meta property="og:image" content="https://mino-git.github.io/rtcw-wet-blender-model-tools/img/brand/logo.png"/>
+    <meta property="og:type" content="article"/>
+    <meta property="article:author" content="Norman Mitschke" />
+
+    <link rel="icon" href="./img/brand/icon.ico" />
+  </head>
+
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container">
+      <!-- Brand -->
+      <a class="navbar-brand d-none d-md-block" href="./index.html">
+        <img src="./img/brand/navbar.png" alt="Brand" />
+      </a>
+      <a class="navbar-brand d-block d-md-none" href="./index.html">
+        <img src="./img/brand/navbar_collapsed.png" alt="Brand" />
+      </a>
+      <!-- Toggler -->
+      <button
+        class="navbar-toggler"
+        type="button"
+        data-toggle="collapse"
+        data-target="#remt-navbar-collapse"
+        aria-controls="remt-navbar-collapse"
+        aria-expanded="false"
+        aria-label="Toggle navigation"
+      >
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <!-- Links -->
+      <div class="collapse navbar-collapse" id="remt-navbar-collapse">
+        <ul class="navbar-nav ml-auto">
+          <!-- Normal Links -->
+          <li class="nav-item">
+            <a class="nav-link" href="./about.html">About</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="./downloads.html">Downloads</a>
+          </li>
+          <!-- Learn Dropdown -->
+          <li class="nav-item dropdown">
+            <a
+              class="nav-link dropdown-toggle"
+              href="#"
+              id="dropdown-learn"
+              data-toggle="dropdown"
+              aria-haspopup="true"
+              aria-expanded="false"
+              >Learn</a
+            >
+            <div class="dropdown-menu" aria-labelledby="dropdown-learn">
+              <a class="dropdown-item" href="./user_guide.html">User Guide</a>
+              <a class="dropdown-item" href="./developer_guide.html">Developer Guide</a>
+              <a class="dropdown-item" href="./tutorials.html">Tutorials</a>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Content -->
+  <div class="container">
+
+    <div class="row">
+
+      <div class="col-sm-9">
+
+        <div class="remt-title-2">
+          <h1 data-toc-skip>Unofficial MD3 Format Specification</h1>
+          <hr>
+        </div>
+
+        <div class="remt-chapter">
+          <h2>Overview</h2>
+          <p>MD3 is defined as a triangle mesh using morph target animation. Surfaces make up the basic model. They are described by geometry, color and animation data. Tags complement the format.</p>
+          <p>Geometry of a surface is described by grouping vertices into a triangle. Triangles are then grouped into a surface.</p>
+          <p>Colorization of a surface is done by defining UV-maps and references to shaders. The UV-maps are used to color surfaces with solid color from a 2D image. Shaders manipulate surface properties. These properties define how the surface interacts with light sources present in a scene. Additionally vertex normals manipulate the shading of a surface.</p>
+          <p>Animation of a surface is done by storing vertex positions per frame. This animation technique is also known as "morph target animation". The way it works is that for each key frame a series of vertex positions is stored. Between two successive frames, the vertices are then interpolated between the positions. MD3 stores absolute vertex positions as opposed to MDC, which can store offsets relative to a base frame.</p>
+          <p>Tags provide the possibility to attach external models to the model.</p>
+        </div>
+
+        <div class="remt-chapter">
+          <h2>Symbols</h2>
+          <table class="table table-dark table-striped table-bordered">
+            <thead>
+              <tr>
+                <th scope="col">Name</th>
+                <th scope="col">Description</th>
+              </tr>
+            </thead>
+            <tbody>
+            <tr>
+              <td>UINT8</td>
+              <td>unsigned 8-bit integer</td>
+            </tr>
+            <tr>
+              <td>INT16</td>
+              <td>signed 16-bit integer</td>
+            </tr>
+            <tr>
+              <td>UINT16</td>
+              <td>unsigned 16-bit integer</td>
+            </tr>
+            <tr>
+              <td>INT32</td>
+              <td>signed 32-bit integer</td>
+            </tr>
+            <tr>
+              <td>UINT32</td>
+              <td>unsigned 32-bit integer</td>
+            </tr>
+            <tr>
+              <td>F32</td>
+              <td>32-bit floating-point (IEEE-754)</td>
+            </tr>
+            <tr>
+              <td>ASCII</td>
+              <td>8-bit ASCII character</td>
+            </tr>
+            <tr>
+              <td>(*)</td>
+              <td>Marks a list of objects of the same type.
+                There can be multiple appearances of * inside those round brackets,
+                for example (**) describes a list of lists.
+              </td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="remt-chapter">
+          <h2>Tables</h2>
+
+          <div class="remt-table-desc">
+            <h3>MD3</h3>
+            <table class="table table-dark table-striped table-bordered">
+              <tbody>
+                <tr>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Type</th>
+                </tr>
+                <tr>
+                <td>header</td>
+                <td>reference to MD3Header object.</td>
+                <td>MD3Header</td>
+                </tr>
+                <tr>
+                <td>frame_infos</td>
+                <td>list of MD3FrameInfo objects, size=num_frames.</td>
+                <td>MD3FrameInfo (*)</td>
+                </tr>
+                <tr>
+                <td>tags</td>
+                <td>list of list objects, size=num_frames. Each nested list contains MD3FrameTag objects, size=num_tags.</td>
+                <td>MD3FrameTag (**)</td>
+                </tr>
+                <tr>
+                <td>surfaces</td>
+                <td>list of MD3Surface objects, size=num_surfaces.</td>
+                <td>MD3Surface (*)</td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="remt-table-desc-notes">
+              <p><span style="text-decoration: underline;">Notes:</span></p>
+              <p>Container object. References all MD3 data.</p>
+            </div>
+          </div>
+
+          <div class="remt-table-desc">
+            <h3>MD3Header</h3>
+            <table class="table table-dark table-striped table-bordered">
+              <tbody>
+                <tr>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Type</th>
+                </tr>
+                <tr>
+                <td>ident</td>
+                <td>magic number, ASCII encoded, length 4, reads "IDP3".</td>
+                <td>4*ASCII</td>
+                </tr>
+                <tr>
+                <td>version</td>
+                <td>version number, latest known is 15.</td>
+                <td>UINT32</td>
+                </tr>
+                <tr>
+                <td>name</td>
+                <td>model name, usually its pathname, ASCII encoded, null-terminated, length 64.</td>
+                <td>64*ASCII</td>
+                </tr>
+                <tr>
+                <td>flags</td>
+                <td>not used.</td>
+                <td>UINT32</td>
+                </tr>
+                <tr>
+                <td>num_frames</td>
+                <td>number of animation frames.</td>
+                <td>UINT32</td>
+                </tr>
+                <tr>
+                <td>num_tags</td>
+                <td>number of tags.</td>
+                <td>UINT32</td>
+                </tr>
+                <tr>
+                <td>num_surfaces</td>
+                <td>number of surfaces.</td>
+                <td>UINT32</td>
+                </tr>
+                <tr>
+                <td>num_skins</td>
+                <td>not used.</td>
+                <td>UINT32</td>
+                </tr>
+                <tr>
+                <td>ofs_frame_infos</td>
+                <td>file offset to field of frame infos.</td>
+                <td>UINT32</td>
+                </tr>
+                <tr>
+                <td>ofs_tags</td>
+                <td>file offset to field of tags.</td>
+                <td>UINT32</td>
+                </tr>
+                <tr>
+                <td>ofs_surfaces</td>
+                <td>file offset to field of surfaces.</td>
+                <td>UINT32</td>
+                </tr>
+                <tr>
+                <td>ofs_end</td>
+                <td>file offset to end of file.</td>
+                <td>UINT32</td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="remt-table-desc-notes">
+              <p><span style="text-decoration: underline;">Notes:</span></p>
+              <p>General information about MD3 data. Used mainly to navigate file data.</p>
+            </div>
+          </div>
+
+          <div class="remt-table-desc">
+            <h3>MD3FrameInfo</h3>
+            <table class="table table-dark table-striped table-bordered">
+              <tbody>
+                <tr>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Type</th>
+                </tr>
+                <tr>
+                <td>min_bound</td>
+                <td>location coordinates of min corner of minimum bounding box.</td>
+                <td>3*F32</td>
+                </tr>
+                <tr>
+                <td>max_bound</td>
+                <td>location coordinates of max corner of minimum bounding box.</td>
+                <td>3*F32</td>
+                </tr>
+                <tr>
+                <td>local_origin</td>
+                <td>TODO</td>
+                <td>3*F32</td>
+                </tr>
+                <tr>
+                <td>radius</td>
+                <td>TODO</td>
+                <td>F32</td>
+                </tr>
+                <tr>
+                <td>name</td>
+                <td>name of frame, ASCII encoded, null-terminated, length 16, does not seem to be used.</td>
+                <td>16*ASCII</td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="remt-table-desc-notes">
+              <p><span style="text-decoration: underline;">Notes:</span></p>
+              <p>Describes bounding volume information: axially aligned bounding box and bounding sphere.</p>
+            </div>
+          </div>
+
+          <div class="remt-table-desc">
+            <h3>MD3FrameTag</h3>
+            <table class="table table-dark table-striped table-bordered">
+              <tbody>
+                <tr>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Type</th>
+                </tr>
+                <tr>
+                <td>name</td>
+                <td>name of tag, ASCII encoded, null-terminated, length 64.</td>
+                <td>64*ASCII</td>
+                </tr>
+                <tr>
+                <td>location</td>
+                <td>location coordinates in this frame.</td>
+                <td>3*F32</td>
+                </tr>
+                <tr>
+                <td>orientation</td>
+                <td>orientation as rotation matrix in frame. Each sequence of 3 floats make up the coordinates of a basis vector. The first 3 floats make up the x basis vector, etc.</td>
+                <td>9*F32</td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="remt-table-desc-notes">
+              <p><span style="text-decoration: underline;">Notes:</span></p>
+              <p>A tag in a specific frame.</p>
+              <p><span style="text-decoration: underline;">Background:</span></p>
+              <p>Tags are used to attach external models to a model. Attachment means that the external models origin aligns itself with the models tag location and orientation. As the external model is parented to the tag (nested in tag space), any animation of the tag will also affect the external model.</p>
+              <p>Domain specific scripts tell the engine which external models to attach to a given tag. These scripts are either located in mapscript files (attachtotag command) or .skin files. Sometimes they are also hard coded.</p>
+              <p>An example use case is a hat model (defined separately) attached to a head model. This way, characters can be assembled with different looks without having to duplicate their model definitions. Tags therefore support reuse.</p>
+              <p>Another example use case is that of a tank turret model attached to a tank model. Instead of having a shooting animation (rotate turret left, shoot, rotate turret right) be recorded as vertex positions across several key-frames inside a single MD3 model, a tag can be used to control the shooting animation of a separated model. This safes memory, as the tags animation data most likely takes much less space compared to the animation data of the tank turret inside a single model.</p>
+              <p>However, reuse and memory savings are traded against loss in performance. Vertex positions of the external models have to be recalculated against the current frame tags location and orientation.</p>
+            </div>
+          </div>
+
+          <div class="remt-table-desc">
+            <h3>MD3Surface</h3>
+            <table class="table table-dark table-striped table-bordered">
+              <tbody>
+                <tr>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Type</th>
+                </tr>
+                <tr>
+                <td>header</td>
+                <td>reference to MD3SurfaceHeader object.</td>
+                <td>MD3SurfaceHeader</td>
+                </tr>
+                <tr>
+                <td>triangles</td>
+                <td>list of MD3Triangle objects, size=num_triangles.</td>
+                <td>MD3Triangle (*)</td>
+                </tr>
+                <tr>
+                <td>shaders</td>
+                <td>list of MD3Shader objects, size=num_shaders.</td>
+                <td>MD3Shader (*)</td>
+                </tr>
+                <tr>
+                <td>tex_coords</td>
+                <td>list of MD3TexCoords objects, size=num_vertices.</td>
+                <td>MD3TexCoords (*)</td>
+                </tr>
+                <tr>
+                <td>vertices</td>
+                <td>list of list objects, size=num_frames. Each nested list contains MD3FrameVertex objects, size=num_vertices.</td>
+                <td>MD3FrameVertex (**)</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <div class="remt-table-desc-notes">
+              <p><span style="text-decoration: underline;">Notes:</span></p>
+              <p>Container object. References surface data.</p>
+              <p><span style="text-decoration: underline;">Background:</span></p>
+              <p>Surfaces are described by geometry, color and animation data. A model can consist of multiple surfaces.</p>
+            </div>
+          </div>
+
+          <div class="remt-table-desc">
+            <h3>MD3SurfaceHeader</h3>
+            <table class="table table-dark table-striped table-bordered">
+              <tbody>
+                <tr>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Type</th>
+                </tr>
+                <tr>
+                <td>ident</td>
+                <td>magic number, ASCII encoded, length 4, reads "IDP3".</td>
+                <td>4*ASCII</td>
+                </tr>
+                <tr>
+                <td>name</td>
+                <td>surface name, ASCII encoded, null-terminated, length 64.</td>
+                <td>64*ASCII</td>
+                </tr>
+                <tr>
+                <td>flags</td>
+                <td>not used.</td>
+                <td>UINT32</td>
+                </tr>
+                <tr>
+                <td>num_frames</td>
+                <td>number of animation frames.</td>
+                <td>UINT32</td>
+                </tr>
+                <tr>
+                <td>num_shaders</td>
+                <td>number of shaders.</td>
+                <td>UINT32</td>
+                </tr>
+                <tr>
+                <td>num_vertices</td>
+                <td>number of vertices.</td>
+                <td>UINT32</td>
+                </tr>
+                <tr>
+                <td>num_triangles</td>
+                <td>number of triangles.</td>
+                <td>UINT32</td>
+                </tr>
+                <tr>
+                <td>ofs_triangles</td>
+                <td>file offset to field of triangles.</td>
+                <td>UINT32</td>
+                </tr>
+                <tr>
+                <td>ofs_shaders</td>
+                <td>file offset to field of shaders.</td>
+                <td>UINT32</td>
+                </tr>
+                <tr>
+                <td>ofs_tex_coords</td>
+                <td>file offset to field of texture coordinates.</td>
+                <td>UINT32</td>
+                </tr>
+                <tr>
+                <td>ofs_vertices</td>
+                <td>file offset to field of vertices.</td>
+                <td>UINT32</td>
+                </tr>
+                <tr>
+                <td>ofs_end</td>
+                <td>file offset to end of surface.</td>
+                <td>UINT32</td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="remt-table-desc-notes">
+              <p><span style="text-decoration: underline;">Notes:</span></p>
+              <p>General information about a surface. Used mainly to navigate surface data.</p>
+            </div>
+          </div>
+
+          <div class="remt-table-desc">
+            <table class="table table-dark table-striped table-bordered">
+              <h3>MD3Triangle</h3>
+              <tbody>
+                <tr>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Type</th>
+                </tr>
+                <tr>
+                <td>indices</td>
+                <td>indices into the list of vertices. The order defines in which direction the face normal is pointing.</td>
+                <td>3*UINT32</td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="remt-table-desc-notes">
+              <p><span style="text-decoration: underline;">Notes:</span></p>
+              <p>A triangle for a surface.</p>
+            </div>
+          </div>
+
+          <div class="remt-table-desc">
+            <h3>MD3Shader</h3>
+            <table class="table table-dark table-striped table-bordered">
+              <tbody>
+                <tr>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Type</th>
+                </tr>
+                <tr>
+                <td>name</td>
+                <td>shader name, ASCII encoded, null-terminated, length 64.</td>
+                <td>64*ASCII</td>
+                </tr>
+                <tr>
+                <td>shader_index</td>
+                <td>used in-game only.</td>
+                <td>UINT32</td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="remt-table-desc-notes">
+              <p><span style="text-decoration: underline;">Notes:</span></p>
+              <p>Shader for a surface. The name of the shader is a reference to either a shader inside a script file, or a path from top level directory to an texture image. Suffixes like .tga or .jpg can be omitted. Search order is: shader, .tga, .jpg. First found will be used.</p>
+              <p><span style="text-decoration: underline;">Background:</span></p>
+              <p>Shaders manipulate surface properties. These properties define how the surface interacts with light sources present in a scene.</p>
+              <p>The term can be a bit confusing, since a shader in this context can either mean a script file (with references to texture images) or an texture image.</p>
+            </div>
+          </div>
+
+          <div class="remt-table-desc">
+            <h3>MD3TexCoords</h3>
+            <table class="table table-dark table-striped table-bordered">
+              <tbody>
+                <tr>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Type</th>
+                </tr>
+                <tr>
+                <td>tex_coords</td>
+                <td>u and v coordinates in UV-space.</td>
+                <td>2*F32</td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="remt-table-desc-notes">
+              <p><span style="text-decoration: underline;">Notes:</span></p>
+              <p>Texture coordinates for a single vertex. UV coordinates are given so that u points right, and v points down. Each value should be in range of [0, 1]. Values outside this range are interpreted as repeating. Each vertex is mapped exactly once to UV-space. Therefore, seams will most likely cause an exporter to add additional vertices along the seam line to enforce bijection. UV-maps are stored once per surface.</p>
+              <p><span style="text-decoration: underline;">Background:</span></p>
+              <p>The UV-map is used to color the surface with solid color from a 2D image. Texture coordinates make up UV-space.</p>
+            </div>
+          </div>
+
+          <div class="remt-table-desc">
+           <h3>MD3FrameVertex</h3>
+            <table class="table table-dark table-striped table-bordered">
+              <tbody>
+                <tr>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Type</th>
+                </tr>
+                <tr>
+                <td>location</td>
+                <td>location coordinates in frame.</td>
+                <td>3*INT16</td>
+                </tr>
+                <tr>
+                <td>normal</td>
+                <td>vertex normal in spherical coordinates. Index 0 = latitude, index 1 = longitude.</td>
+                <td>2*UINT8</td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="remt-table-desc-notes">
+              <p><span style="text-decoration: underline;">Notes:</span></p>
+              <p>Vertex location and normal in a specific frame. Each key frame contains a list of vertex locations and normals.</p>
+              <p>Vertex location values from file are given as compressed 16-Bit integers. To convert this range to a range of floats, the given value is linearly mapped. For this, a hard coded scale value is used.</p>
+              <p>Vertex normals manipulate the shading of a surface (for example smooth or flat). They are given in spherical coordinates. Since the coordinates describe the direction of a normal, the radius value is omitted and only latitude and longitude values are given as unsigned 8-bit values from file. To convert them to cartesian space, the upwards vector is first rotated by the latitude value, then by the longitude value. Latitude range is within [0, 180] degrees. Longitude range is within [0, 360) degrees. To obtain the values in degrees, the given range of [0, 255] from file needs to be linearly mapped to [0, 360) degrees.</p>
+            </div>
+          </div>
+
+          <h2>UML View</h2>
+          <p>
+            <figure class="remt-pic-explain">
+              <img src="./img/specifications/md3.svg" alt="UML view of MD3 file format">
+              <figcaption>Figure: UML view of MD3 file format</figcaption>
+            </figure>
+          </p>
+        </div>
+      </div>
+      <div class="col-sm-3">
+        <nav id="toc" data-toggle="toc" class="sticky-top"></nav>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <div class="text-center">Copyright 2019 <a href="mailto:n.mitschke@mail.de">Norman Mitschke</a></div>
+    </div>
+  </footer>
+
+  <!-- Javascript -->
+  <script src="./js/jquery-3.2.1.slim.min.js"></script>
+  <script src="./js/bootstrap.bundle.min.js"></script>
+  <script src="./js/bootstrap-toc.min.js"></script>
+
+  <!-- Scrollspy fix -->
+  <script type="text/javascript">
+    $(document).ready(function () {
+      $('body').scrollspy({
+        target: '#toc',
+        offset: 10
+      });
+    });
+  </script>
+
+</body>
+
+</html>

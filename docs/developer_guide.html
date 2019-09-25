@@ -5,17 +5,18 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
     <link rel="stylesheet" href="./css/bootstrap.min.css" />
+    <link rel="stylesheet" href="./css/bootstrap-toc.min.css" />
     <link rel="stylesheet" href="./css/animate.css" />
     <link rel="stylesheet" href="./css/remt.css" />
     <title>
-      RtCW:ET Blender Model Tools - MD3, MDC, MDS, MDM/MDX and TAG format support for the 3D modeling software Blender.
+      RtCW:ET Blender Model Tools - Developer Guide.
     </title>
 
     <meta name="description" content="MD3, MDC, MDS, MDM/MDX and TAG format support for the 3D modeling software Blender."/>
     <meta name="keywords" content="MD3, MDC, MDS, MDM/MDX, TAG, file format, 3D model format, import, export,
     interoperability, Return to Castle Wolfenstein, Wolfenstein: Enemy Territory"/>
 
-    <meta property="og:title" content="RtCW:ET Blender Model Tools - Developer Guide"/>
+    <meta property="og:title" content="RtCW:ET Blender Model Tools - User Guide"/>
     <meta property="og:description" content="MD3, MDC, MDS, MDM/MDX and TAG format support for the 3D modeling software Blender."/>
     <meta property="og:url" content="https://mino-git.github.io/rtcw-wet-blender-model-tools/index.html"/>
     <meta property="og:site_name" content="mino-git.github.io" />
@@ -24,7 +25,6 @@
     <meta property="og:image" content="https://mino-git.github.io/rtcw-wet-blender-model-tools/img/brand/logo.png"/>
     <meta property="og:type" content="article"/>
     <meta property="article:author" content="Norman Mitschke" />
-
     <link rel="icon" href="./img/brand/icon.ico" />
   </head>
 
@@ -99,12 +99,334 @@
           <hr>
         </div>
 
-        <!-- Chapter: Introduction -->
+        <!-- Chapter: File Format Description -->
         <div class="remt-chapter">
-          <h2 id="introduction">Work in progress</h2>
-          <p>Check back later ...</p>
+          <h2 id="file-format-description">File Format Description</h2>
+          <p>
+            This chapter describes the file formats MD3, MDC, MDS, MDM/MDX and TAG.
+            It contains links to the unofficial specs, an overview of the most common data, and some words on most common encoding schemes.
+          </p>
+          <h3 id="file-format-specifications">File Format Specifications</h3>
+          <p>
+            Here you can find the unofficial file format specifications for
+            <a href="./md3.html">MD3</a>,
+            <a href="./mdc.html">MDC</a>,
+            <a href="./mds.html">MDS</a>,
+            <a href="./mdmmdx.html">MDM/MDX</a> and
+            <a href="./tag.html">TAG</a>.
+          </p>
+
+          <!-- Chapter: Section -->
+          <h3 id="data-summary">Data Overview</h3>
+          <p>
+            MD3, MDC, MDS, and MDM/MDX are indexed triangle meshes.
+            The main data fields are surfaces, tags, bones, bounding volumes, and level of detail.
+            However, there are differences among the formats and not all the formats include the same information.
+          </p>
+          <h4 id="data-summary-surfaces">Surfaces</h4>
+          <p>
+            Surfaces make up the basic model. They are described by geometry, color and animation data.
+          </p>
+          <p>
+            Geometry of a surface is described by grouping vertices into a triangle.
+            Triangles are then grouped into a surface.
+          </p>
+          <p>
+            Colorization of a surface is done by defining UV-maps and references to shaders.
+            The UV-maps are used to color surfaces with solid color from a 2D image.
+            Shaders manipulate surface properties.
+            These properties define how the surface interacts with light sources present in a scene.
+            Additionally vertex normals manipulate the shading of a surface.
+          </p>
+          <p>
+            Animation of a surface is different per format.
+            MD3 and MDC store vertex positions per frame.
+            This animation technique is also known as "morph target animation".
+            The way it works is that for each key frame a series of vertex positions is stored.
+            Between two successive frames, the vertices are then interpolated between the positions.
+            MD3 stores absolute vertex positions as opposed to MDC, which can store offsets relative to a base frame
+          </p>
+          <p>
+            MDS and MDM/MDX store vertex location and normal values in relation to a skeleton.
+            This animation technique is also known as "skeletal animation".
+            The way it works is that for each key frame the vertex location and normal values
+            are influenced-by/weighted-against the location and orientation values of 1 or more bones.
+            Thus, only bones contain animation data while vertex values are stored once in a special model pose called "binding pose".
+          </p>
+
+          <h4 id="data-summary-tags">Tags</h4>
+          <p>
+            Tags are used to attach external models to a model.
+            Attachment means that the external models origin aligns itself with the models tag location and orientation.
+            As the external model is parented to the tag (nested in tag space), any animation of the tag will also affect the external model.
+          </p>
+          <p>
+            Domain specific scripts tell the engine which external models to attach to a given tag.
+            These scripts are either located in mapscript files (attachtotag command) or .skin files.
+            Sometimes they are also hard coded.
+          </p>
+          <p>
+            An example use case is a hat model (defined separately) attached to a head model.
+            This way, characters can be assembled with different looks without having to duplicate their model definitions. Tags therefore support reuse.
+          </p>
+          <p>
+            Another example use case is that of a tank turret model attached to a tank model.
+            Instead of having a shooting animation (rotate turret left, shoot, rotate turret right) be recorded
+            as vertex positions across several key-frames inside a single model,
+            a tag can be used to control the shooting animation of a separated model.
+            This safes memory, as the tags animation data most likely takes much less space compared to the animation data
+            of the tank turret inside a single model.
+          </p>
+          <p>
+            However, reuse and memory savings are traded against loss in performance.
+            Vertex positions of the external models have to be recalculated against the current frame tags location and orientation.
+          </p>
+          <p>
+            Tags are specified in relation to a bone or not.
+            In case they are parented to a bone, the bone animation data determines the animation of the tag.
+            There are tags with an offset in location and orientation to a bone, or there are tags with no such offset.
+            In the latter case these tags are more or less the bones themselves.
+          </p>
+
+          <h4 id="data-summary-bones">Bones</h4>
+          <p>
+            Bone data is used on the formats MDS and MDM/MDX.
+            Bones are arranged in a hierarchy, but their data is actually not defined in any parent bone space.
+            For more information on skeletal animation a good book is recommended, but a starting point may also be Wikipedia.
+          </p>
+
+          <h4 id="data-summary-bounding-volumes">Bounding Volumes</h4>
+          <p>
+            Each format includes bounding volume information.
+            This data is stored each frame and is made up of an axially-aligned bounding box and a bounding sphere.
+          </p>
+
+          <h4 id="data-summary-level-of-detail">Level of Detail</h4>
+          <p>
+            MDS and MDM/MDX store their level of detail data in the same file as the rest of the data.
+            The method used is a progressive mesh algorithm. This algorithm is described in a publication by Stan Melax.
+          </p>
+          <p>
+            MD3 and MDC in turn the well known discrete method of storing level of detail.
+            There are 3 detail levels for a model. The less detailed models are usually stored in the same directory as the highest detail model.
+          </p>
+
+          <!-- Chapter: Section -->
+          <h3>Encoding Schemes</h3>
+          <p>
+            MD3, MDC, MDS, and MDM/MDX use different encoding schemes when writing their data to file.
+            This mostly concerns location and orientation values.
+          </p>
+          <p>
+            What all formats have in common is that they store their data as a byte stream to file.
+            All types are encoded in little endian byte order.
+            The coordinate system convention is right handed: x points forward, y points left, z points up.
+          </p>
+
+          <h4 id="overview-type-compression">Type Compression</h4>
+          <p>
+            Type compression is found nearly everywhere.
+            It was probably a major design criteria in order to save both disk and in-memory footprint.
+            If you know more on why it was used so often back then, please shoot me an E-Mail.
+          </p>
+          <p>
+            For example the location values for nearly all vertices are type compressed.
+            Here the actual type is a float, but its encoding on disk is a 16-bit integer.
+          </p>
+          <p>
+            In order to convert back and forth between the encoded type value and the type value itself,
+            you need to scale the value by a predefined constant. This constant is defined in the source code of the file readers of the engine.
+          </p>
+          <p>
+            The scale value in turn also defines certain limits. For example a vertex location in MD3
+            (writing this out of my head, but you can always check it by doing the math) can never exceed an absolute value of 512.0 units.
+            This is because the scale value linearly maps the integer value to a range of floats.
+          </p>
+
+          <h4 id="overview-offset-compression">Offset Compression</h4>
+          <p>
+            Offset compression takes the idea of type compression one step further. It is used by MDC only.
+          </p>
+          <p>
+            For it to work, MDC defines two types of frames: base frames and compressed frames. Base frames do not use offset compression.
+            If a base frame is used, then the encoding scheme used for the vertex values is the same as with MD3:
+            that means a type compressed 16-bit integer is used.
+            If a compressed frame is used, then MDC compresses a small float value (the offset value) down to an 8-bit integer (offset compression).
+            The offset value is defined relative to the value in its base frame.
+          </p>
+
+          <h4 id="overview-compression">Matrix Representation</h4>
+          <p>
+            Rotation matrices are used in MD3 to encode the orientation of tags.
+            There is no type compression used on those values.
+            The byte streams first 3 bytes encode the x-basis vector, and so on.
+          </p>
+
+          <h4 id="overview-compression">Tait-Bryan Angles</h4>
+          <p>
+            Another way to encode orientation is with Tait-Bryan angles.
+            This representation technique also saves space on disk and in-memory.
+            Additionally, the values are type compressed.
+            Their unencoded type values range from 0 to 360.
+            The first byte in the field encodes the pitch value, the second one the yaw value, and the third is the roll value.
+            In terms of actually converting this to a rotation matrix, the values are applied in this order: roll, pitch, yaw.
+            The convention is to rotate around the moving coordinate systems (intrinsic).
+          </p>
+
+          <h4 id="overview-compression">Spherical Coordinates</h4>
+          <p>
+            Spherical coordinates are used to define the direction of a vertex normal.
+            It is most easy to just think of them in terms of Tait-Bryan angles, but without a roll.
+            The values in the fields are again type compressed. The values are encoded into two 8-bit fields.
+            The first byte encodes the pitch value, the second byte encodes the yaw value.
+            The rotation is performed starting with the upwards-vector.
+            Rotation order is: pitch, yaw (intrinsic).
+          </p>
+
+          <!-- Chapter: Section -->
+          <h3 id="data-summary-quick-comparison">Quick Comparison</h3>
+          <p>
+            The major difference in file formats is their animation technique.
+            MD3 and MDC uses morph target animation. MDS and MDM/MDX uses skeletal animation.
+            MD3 and MDC can be further differentiated in that MDC additionally compresses its animation data by using offset compression.
+          </p>
+          <p>
+            Tags are another major difference.
+            MD3 and MDC store tag location and orientation values per frame and in model space.
+            MDS and MDM/MDX store their tag values relative to a bone.
+            MDS directly uses the bone location and orientation values for tags.
+            MDM/MDX defines its tag values in bone space as an offset.
+          </p>
         </div>
 
+        <!-- Chapter: Source Code Description -->
+        <div class="remt-chapter">
+          <h2 id="source-code-description">Source Code Description</h2>
+          <p>
+            This chapter gives a high-level overview of the the source code.
+          </p>
+          <h3 id="introduction-to-mdi">Introduction to MDI</h3>
+          <p>
+            Everything in the source code is based on the MDI (Model Definition Interchange) format.
+            It is a custom data interchange format created for abstracting the data of all other formats.
+            It is a superset of MD3, MDC, MDS, MDM/MDX and TAG formats and a subset of  Blenders .blend format.
+          </p>
+          <p>
+            The reason it was introduced is to have a scalable source code architecture by reducing the time spent on developing and maintaining converters.
+            To understand this, let's take a look at a simple example, which we are going to extend by introducing more and more formats into the system.
+          </p>
+          <p>
+            <figure class="remt-pic-explain">
+              <img src="./img/developer_guide/src-1.png" alt="a simple read, write and convert example">
+              <figcaption>Figure: a simple read, write and convert example</figcaption>
+            </figure>
+          </p>
+          <p>
+            In the diagram above we have two formats called A and B.
+            We can see that each format must have a file back end.
+            We can also see that if we want to convert between the formats we would need to convert into each direction.
+            That amounts for two converters: one from A to B and one from B to A.
+          </p>
+          <p>
+            Let's add another format to see how the number of converters increase:
+          </p>
+          <p>
+            <figure class="remt-pic-explain">
+              <img src="./img/developer_guide/src-2.png" alt="adding another model format">
+              <figcaption>Figure: adding another model format</figcaption>
+            </figure>
+          </p>
+          <p>
+            The number of converters is now 6. Let's add yet another format:
+          </p>
+          <p>
+            <figure class="remt-pic-explain">
+              <img src="./img/developer_guide/src-3.png" alt="adding yet another model format">
+              <figcaption>Figure: adding yet another model format</figcaption>
+            </figure>
+          </p>
+          <p>
+            The number of converters is now 12.
+            We can derive a pattern from this.
+            Each new format requires a certain amount of converters to be added.
+            That amount is 2 times the number of already existing formats.
+          </p>
+          <p>
+            So even for a small amount of formats, a system of interchangable model formats like this would not be scalable.
+            There needs to be an abstracted data format, which would be able to contain all the data and which could be passed around.
+            Thus MDI was born. It decouples the conversion process by being a common medium of data exchange.
+            Of course, there are interchange formats such as .fbx or .collada.
+            But they all lack the specific features required for some data fields in the model formats for RtCW and W:ET.
+          </p>
+
+          <h3 id="source-code-architecture">Source Code Architecture</h3>
+          <p>
+            For reasons explained in the previous chapter, the source code is based on a custom interchange format called MDI.
+            The following graph depicts the architecture.
+          </p>
+          <p>
+            <figure class="remt-pic-explain">
+              <img src="./img/developer_guide/src-4.png" alt="source code architecture based around MDI">
+              <figcaption>Figure: source code architecture based on MDI</figcaption>
+            </figure>
+          </p>
+          <p>
+            Each model format was developed in a special package of modules called component.
+            Each component contains a reader, a writer, and a converter.
+            The readers and writers deal with their respective formats native encoding schemes.
+            The converters transform the native data to and from MDI.
+          </p>
+          <p>
+            <figure class="remt-pic-explain">
+              <img src="./img/developer_guide/src-5.png" alt="a component inside">
+              <figcaption>Figure: a component inside</figcaption>
+            </figure>
+          </p>
+          <p>
+            Now, if a new format is going to be integrated into the system,
+            all that is needed to do is write a reader and writer, as well as a single converter to and from MDI.
+            Of course, this is only half of the truth, as some model formats might have features MDI does not have.
+          </p>
+        </div>
+
+        <!-- Chapter: File Format Description -->
+        <div class="remt-chapter">
+          <h2>Background Material</h2>
+          <p>
+            As keyword-list:
+            <ul style="list-style-type: circle;">
+              <li><a href="https://en.wikipedia.org/wiki/Triangle_mesh">Indexed triangle meshes</a></li>
+              <li><a href="https://en.wikipedia.org/wiki/Cartesian_coordinate_system">Cartesian coordinate system</a></li>
+              <li><a href="https://en.wikipedia.org/wiki/Vector_(mathematics_and_physics)">Vectors</a></li>
+              <li><a href="https://en.wikipedia.org/wiki/Matrix_(mathematics)">Matrices</a></li>
+              <li><a href="https://en.wikipedia.org/wiki/Euler_angles">Euler angles</a></li>
+              <li><a href="https://en.wikipedia.org/wiki/Euler_angles#Tait%E2%80%93Bryan_angles">Tait-Bryan Angles</a></li>
+              <li><a href="https://en.wikipedia.org/wiki/Spherical_coordinate_system">Spherical coordinate system</a></li>
+              <li><a href="https://docs.microsoft.com/en-us/windows/win32/gdi/coordinate-spaces-and-transformations">Coordinate Space Transformations</a></li>
+              <li>
+                <a href="https://en.wikipedia.org/wiki/Spherical_coordinate_system#Cartesian_coordinates">Spherical to cartesian</a>
+                or <a href="publications/EulerToMatrix.pdf">matrix to euler</a></li>
+              <li><a href="https://en.wikipedia.org/wiki/Texture_mapping">Texture-Mapping</a></li>
+              <li><a href="https://en.wikipedia.org/wiki/Gouraud_shading">Gouraud shading</a></li>
+              <li><a href="https://en.wikipedia.org/wiki/Rendering_equation">Rendering equation</a></li>
+              <li><a href="https://en.wikipedia.org/wiki/Morph_target_animation">Morph target animation</a></li>
+              <li><a href="https://en.wikipedia.org/wiki/Skeletal_animation">Skeletal animation</a></li>
+              <li><a href="https://en.wikipedia.org/wiki/Progressive_meshes">Progressive meshes</a></li>
+            </ul>
+          </p>
+          <p>
+            Specifics of the formats and helpful publications:
+            <ul style="list-style-type: circle;">
+              <li><a href="publications/Description of MD3 Format (2011 Jul 11).htm">PhaethonH. "Description of MD3 Format". July 2011.</a></li>
+              <li><a href="publications/MDCFileFormat.pdf">Prinz, Wolfgang. "The MDC File Format". May 2004.</a></li>
+              <li><a href="publications/MDSFileFormat.html">Cookson, Chris. "Unofficial Return to Castle Wolfenstein MDS File Format Spec v1.0". 2002.</a></li>
+              <li><a href="publications/MDMMDXFileFormat.html">Ikonatto. "MDM MDX unofficial specification". ~2002.</a></li>
+              <li><a href="publications/PolygonReduction.pdf">Melax, Stan. "A Simple, Fast, and Effective Polyong Reduction Algorithm". November 1998.</a></li>
+              <li><a href="publications/EulerToMatrix.pdf">Slabaugh, Gregory: "Computing Euler angles from a rotation matrix". January 1999.</a></li>
+              <li><a href="https://www.amazon.com/Math-Primer-Graphics-Game-Development/dp/1568817231">Dunn, Fletcher and Parberry, Ian. "3D Math Primer for Graphics and Game Development (2nd Edition)". November 2011.</a></li>
+            </ul>
+          </p>
+        </div>
       </div>
 
       <div class="col-sm-3">

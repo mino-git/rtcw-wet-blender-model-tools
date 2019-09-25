@@ -1,0 +1,300 @@
+<!doctype html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <link rel="stylesheet" href="./css/bootstrap.min.css" />
+    <link rel="stylesheet" href="./css/bootstrap-toc.min.css" />
+    <link rel="stylesheet" href="./css/remt.css" />
+    <title>
+      RtCW:ET Blender Model Tools - Unofficial TAG Format Specification.
+    </title>
+
+    <meta name="description" content="MD3, MDC, MDS, MDM/MDX and TAG format support for the 3D modeling software Blender."/>
+    <meta name="keywords" content="MD3, MDC, MDS, MDM/MDX, TAG, file format, 3D model format, import, export,
+    interoperability, Return to Castle Wolfenstein, Wolfenstein: Enemy Territory"/>
+
+    <meta property="og:title" content="RtCW:ET Blender Model Tools - Tutorials"/>
+    <meta property="og:description" content="MD3, MDC, MDS, MDM/MDX and TAG format support for the 3D modeling software Blender."/>
+    <meta property="og:url" content="https://mino-git.github.io/rtcw-wet-blender-model-tools/index.html"/>
+    <meta property="og:site_name" content="mino-git.github.io" />
+    <meta property="og:keywords" content="MD3, MDC, MDS, MDM/MDX, TAG, file format, 3D model format, import, export,
+    interoperability, Return to Castle Wolfenstein, Wolfenstein: Enemy Territory"/>
+    <meta property="og:image" content="https://mino-git.github.io/rtcw-wet-blender-model-tools/img/brand/logo.png"/>
+    <meta property="og:type" content="article"/>
+    <meta property="article:author" content="Norman Mitschke" />
+
+    <link rel="icon" href="./img/brand/icon.ico" />
+  </head>
+
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container">
+      <!-- Brand -->
+      <a class="navbar-brand d-none d-md-block" href="./index.html">
+        <img src="./img/brand/navbar.png" alt="Brand" />
+      </a>
+      <a class="navbar-brand d-block d-md-none" href="./index.html">
+        <img src="./img/brand/navbar_collapsed.png" alt="Brand" />
+      </a>
+      <!-- Toggler -->
+      <button
+        class="navbar-toggler"
+        type="button"
+        data-toggle="collapse"
+        data-target="#remt-navbar-collapse"
+        aria-controls="remt-navbar-collapse"
+        aria-expanded="false"
+        aria-label="Toggle navigation"
+      >
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <!-- Links -->
+      <div class="collapse navbar-collapse" id="remt-navbar-collapse">
+        <ul class="navbar-nav ml-auto">
+          <!-- Normal Links -->
+          <li class="nav-item">
+            <a class="nav-link" href="./about.html">About</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="./downloads.html">Downloads</a>
+          </li>
+          <!-- Learn Dropdown -->
+          <li class="nav-item dropdown">
+            <a
+              class="nav-link dropdown-toggle"
+              href="#"
+              id="dropdown-learn"
+              data-toggle="dropdown"
+              aria-haspopup="true"
+              aria-expanded="false"
+              >Learn</a
+            >
+            <div class="dropdown-menu" aria-labelledby="dropdown-learn">
+              <a class="dropdown-item" href="./user_guide.html">User Guide</a>
+              <a class="dropdown-item" href="./developer_guide.html">Developer Guide</a>
+              <a class="dropdown-item" href="./tutorials.html">Tutorials</a>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Content -->
+  <div class="container">
+
+    <div class="row">
+
+      <div class="col-sm-9">
+
+        <div class="remt-title-2">
+          <h1 data-toc-skip>Unofficial TAG Format Specification</h1>
+          <hr>
+        </div>
+
+        <div class="remt-chapter">
+          <h2>Overview</h2>
+          <p>
+            The tag file format is a very small and rarely used format specifically for the server.
+            It is a copy of client tags (the tags from the model formats) on the first frame.
+            Their only use case back then was to describe a location and orientation value of a coordinate system,
+            so that the server could locate and orient script mover collision models, but probably it had more use cases.
+          </p>
+        </div>
+
+        <div class="remt-chapter">
+          <h2>Symbols</h2>
+          <table class="table table-dark table-striped table-bordered">
+            <thead>
+              <tr>
+                <th scope="col">Name</th>
+                <th scope="col">Description</th>
+              </tr>
+            </thead>
+            <tbody>
+            <tr>
+              <td>UINT8</td>
+              <td>unsigned 8-bit integer</td>
+            </tr>
+            <tr>
+              <td>INT16</td>
+              <td>signed 16-bit integer</td>
+            </tr>
+            <tr>
+              <td>UINT16</td>
+              <td>unsigned 16-bit integer</td>
+            </tr>
+            <tr>
+              <td>INT32</td>
+              <td>signed 32-bit integer</td>
+            </tr>
+            <tr>
+              <td>UINT32</td>
+              <td>unsigned 32-bit integer</td>
+            </tr>
+            <tr>
+              <td>F32</td>
+              <td>32-bit floating-point (IEEE-754)</td>
+            </tr>
+            <tr>
+              <td>ASCII</td>
+              <td>8-bit ASCII character</td>
+            </tr>
+            <tr>
+              <td>(*)</td>
+              <td>Marks a list of objects of the same type.
+                There can be multiple appearances of * inside those round brackets,
+                for example (**) describes a list of lists.
+              </td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="remt-chapter">
+          <h2>Tables</h2>
+
+          <div class="remt-table-desc">
+            <h3>TAG</h3>
+            <table class="table table-dark table-striped table-bordered">
+              <tbody>
+                <tr>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Type</th>
+                </tr>
+                <tr>
+                <td>header</td>
+                <td>reference to TAGHeader object.</td>
+                <td>TAGHeader</td>
+                </tr>
+                <tr>
+                <td>tags</td>
+                <td>list of tag objects, size=num_tags.</td>
+                <td>TAGData (*)</td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="remt-table-desc-notes">
+              <p><span style="text-decoration: underline;">Notes:</span></p>
+              <p>Container object. References all TAG data.</p>
+            </div>
+          </div>
+
+          <div class="remt-table-desc">
+            <h3>TAGHeader</h3>
+            <table class="table table-dark table-striped table-bordered">
+              <tbody>
+                <tr>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Type</th>
+                </tr>
+                <tr>
+                <td>ident</td>
+                <td>magic number, ASCII encoded, length 4, reads "TAG1".</td>
+                <td>4*ASCII</td>
+                </tr>
+                <tr>
+                <td>version</td>
+                <td>version number, latest known is 1.</td>
+                <td>UINT32</td>
+                </tr>
+                <td>num_tags</td>
+                <td>number of tags.</td>
+                <td>UINT32</td>
+                </tr>
+                <tr>
+                <td>ofs_end</td>
+                <td>file offset to end of file.</td>
+                <td>UINT32</td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="remt-table-desc-notes">
+              <p><span style="text-decoration: underline;">Notes:</span></p>
+              <p>General information about TAG data. Used mainly to navigate file data.</p>
+            </div>
+          </div>
+
+          <div class="remt-table-desc">
+            <h3>TAGData</h3>
+            <table class="table table-dark table-striped table-bordered">
+              <tbody>
+                <tr>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Type</th>
+                </tr>
+                <tr>
+                <td>name</td>
+                <td>name of tag, ASCII encoded, null-terminated, length 64.</td>
+                <td>64*ASCII</td>
+                </tr>
+                <tr>
+                <td>location</td>
+                <td>location coordinates.</td>
+                <td>3*F32</td>
+                </tr>
+                <tr>
+                <td>orientation</td>
+                <td>
+                  orientation as rotation matrix.
+                  The values are encoded in row major order, the first 3 floats make up the x-coordinates of a basis vector, etc.
+                  TODO recheck on this
+                </td>
+                <td>9*F32</td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="remt-table-desc-notes">
+              <p><span style="text-decoration: underline;">Notes:</span></p>
+              <p>A tag in the first frame of the corrseponding tag in a client model.</p>
+            </div>
+          </div>
+
+          <h2>UML View</h2>
+          <p>
+            <figure class="remt-pic-explain">
+              <img src="./img/specifications/tag.svg" alt="UML view of TAG file format">
+              <figcaption>Figure: UML view of TAG file format</figcaption>
+            </figure>
+          </p>
+        </div>
+      </div>
+      <div class="col-sm-3">
+        <nav id="toc" data-toggle="toc" class="sticky-top"></nav>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <div class="text-center">Copyright 2019 <a href="mailto:n.mitschke@mail.de">Norman Mitschke</a></div>
+    </div>
+  </footer>
+
+  <!-- Javascript -->
+  <script src="./js/jquery-3.2.1.slim.min.js"></script>
+  <script src="./js/bootstrap.bundle.min.js"></script>
+  <script src="./js/bootstrap-toc.min.js"></script>
+
+  <!-- Scrollspy fix -->
+  <script type="text/javascript">
+    $(document).ready(function () {
+      $('body').scrollspy({
+        target: '#toc',
+        offset: 10
+      });
+    });
+  </script>
+
+</body>
+
+</html>
