@@ -301,14 +301,14 @@ table ul {
 
 .txt-h1 {
   font-style: italic;
-  border-left: 4px solid red;
+  /* border-left: 4px solid red; */
   border-bottom: 1px solid red;
   padding-left: 3px;
 }
 
 .txt-h2 {
   font-style: italic;
-  border-left: 4px solid grey;
+  /* border-left: 4px solid grey; */
   border-bottom: 1px solid grey;
   padding-left: 3px;
 }
