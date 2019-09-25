@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<diagram program="umlet" version="14.3.0">
+  <zoom_level>9</zoom_level>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>540</x>
+      <y>45</y>
+      <w>99</w>
+      <h>27</h>
+    </coordinates>
+    <panel_attributes>TAG
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>666</x>
+      <y>45</y>
+      <w>162</w>
+      <h>90</h>
+    </coordinates>
+    <panel_attributes>TAGHeader
+--
+ident: 4*ASCII
+version: UINT32
+num_tags: UINT32
+ofs_end: UINT32</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>630</x>
+      <y>45</y>
+      <w>54</w>
+      <h>45</h>
+    </coordinates>
+    <panel_attributes>m1=1
+m2=1
+</panel_attributes>
+    <additional_attributes>40.0;20.0;10.0;20.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>666</x>
+      <y>144</y>
+      <w>162</w>
+      <h>72</h>
+    </coordinates>
+    <panel_attributes>TAGData
+--
+name: 64*ASCII (C-String)
+location: 3*F32
+orientation: 3*3*F32
+
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLNote</id>
+    <coordinates>
+      <x>855</x>
+      <y>45</y>
+      <w>207</w>
+      <h>162</h>
+    </coordinates>
+    <panel_attributes>Note:
+--
+Byte-order: little-endian
+
+UINT8: unsigned 8-bit integer
+INT16: signed 16-bit integer
+UINT16: unsigned 16-bit integer
+INT32: signed 32-bit integer
+UINT32: unsigned 32-bit integer
+F32: IEEE-754 32-bit floating-point
+ASCII: 8-bit ASCII character</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>576</x>
+      <y>63</y>
+      <w>108</w>
+      <h>126</h>
+    </coordinates>
+    <panel_attributes>m1=1
+m2=num_tags
+</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;110.0;100.0;110.0</additional_attributes>
+  </element>
+</diagram>
