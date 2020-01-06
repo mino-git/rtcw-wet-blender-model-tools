@@ -66,7 +66,7 @@ class MDIToModel:
                                            ofs_surfaces, num_tags, ofs_tags,
                                            ofs_end)
 
-        cur_ofs_header = -mds_m.MDSHeader.format_size # used for ofs_header
+        cur_ofs_header = -mds_model.header.ofs_surfaces # used for ofs_header
 
         # mds_surface.header
         for num_surface, mds_surface in enumerate(mds_model.surfaces):

@@ -613,7 +613,7 @@ class MDSSurfaceHeader:
 
     format = '<4s64s64s2Ii8I'
     format_size = struct.calcsize(format)
-    ident = b'\x09\x00\x00\x00'
+    ident = b'\x08\x00\x00\x00'
     name_len = 64
     shader_name_len = 64
     shader_index = 0
