@@ -268,7 +268,7 @@ def read(mesh_object):
 
     if not mdi_shader_paths.paths:
 
-        mdi_shader_path = mdi_m.MDIShaderPath("unknown material")
+        mdi_shader_path = mdi_m.MDIShaderPath("\0")
         mdi_shader_paths.paths.append(mdi_shader_path)
 
     return mdi_shader_paths
