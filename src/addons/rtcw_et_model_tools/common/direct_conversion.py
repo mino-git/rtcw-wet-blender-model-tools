@@ -100,22 +100,24 @@ def mds_to_mdc(mds_source_path, mdc_target_path):
     mdi_model = mds_facade.read(mds_source_path, bind_frame)
     mdc_facade.write(mdi_model, mdc_target_path)
 
-def mds_to_mds(mds_source_path, mds_target_path):
+def mds_to_mds(mds_source_path, mds_target_path, collapse_frame):
 
     import rtcw_et_model_tools.mds.facade as mds_facade
 
     bind_frame = 0
     mdi_model = mds_facade.read(mds_source_path, bind_frame)
-    mds_facade.write(mdi_model, mds_target_path)
+    mds_facade.write(mdi_model, mds_target_path, collapse_frame)
 
-def mds_to_mdmmdx(mds_source_path, mdm_target_path, mdx_target_path):
+def mds_to_mdmmdx(mds_source_path, mdm_target_path, mdx_target_path,
+                  collapse_frame):
 
     import rtcw_et_model_tools.mds.facade as mds_facade
     import rtcw_et_model_tools.mdmmdx.facade as mdmmdx_facade
 
     bind_frame = 0
     mdi_model = mds_facade.read(mds_source_path, bind_frame)
-    mdmmdx_facade.write(mdi_model, mdm_target_path, mdx_target_path)
+    mdmmdx_facade.write(mdi_model, mdm_target_path, mdx_target_path,
+                        collapse_frame)
 
 # =====================================
 # MDM/MDX
@@ -141,7 +143,8 @@ def mdmmdx_to_mdc(mdm_source_path, mdx_source_path, mdc_target_path):
         mdmmdx_facade.read(mdm_source_path, mdx_source_path, bind_frame)
     mdc_facade.write(mdi_model, mdc_target_path)
 
-def mdmmdx_to_mds(mdm_source_path, mdx_source_path, mds_target_path):
+def mdmmdx_to_mds(mdm_source_path, mdx_source_path, mds_target_path,
+                  collapse_frame):
 
     import rtcw_et_model_tools.mdmmdx.facade as mdmmdx_facade
     import rtcw_et_model_tools.mds.facade as mds_facade
@@ -149,14 +152,15 @@ def mdmmdx_to_mds(mdm_source_path, mdx_source_path, mds_target_path):
     bind_frame = 0
     mdi_model = \
         mdmmdx_facade.read(mdm_source_path, mdx_source_path, bind_frame)
-    mds_facade.write(mdi_model, mds_target_path)
+    mds_facade.write(mdi_model, mds_target_path, collapse_frame)
 
 def mdmmdx_to_mdmmdx(mdm_source_path, mdx_source_path,
-                     mdm_target_path, mdx_target_path):
+                     mdm_target_path, mdx_target_path,
+                     collapse_frame):
 
     import rtcw_et_model_tools.mdmmdx.facade as mdmmdx_facade
 
     bind_frame = 0
     mdi_model = \
         mdmmdx_facade.read(mdm_source_path, mdx_source_path, bind_frame)
-    mdmmdx_facade.write(mdi_model, mdm_target_path, mdx_target_path)
+    mdmmdx_facade.write(mdi_model, mdm_target_path, mdx_target_path, collapse_frame)

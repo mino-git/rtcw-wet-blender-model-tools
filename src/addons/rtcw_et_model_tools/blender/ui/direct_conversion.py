@@ -96,6 +96,10 @@ class REMT_PT_DirectConversion(bpy.types.Panel):
             row.prop(context.scene,
                     "remt_dc_mds_target_path")
 
+            row = layout.row()
+            row.prop(context.scene,
+                    "remt_dc_mds_collapse_frame")                      
+
         elif context.scene.remt_dc_target_format == "MDM/MDX":
 
             row = layout.row()
@@ -105,6 +109,10 @@ class REMT_PT_DirectConversion(bpy.types.Panel):
             row = layout.row()
             row.prop(context.scene,
                     "remt_dc_mdx_target_path")
+
+            row = layout.row()
+            row.prop(context.scene,
+                    "remt_dc_mdmmdx_collapse_frame")                    
 
         else:
 
@@ -162,6 +170,9 @@ class REMT_OT_DirectConversion(bpy.types.Operator):
         mdx_target_path = context.scene.remt_dc_mdx_target_path
         mdx_target_path = bpy.path.abspath(mdx_target_path)
 
+        mdmmdx_collapse_frame = context.scene.remt_dc_mdmmdx_collapse_frame
+        mds_collapse_frame = context.scene.remt_dc_mds_collapse_frame
+
         return (source_format,
                 md3_source_path,
                 mdc_source_path,
@@ -173,7 +184,9 @@ class REMT_OT_DirectConversion(bpy.types.Operator):
                 mdc_target_path,
                 mds_target_path,
                 mdm_target_path,
-                mdx_target_path)
+                mdx_target_path,
+                mdmmdx_collapse_frame,
+                mds_collapse_frame)
 
     def execute(self, context):
         """Directly convert between model formats without involving Blender.
@@ -201,7 +214,9 @@ class REMT_OT_DirectConversion(bpy.types.Operator):
             mdc_target_path, \
             mds_target_path, \
             mdm_target_path, \
-            mdx_target_path \
+            mdx_target_path, \
+            mdmmdx_collapse_frame, \
+            mds_collapse_frame \
                 = self._parse_input(context)
 
             if source_format == 'MD3' and target_format == 'MD3':
@@ -272,7 +287,8 @@ class REMT_OT_DirectConversion(bpy.types.Operator):
 
                 reporter_m.info("Direct conversion of MDS to MDS")
 
-                dc_m.mds_to_mds(mds_source_path, mds_target_path)
+                dc_m.mds_to_mds(mds_source_path, mds_target_path,
+                                mds_collapse_frame)
 
             elif source_format == 'MDS' and target_format == 'MDM/MDX':
 
@@ -280,7 +296,8 @@ class REMT_OT_DirectConversion(bpy.types.Operator):
 
                 dc_m.mds_to_mdmmdx(mds_source_path,
                                    mdm_target_path,
-                                   mdx_target_path)
+                                   mdx_target_path,
+                                   mdmmdx_collapse_frame)
 
             elif source_format == 'MDM/MDX' and target_format == 'MD3':
 
@@ -304,7 +321,8 @@ class REMT_OT_DirectConversion(bpy.types.Operator):
 
                 dc_m.mdmmdx_to_mds(mdm_source_path,
                                    mdx_source_path,
-                                   mds_target_path)
+                                   mds_target_path,
+                                   mds_collapse_frame)
 
             elif source_format == 'MDM/MDX' and target_format == 'MDM/MDX':
 
@@ -313,7 +331,8 @@ class REMT_OT_DirectConversion(bpy.types.Operator):
                 dc_m.mdmmdx_to_mdmmdx(mdm_source_path,
                                       mdx_source_path,
                                       mdm_target_path,
-                                      mdx_target_path)
+                                      mdx_target_path,
+                                      mdmmdx_collapse_frame)
             else:
 
                 raise Exception("Format not supported")
@@ -422,6 +441,24 @@ def register():
             description="Path to MDX file",
             subtype='FILE_PATH')
 
+    bpy.types.Scene.remt_dc_mdmmdx_collapse_frame = \
+        bpy.props.IntProperty(
+            name = "Collapse Frame",
+            description = "Collapse frame for LOD data",
+            default = 0,
+            min = 0,
+            max = 1000000
+            )
+
+    bpy.types.Scene.remt_dc_mds_collapse_frame = \
+        bpy.props.IntProperty(
+            name = "Collapse Frame",
+            description = "Collapse frame for LOD data",
+            default = 0,
+            min = 0,
+            max = 1000000
+            )                        
+
 def unregister():
 
     for cls in classes:
@@ -439,3 +476,5 @@ def unregister():
     del bpy.types.Scene.remt_dc_mds_target_path
     del bpy.types.Scene.remt_dc_mdm_target_path
     del bpy.types.Scene.remt_dc_mdx_target_path
+    del bpy.types.Scene.remt_dc_mdmmdx_collapse_frame
+    del bpy.types.Scene.remt_dc_mds_collapse_frame
