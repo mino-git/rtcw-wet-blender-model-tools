@@ -103,10 +103,14 @@ def read(collapse_frame = -1):
     frame_end = bpy.context.scene.frame_end
 
     if collapse_frame >= 0:
+
         if collapse_frame < frame_start or collapse_frame > frame_end:
             reporter_m.warning("Collapse frame not in range. Adjusting to"
                                " frame '{}'.".format(frame_start))
             collapse_frame = frame_start
+
+        if frame_start > 0:
+            collapse_frame = collapse_frame - frame_start
 
     active_collection = \
         bpy.context.view_layer.active_layer_collection.collection
