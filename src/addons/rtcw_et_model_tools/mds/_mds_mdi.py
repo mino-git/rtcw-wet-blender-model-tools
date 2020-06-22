@@ -267,7 +267,11 @@ class MDIToModel:
             torso_weight = mdi_bone.torso_weight
 
         parent_dist = mdi_bone.parent_dist
-        flags = mds_m.MDSBoneInfo.flags_default_value
+        
+        if mdi_bone.name.startswith("tag_"):
+            flags = mds_m.MDSBoneInfo.bone_flag_tag
+        else:
+            flags = mds_m.MDSBoneInfo.flags_default_value            
 
         mds_bone_info = mds_m.MDSBoneInfo(name, parent_bone, torso_weight,
                                           parent_dist, flags)
@@ -281,6 +285,9 @@ class MDIToModel:
 
         # orientation
         orientation = mdi_bone.orientations[num_frame]
+
+        if mdi_bone.name.startswith("tag_"): # TODO add flag tag to mdi?
+            orientation = orientation.transposed()
 
         yaw, pitch, roll = mdi_util_m.matrix_to_angles(orientation)
 
