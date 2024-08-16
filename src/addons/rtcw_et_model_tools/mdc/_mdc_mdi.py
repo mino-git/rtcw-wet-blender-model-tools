@@ -790,7 +790,10 @@ class ModelToMDI:
             roll = roll * mdc_m.MDCFrameTag.orientation_scale
 
             mdi_orientation = mdi_util_m.angles_to_matrix(yaw, pitch, roll)
-            mdi_orientation = mdi_orientation.transposed() # fix for issues #11 and #17
+
+            # fix for issues #11 and #17
+            # TODO research why, probably mdc was done with a different toolchain
+            mdi_orientation = mdi_orientation.transposed()
 
             mdi_tag.orientations.append(mdi_orientation)
 
