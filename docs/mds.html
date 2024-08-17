@@ -1,9 +1,11 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
     <link rel="stylesheet" href="./css/bootstrap.min.css" />
     <link rel="stylesheet" href="./css/bootstrap-toc.min.css" />
     <link rel="stylesheet" href="./css/remt.css" />
@@ -11,798 +13,996 @@
       RtCW:ET Blender Model Tools - Unofficial MDS Format Specification.
     </title>
 
-    <meta name="description" content="MD3, MDC, MDS, MDM/MDX and TAG format support for the 3D modeling software Blender."/>
-    <meta name="keywords" content="MD3, MDC, MDS, MDM/MDX, TAG, file format, 3D model format, import, export,
-    interoperability, Return to Castle Wolfenstein, Wolfenstein: Enemy Territory"/>
+    <meta
+      name="description"
+      content="MD3, MDC, MDS, MDM/MDX and TAG format support for the 3D modeling software Blender."
+    />
+    <meta
+      name="keywords"
+      content="MD3, MDC, MDS, MDM/MDX, TAG, file format, 3D model format, import, export,
+    interoperability, Return to Castle Wolfenstein, Wolfenstein: Enemy Territory"
+    />
 
-    <meta property="og:title" content="RtCW:ET Blender Model Tools - Unofficial MDS Format Specification"/>
-    <meta property="og:description" content="MD3, MDC, MDS, MDM/MDX and TAG format support for the 3D modeling software Blender."/>
-    <meta property="og:url" content="https://mino-git.github.io/rtcw-wet-blender-model-tools/index.html"/>
+    <meta
+      property="og:title"
+      content="RtCW:ET Blender Model Tools - Unofficial MDS Format Specification"
+    />
+    <meta
+      property="og:description"
+      content="MD3, MDC, MDS, MDM/MDX and TAG format support for the 3D modeling software Blender."
+    />
+    <meta
+      property="og:url"
+      content="https://mino-git.github.io/rtcw-wet-blender-model-tools/index.html"
+    />
     <meta property="og:site_name" content="mino-git.github.io" />
-    <meta property="og:keywords" content="MD3, MDC, MDS, MDM/MDX, TAG, file format, 3D model format, import, export,
-    interoperability, Return to Castle Wolfenstein, Wolfenstein: Enemy Territory"/>
-    <meta property="og:image" content="https://mino-git.github.io/rtcw-wet-blender-model-tools/img/brand/logo.png"/>
-    <meta property="og:type" content="article"/>
+    <meta
+      property="og:keywords"
+      content="MD3, MDC, MDS, MDM/MDX, TAG, file format, 3D model format, import, export,
+    interoperability, Return to Castle Wolfenstein, Wolfenstein: Enemy Territory"
+    />
+    <meta
+      property="og:image"
+      content="https://mino-git.github.io/rtcw-wet-blender-model-tools/img/brand/logo.png"
+    />
+    <meta property="og:type" content="article" />
     <meta property="article:author" content="Norman Mitschke" />
 
     <link rel="icon" href="./img/brand/icon.ico" />
   </head>
 
-<body>
-
-  <!-- Navbar -->
-  <nav class="navbar navbar-expand-lg navbar-dark">
-    <div class="container">
-      <!-- Brand -->
-      <a class="navbar-brand d-none d-md-block" href="./index.html">
-        <img src="./img/brand/navbar.png" alt="Brand" />
-      </a>
-      <a class="navbar-brand d-block d-md-none" href="./index.html">
-        <img src="./img/brand/navbar_collapsed.png" alt="Brand" />
-      </a>
-      <!-- Toggler -->
-      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#remt-navbar-collapse" aria-controls="remt-navbar-collapse"
-              aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span>
-      </button>
-      <!-- Links -->
-      <div class="collapse navbar-collapse" id="remt-navbar-collapse">
-        <ul class="navbar-nav">
-          <li class="nav-item"><a class="nav-link" href="./downloads.html">Downloads</a></li>
-          <li class="nav-item"><a class="nav-link" href="./user_guide.html">User Guide</a></li>
-          <li class="nav-item"><a class="nav-link" href="./developer_guide.html">Developer Guide</a></li>
-          <li class="nav-item"><a class="nav-link" href="./tutorials.html">Tutorials</a></li>
-        </ul>
+  <body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+      <div class="container">
+        <!-- Brand -->
+        <a class="navbar-brand d-none d-md-block" href="./index.html">
+          <img src="./img/brand/navbar.png" alt="Brand" />
+        </a>
+        <a class="navbar-brand d-block d-md-none" href="./index.html">
+          <img src="./img/brand/navbar_collapsed.png" alt="Brand" />
+        </a>
+        <!-- Toggler -->
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-toggle="collapse"
+          data-target="#remt-navbar-collapse"
+          aria-controls="remt-navbar-collapse"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <!-- Links -->
+        <div class="collapse navbar-collapse" id="remt-navbar-collapse">
+          <ul class="navbar-nav">
+            <li class="nav-item">
+              <a class="nav-link" href="./downloads.html">Downloads</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="./user_guide.html">User Guide</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="./developer_guide.html"
+                >Developer Guide</a
+              >
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="./tutorials.html">Tutorials</a>
+            </li>
+          </ul>
+        </div>
       </div>
-    </div>
-  </nav>
+    </nav>
 
-  <!-- Content -->
-  <div class="container">
+    <!-- Content -->
+    <div class="container">
+      <div class="row">
+        <div class="col-sm-9">
+          <div class="remt-title-2">
+            <h1 data-toc-skip>Unofficial MDS Format Specification</h1>
+            <hr />
+          </div>
 
-    <div class="row">
+          <div class="remt-chapter">
+            <h2>Overview</h2>
+            <p>
+              MDS is defined as a triangle mesh using skeletal animation.
+              Surfaces make up the basic model. They are described by geometry,
+              level of detail and color data. Tags complement the format.
+            </p>
+            <p>
+              Geometry of a surface is described by grouping vertices into a
+              triangle. Triangles are then grouped into a surface.
+            </p>
+            <p>
+              A progressive mesh algorithm is used to draw a surface with
+              varying level of detail (LOD) during runtime. This is described by
+              a collapse map.
+            </p>
+            <p>
+              Colorization of a surface is done by defining UV-maps and
+              references to shaders. The UV-maps are used to color surfaces with
+              solid color from a 2D image. Shaders manipulate surface
+              properties. These properties define how the surface interacts with
+              light sources present in a scene. Additionally vertex normals
+              manipulate the shading of a surface.
+            </p>
+            <p>
+              Animation of a surface is done by storing vertex location and
+              normal values in relation to a skeleton. This animation technique
+              is also known as "skeletal animation". The way it works is that
+              for each key frame the vertex location and normal values are
+              influenced-by/weighted-against the location and orientation values
+              of 1 or more bones. Thus, only bones contain animation data while
+              vertex values are stored once in a special model pose called
+              "binding pose".
+            </p>
+            <p>
+              Tags provide the possibility to attach external models to the
+              model.
+            </p>
+          </div>
 
-      <div class="col-sm-9">
-
-        <div class="remt-title-2">
-          <h1 data-toc-skip>Unofficial MDS Format Specification</h1>
-          <hr>
-        </div>
-
-        <div class="remt-chapter">
-          <h2>Overview</h2>
-          <p>MDS is defined as a triangle mesh using skeletal animation. Surfaces make up the basic model. They are described by geometry, level of detail and color data. Tags complement the format.</p>
-          <p>Geometry of a surface is described by grouping vertices into a triangle. Triangles are then grouped into a surface.</p>
-          <p>A progressive mesh algorithm is used to draw a surface with varying level of detail (LOD) during runtime. This is described by a collapse map.</p>
-          <p>Colorization of a surface is done by defining UV-maps and references to shaders. The UV-maps are used to color surfaces with solid color from a 2D image. Shaders manipulate surface properties. These properties define how the surface interacts with light sources present in a scene. Additionally vertex normals manipulate the shading of a surface.</p>
-          <p>Animation of a surface is done by storing vertex location and normal values in relation to a skeleton. This animation technique is also known as "skeletal animation". The way it works is that for each key frame the vertex location and normal values are influenced-by/weighted-against the location and orientation values of 1 or more bones. Thus, only bones contain animation data while vertex values are stored once in a special model pose called "binding pose".</p>
-          <p>Tags provide the possibility to attach external models to the model.</p>
-        </div>
-
-        <div class="remt-chapter">
-          <h2>Symbols</h2>
-          <table class="table table-dark table-striped table-bordered">
-            <thead>
-              <tr>
-                <th scope="col">Name</th>
-                <th scope="col">Description</th>
-              </tr>
-            </thead>
-            <tbody>
-            <tr>
-              <td>UINT8</td>
-              <td>unsigned 8-bit integer</td>
-            </tr>
-            <tr>
-              <td>INT16</td>
-              <td>signed 16-bit integer</td>
-            </tr>
-            <tr>
-              <td>UINT16</td>
-              <td>unsigned 16-bit integer</td>
-            </tr>
-            <tr>
-              <td>INT32</td>
-              <td>signed 32-bit integer</td>
-            </tr>
-            <tr>
-              <td>UINT32</td>
-              <td>unsigned 32-bit integer</td>
-            </tr>
-            <tr>
-              <td>F32</td>
-              <td>32-bit floating-point (IEEE-754)</td>
-            </tr>
-            <tr>
-              <td>ASCII</td>
-              <td>8-bit ASCII character</td>
-            </tr>
-            <tr>
-              <td>(*)</td>
-              <td>Marks a list of objects of the same type.
-                There can be multiple appearances of * inside those round brackets,
-                for example (**) describes a list of lists.
-              </td>
-            </tr>
-            </tbody>
-          </table>
-        </div>
-
-        <div class="remt-chapter">
-          <h2>Tables</h2>
-
-          <div class="remt-table-desc">
-            <h3>MDS</h3>
+          <div class="remt-chapter">
+            <h2>Symbols</h2>
             <table class="table table-dark table-striped table-bordered">
+              <thead>
+                <tr>
+                  <th scope="col">Name</th>
+                  <th scope="col">Description</th>
+                </tr>
+              </thead>
               <tbody>
                 <tr>
-                  <td><strong>Name</strong></td>
-                  <td><strong>Description</strong></td>
-                  <td><strong>Type</strong></td>
+                  <td>UINT8</td>
+                  <td>unsigned 8-bit integer</td>
                 </tr>
                 <tr>
-                  <td>header</td>
-                  <td>reference to MDSHeader object.</td>
-                  <td>MDSHeader</td>
+                  <td>INT16</td>
+                  <td>signed 16-bit integer</td>
                 </tr>
                 <tr>
-                  <td>frames</td>
-                  <td>list of MDSFrame objects, size=num_frames.</td>
-                  <td>MDSFrame (*)</td>
+                  <td>UINT16</td>
+                  <td>unsigned 16-bit integer</td>
                 </tr>
                 <tr>
-                  <td>bone_infos</td>
-                  <td>list of MDSBoneInfo objects, size=num_bones.</td>
-                  <td>MDSBoneInfo (*)</td>
+                  <td>INT32</td>
+                  <td>signed 32-bit integer</td>
                 </tr>
                 <tr>
-                  <td>surfaces</td>
-                  <td>list of MDSSurface objects, size=num_surfaces.</td>
-                  <td>MDSSurface (*)</td>
+                  <td>UINT32</td>
+                  <td>unsigned 32-bit integer</td>
                 </tr>
                 <tr>
-                  <td>tags</td>
-                  <td>list of MDSTag objects, size=num_tags.</td>
-                  <td>MDSTag (*)</td>
+                  <td>F32</td>
+                  <td>32-bit floating-point (IEEE-754)</td>
+                </tr>
+                <tr>
+                  <td>ASCII</td>
+                  <td>8-bit ASCII character</td>
+                </tr>
+                <tr>
+                  <td>(*)</td>
+                  <td>
+                    Marks a list of objects of the same type. There can be
+                    multiple appearances of * inside those round brackets, for
+                    example (**) describes a list of lists.
+                  </td>
                 </tr>
               </tbody>
             </table>
-            <div class="remt-table-desc-notes">
-              <p><span style="text-decoration: underline;">Notes:</span></p>
-              <p>Container object. References all MDS data.</p>
-            </div>
           </div>
 
-          <div class="remt-table-desc">
-            <h3>MDSHeader</h3>
-            <table class="table table-dark table-striped table-bordered">
-              <tbody>
-                <tr>
-                  <td><strong>Name</strong></td>
-                  <td><strong>Description</strong></td>
-                  <td><strong>Type</strong></td>
-                </tr>
-                <tr>
-                  <td>ident</td>
-                  <td>magic number, ASCII encoded, length 4, reads "MDSW".</td>
-                  <td>4*ASCII</td>
-                </tr>
-                <tr>
-                  <td>version</td>
-                  <td>version number, latest known is 4.</td>
-                  <td>UINT32</td>
-                </tr>
-                <tr>
-                  <td>name</td>
-                  <td>model name, usually its pathname, ASCII encoded,
+          <div class="remt-chapter">
+            <h2>Tables</h2>
+
+            <div class="remt-table-desc">
+              <h3>MDS</h3>
+              <table class="table table-dark table-striped table-bordered">
+                <tbody>
+                  <tr>
+                    <td><strong>Name</strong></td>
+                    <td><strong>Description</strong></td>
+                    <td><strong>Type</strong></td>
+                  </tr>
+                  <tr>
+                    <td>header</td>
+                    <td>reference to MDSHeader object.</td>
+                    <td>MDSHeader</td>
+                  </tr>
+                  <tr>
+                    <td>frames</td>
+                    <td>list of MDSFrame objects, size=num_frames.</td>
+                    <td>MDSFrame (*)</td>
+                  </tr>
+                  <tr>
+                    <td>bone_infos</td>
+                    <td>list of MDSBoneInfo objects, size=num_bones.</td>
+                    <td>MDSBoneInfo (*)</td>
+                  </tr>
+                  <tr>
+                    <td>surfaces</td>
+                    <td>list of MDSSurface objects, size=num_surfaces.</td>
+                    <td>MDSSurface (*)</td>
+                  </tr>
+                  <tr>
+                    <td>tags</td>
+                    <td>list of MDSTag objects, size=num_tags.</td>
+                    <td>MDSTag (*)</td>
+                  </tr>
+                </tbody>
+              </table>
+              <div class="remt-table-desc-notes">
+                <p><span style="text-decoration: underline">Notes:</span></p>
+                <p>Container object. References all MDS data.</p>
+              </div>
+            </div>
+
+            <div class="remt-table-desc">
+              <h3>MDSHeader</h3>
+              <table class="table table-dark table-striped table-bordered">
+                <tbody>
+                  <tr>
+                    <td><strong>Name</strong></td>
+                    <td><strong>Description</strong></td>
+                    <td><strong>Type</strong></td>
+                  </tr>
+                  <tr>
+                    <td>ident</td>
+                    <td>
+                      magic number, ASCII encoded, length 4, reads "MDSW".
+                    </td>
+                    <td>4*ASCII</td>
+                  </tr>
+                  <tr>
+                    <td>version</td>
+                    <td>version number, latest known is 4.</td>
+                    <td>UINT32</td>
+                  </tr>
+                  <tr>
+                    <td>name</td>
+                    <td>
+                      model name, usually its pathname, ASCII encoded,
                       null-terminated, length 64.
-                  </td>
-                  <td>64*ASCII</td>
-                </tr>
-                <tr>
-                  <td>lod_scale</td>
-                  <td>TODO</td>
-                  <td>F32</td>
-                </tr>
-                <tr>
-                  <td>lod_bias</td>
-                  <td>TODO</td>
-                  <td>F32</td>
-                </tr>
-                <tr>
-                  <td>num_frames</td>
-                  <td>number of animation frames.</td>
-                  <td>UINT32</td>
-                </tr>
-                <tr>
-                  <td>num_bones</td>
-                  <td>number of bones.</td>
-                  <td>UINT32</td>
-                </tr>
-                <tr>
-                  <td>ofs_frames</td>
-                  <td>file offset to field of frames.</td>
-                  <td>UINT32</td>
-                </tr>
-                <tr>
-                  <td>ofs_bone_infos</td>
-                  <td>file offset to field of bone infos.</td>
-                  <td>UINT32</td>
-                </tr>
-                <tr>
-                  <td>torso_parent_bone</td>
-                  <td>TODO</td>
-                  <td>UINT32</td>
-                </tr>
-                <tr>
-                  <td>num_surfaces</td>
-                  <td>number of surfaces.</td>
-                  <td>UINT32</td>
-                </tr>
-                <tr>
-                  <td>ofs_surfaces</td>
-                  <td>file offset to field of surfaces.</td>
-                  <td>UINT32</td>
-                </tr>
-                <tr>
-                  <td>num_tags</td>
-                  <td>number of tags.</td>
-                  <td>UINT32</td>
-                </tr>
-                <tr>
-                  <td>ofs_tags</td>
-                  <td>file offset to field of tags.</td>
-                  <td>UINT32</td>
-                </tr>
-                <tr>
-                  <td>ofs_end</td>
-                  <td>file offset to end of file.</td>
-                  <td>UINT32</td>
-                </tr>
-              </tbody>
-            </table>
-            <div class="remt-table-desc-notes">
-              <p><span style="text-decoration: underline;">Notes:</span></p>
-              <p>General information about MDS data. Used mainly to navigate file data.</p>
+                    </td>
+                    <td>64*ASCII</td>
+                  </tr>
+                  <tr>
+                    <td>lod_scale</td>
+                    <td>TODO</td>
+                    <td>F32</td>
+                  </tr>
+                  <tr>
+                    <td>lod_bias</td>
+                    <td>TODO</td>
+                    <td>F32</td>
+                  </tr>
+                  <tr>
+                    <td>num_frames</td>
+                    <td>number of animation frames.</td>
+                    <td>UINT32</td>
+                  </tr>
+                  <tr>
+                    <td>num_bones</td>
+                    <td>number of bones.</td>
+                    <td>UINT32</td>
+                  </tr>
+                  <tr>
+                    <td>ofs_frames</td>
+                    <td>file offset to field of frames.</td>
+                    <td>UINT32</td>
+                  </tr>
+                  <tr>
+                    <td>ofs_bone_infos</td>
+                    <td>file offset to field of bone infos.</td>
+                    <td>UINT32</td>
+                  </tr>
+                  <tr>
+                    <td>torso_parent_bone</td>
+                    <td>TODO</td>
+                    <td>UINT32</td>
+                  </tr>
+                  <tr>
+                    <td>num_surfaces</td>
+                    <td>number of surfaces.</td>
+                    <td>UINT32</td>
+                  </tr>
+                  <tr>
+                    <td>ofs_surfaces</td>
+                    <td>file offset to field of surfaces.</td>
+                    <td>UINT32</td>
+                  </tr>
+                  <tr>
+                    <td>num_tags</td>
+                    <td>number of tags.</td>
+                    <td>UINT32</td>
+                  </tr>
+                  <tr>
+                    <td>ofs_tags</td>
+                    <td>file offset to field of tags.</td>
+                    <td>UINT32</td>
+                  </tr>
+                  <tr>
+                    <td>ofs_end</td>
+                    <td>file offset to end of file.</td>
+                    <td>UINT32</td>
+                  </tr>
+                </tbody>
+              </table>
+              <div class="remt-table-desc-notes">
+                <p><span style="text-decoration: underline">Notes:</span></p>
+                <p>
+                  General information about MDS data. Used mainly to navigate
+                  file data.
+                </p>
+              </div>
             </div>
-          </div>
 
-          <div class="remt-table-desc">
-            <h3>MDSFrame</h3>
-            <table class="table table-dark table-striped table-bordered">
-              <tbody>
-                <tr>
-                  <td><strong>Name</strong></td>
-                  <td><strong>Description</strong></td>
-                  <td><strong>Type</strong></td>
-                </tr>
-                <tr>
-                  <td>frame_info</td>
-                  <td>reference to MDSFrameInfo object.</td>
-                  <td>MDSFrameInfo</td>
-                </tr>
-                <tr>
-                  <td>bone_frames_compressed</td>
-                  <td>list of MDSBoneFrameCompressed objects,
-                      size=num_bones.
-                  </td>
-                  <td>MDSBoneFrameCompressed (*)</td>
-                </tr>
-              </tbody>
-            </table>
-            <div class="remt-table-desc-notes">
-              <p><span style="text-decoration: underline;">Notes:</span></p>
-              <p>Container object. References bounding volume and bone animation data.</p>
+            <div class="remt-table-desc">
+              <h3>MDSFrame</h3>
+              <table class="table table-dark table-striped table-bordered">
+                <tbody>
+                  <tr>
+                    <td><strong>Name</strong></td>
+                    <td><strong>Description</strong></td>
+                    <td><strong>Type</strong></td>
+                  </tr>
+                  <tr>
+                    <td>frame_info</td>
+                    <td>reference to MDSFrameInfo object.</td>
+                    <td>MDSFrameInfo</td>
+                  </tr>
+                  <tr>
+                    <td>bone_frames_compressed</td>
+                    <td>
+                      list of MDSBoneFrameCompressed objects, size=num_bones.
+                    </td>
+                    <td>MDSBoneFrameCompressed (*)</td>
+                  </tr>
+                </tbody>
+              </table>
+              <div class="remt-table-desc-notes">
+                <p><span style="text-decoration: underline">Notes:</span></p>
+                <p>
+                  Container object. References bounding volume and bone
+                  animation data.
+                </p>
+              </div>
             </div>
-          </div>
 
-          <div class="remt-table-desc">
-            <h3>MDSFrameInfo</h3>
-            <table class="table table-dark table-striped table-bordered">
-              <tbody>
-                <tr>
-                  <td><strong>Name</strong></td>
-                  <td><strong>Description</strong></td>
-                  <td><strong>Type</strong></td>
-                </tr>
-                <tr>
-                  <td>min_bound</td>
-                  <td>location coordinates of min corner of minimum
-                      bounding box.
-                  </td>
-                  <td>3*F32</td>
-                </tr>
-                <tr>
-                  <td>max_bound</td>
-                  <td>location coordinates of max corner of minimum
-                      bounding box.
-                  </td>
-                  <td>3*F32</td>
-                </tr>
-                <tr>
-                  <td>local_origin</td>
-                  <td>TODO</td>
-                  <td>3*F32</td>
-                </tr>
-                <tr>
-                  <td>radius</td>
-                  <td>TODO</td>
-                  <td>F32</td>
-                </tr>
-                <tr>
-                  <td>root_bone_location</td>
-                  <td>TODO</td>
-                  <td>3*F32</td>
-                </tr>
-              </tbody>
-            </table>
-            <div class="remt-table-desc-notes">
-              <p><span style="text-decoration: underline;">Notes:</span></p>
-              <p>
-                Describes bounding volume information: axially aligned bounding box and bounding sphere.
-                Additionally contains the root bone location.</p>
+            <div class="remt-table-desc">
+              <h3>MDSFrameInfo</h3>
+              <table class="table table-dark table-striped table-bordered">
+                <tbody>
+                  <tr>
+                    <td><strong>Name</strong></td>
+                    <td><strong>Description</strong></td>
+                    <td><strong>Type</strong></td>
+                  </tr>
+                  <tr>
+                    <td>min_bound</td>
+                    <td>
+                      location coordinates of min corner of minimum bounding
+                      box.
+                    </td>
+                    <td>3*F32</td>
+                  </tr>
+                  <tr>
+                    <td>max_bound</td>
+                    <td>
+                      location coordinates of max corner of minimum bounding
+                      box.
+                    </td>
+                    <td>3*F32</td>
+                  </tr>
+                  <tr>
+                    <td>local_origin</td>
+                    <td>TODO</td>
+                    <td>3*F32</td>
+                  </tr>
+                  <tr>
+                    <td>radius</td>
+                    <td>TODO</td>
+                    <td>F32</td>
+                  </tr>
+                  <tr>
+                    <td>root_bone_location</td>
+                    <td>TODO</td>
+                    <td>3*F32</td>
+                  </tr>
+                </tbody>
+              </table>
+              <div class="remt-table-desc-notes">
+                <p><span style="text-decoration: underline">Notes:</span></p>
+                <p>
+                  Describes bounding volume information: axially aligned
+                  bounding box and bounding sphere. Additionally contains the
+                  root bone location.
+                </p>
+              </div>
             </div>
-          </div>
 
-          <div class="remt-table-desc">
-            <h3>MDSBoneFrameCompressed</h3>
-            <table class="table table-dark table-striped table-bordered">
-              <tbody>
-                <tr>
-                  <td><strong>Name</strong></td>
-                  <td><strong>Description</strong></td>
-                  <td><strong>Type</strong></td>
-                </tr>
-                <tr>
-                  <td>orientation</td>
-                  <td>orientation as euler angles in frame. Index 0 = pitch, index 1 = yaw, index 2 = roll. Index 3 is
-                      not used and contains a default value.
-                  </td>
-                  <td>4*INT16</td>
-                </tr>
-                <tr>
-                  <td>location_dir</td>
-                  <td>location in spherical coordinates. Index 0 = latitude, index 1 = longitude.</td>
-                  <td>2*INT16</td>
-                </tr>
-              </tbody>
-            </table>
-            <div class="remt-table-desc-notes">
-              <p><span style="text-decoration: underline;">Notes:</span></p>
-              <p>Bone location and orientation in a specific frame.</p>
-              <p>Bone orientation values are given as compressed 16-Bit integers. To convert this range to a range of floats, the given value is linearly mapped. For this, a hard coded scale value is used. The result is an angle in the range of [0, 360). To convert the angles to a rotation matrix, we first roll, then pitch, then yaw (intrinsic). TODO recheck signed integer to angle range</p>
-              <p>Bone location values are given as offset direction from a parent bone. Combined with the parent_dist value in the bone info field and the parent bones frame location, one can calculate the bones frame location. Linear mapping is done the same way as with the bone orientation values to get the angle values from the range of integer to the range of floats. To convert the angles to a direction vector, we first pitch (latitude), then yaw (longitude).</p>
+            <div class="remt-table-desc">
+              <h3>MDSBoneFrameCompressed</h3>
+              <table class="table table-dark table-striped table-bordered">
+                <tbody>
+                  <tr>
+                    <td><strong>Name</strong></td>
+                    <td><strong>Description</strong></td>
+                    <td><strong>Type</strong></td>
+                  </tr>
+                  <tr>
+                    <td>orientation</td>
+                    <td>
+                      orientation as euler angles in frame. Index 0 = pitch,
+                      index 1 = yaw, index 2 = roll. Index 3 is not used and
+                      contains a default value.
+                    </td>
+                    <td>4*INT16</td>
+                  </tr>
+                  <tr>
+                    <td>location_dir</td>
+                    <td>
+                      location in spherical coordinates. Index 0 = latitude,
+                      index 1 = longitude.
+                    </td>
+                    <td>2*INT16</td>
+                  </tr>
+                </tbody>
+              </table>
+              <div class="remt-table-desc-notes">
+                <p><span style="text-decoration: underline">Notes:</span></p>
+                <p>Bone location and orientation in a specific frame.</p>
+                <p>
+                  Bone orientation values are given as compressed 16-Bit
+                  integers. To convert this range to a range of floats, the
+                  given value is linearly mapped. For this, a hard coded scale
+                  value is used. The result is an angle in the range of [0,
+                  360). To convert the angles to a rotation matrix, we first
+                  roll, then pitch, then yaw (intrinsic). TODO recheck signed
+                  integer to angle range
+                </p>
+                <p>
+                  Bone location values are given as offset direction from a
+                  parent bone. Combined with the parent_dist value in the bone
+                  info field and the parent bones frame location, one can
+                  calculate the bones frame location. Linear mapping is done the
+                  same way as with the bone orientation values to get the angle
+                  values from the range of integer to the range of floats. To
+                  convert the angles to a direction vector, we first pitch
+                  (latitude), then yaw (longitude).
+                </p>
+              </div>
             </div>
-          </div>
 
-          <div class="remt-table-desc">
-            <h3>MDSBoneInfo</h3>
-            <table class="table table-dark table-striped table-bordered">
-              <tbody>
-                <tr>
-                  <td><strong>Name</strong></td>
-                  <td><strong>Description</strong></td>
-                  <td><strong>Type</strong></td>
-                </tr>
-                <tr>
-                  <td>name</td>
-                  <td>bone name, ASCII encoded, null-terminated, length 64.</td>
-                  <td>64*ASCII</td>
-                </tr>
-                <tr>
-                  <td>parent_bone</td>
-                  <td>parent bone as index into the list of bone_infos.</td>
-                  <td>UINT32</td>
-                </tr>
-                <tr>
-                  <td>torso_weight</td>
-                  <td>TODO</td>
-                  <td>F32</td>
-                </tr>
-                <tr>
-                  <td>parent_dist</td>
-                  <td>distance to parent bone.</td>
-                  <td>F32</td>
-                </tr>
-                <tr>
-                  <td>flags</td>
-                  <td>this bone is either a bone (0) or a tag (1).</td>
-                  <td>UINT32</td>
-                </tr>
-              </tbody>
-            </table>
+            <div class="remt-table-desc">
+              <h3>MDSBoneInfo</h3>
+              <table class="table table-dark table-striped table-bordered">
+                <tbody>
+                  <tr>
+                    <td><strong>Name</strong></td>
+                    <td><strong>Description</strong></td>
+                    <td><strong>Type</strong></td>
+                  </tr>
+                  <tr>
+                    <td>name</td>
+                    <td>
+                      bone name, ASCII encoded, null-terminated, length 64.
+                    </td>
+                    <td>64*ASCII</td>
+                  </tr>
+                  <tr>
+                    <td>parent_bone</td>
+                    <td>parent bone as index into the list of bone_infos.</td>
+                    <td>UINT32</td>
+                  </tr>
+                  <tr>
+                    <td>torso_weight</td>
+                    <td>TODO</td>
+                    <td>F32</td>
+                  </tr>
+                  <tr>
+                    <td>parent_dist</td>
+                    <td>distance to parent bone.</td>
+                    <td>F32</td>
+                  </tr>
+                  <tr>
+                    <td>flags</td>
+                    <td>this bone is either a bone (0) or a tag (1).</td>
+                    <td>UINT32</td>
+                  </tr>
+                </tbody>
+              </table>
 
-            <div class="remt-table-desc-notes">
-              <p><span style="text-decoration: underline;">Notes:</span></p>
-              <p>Frame independent bone information.</p>
+              <div class="remt-table-desc-notes">
+                <p><span style="text-decoration: underline">Notes:</span></p>
+                <p>Frame independent bone information.</p>
+              </div>
             </div>
-          </div>
 
-          <div class="remt-table-desc">
-            <h3>MDSSurface</h3>
-            <table class="table table-dark table-striped table-bordered">
-              <tbody>
-                <tr>
-                  <td>header</td>
-                  <td>reference to MDSSurfaceHeader object.</td>
-                  <td>MDSSurfaceHeader</td>
-                </tr>
-                <tr>
-                  <td>vertices</td>
-                  <td>list of MDSVertex objects, size=num_vertices.</td>
-                  <td>MDSVertex (*)</td>
-                </tr>
-                <tr>
-                  <td>triangles</td>
-                  <td>list of MDSTriangle objects, size=num_triangles.</td>
-                  <td>MDSTriangle (*)</td>
-                </tr>
-                <tr>
-                  <td>collapse_map</td>
-                  <td>reference to MDSCollapseMap object.</td>
-                  <td>MDSCollapseMap</td>
-                </tr>
-                <tr>
-                  <td>bone_refs</td>
-                  <td>reference to MDSBoneRefs object.</td>
-                  <td>MDSBoneRefs</td>
-                </tr>
-              </tbody>
-            </table>
-            <div class="remt-table-desc-notes">
-              <p><span style="text-decoration: underline;">Notes:</span></p>
-              <p>Container object. References surface data.</p>
-              <p><span style="text-decoration: underline;">Background:</span></p>
-              <p>Surfaces are described by geometry, level-of-detail and color data. A model can consist of multiple surfaces.</p>
+            <div class="remt-table-desc">
+              <h3>MDSSurface</h3>
+              <table class="table table-dark table-striped table-bordered">
+                <tbody>
+                  <tr>
+                    <td>header</td>
+                    <td>reference to MDSSurfaceHeader object.</td>
+                    <td>MDSSurfaceHeader</td>
+                  </tr>
+                  <tr>
+                    <td>vertices</td>
+                    <td>list of MDSVertex objects, size=num_vertices.</td>
+                    <td>MDSVertex (*)</td>
+                  </tr>
+                  <tr>
+                    <td>triangles</td>
+                    <td>list of MDSTriangle objects, size=num_triangles.</td>
+                    <td>MDSTriangle (*)</td>
+                  </tr>
+                  <tr>
+                    <td>collapse_map</td>
+                    <td>reference to MDSCollapseMap object.</td>
+                    <td>MDSCollapseMap</td>
+                  </tr>
+                  <tr>
+                    <td>bone_refs</td>
+                    <td>reference to MDSBoneRefs object.</td>
+                    <td>MDSBoneRefs</td>
+                  </tr>
+                </tbody>
+              </table>
+              <div class="remt-table-desc-notes">
+                <p><span style="text-decoration: underline">Notes:</span></p>
+                <p>Container object. References surface data.</p>
+                <p>
+                  <span style="text-decoration: underline">Background:</span>
+                </p>
+                <p>
+                  Surfaces are described by geometry, level-of-detail and color
+                  data. A model can consist of multiple surfaces.
+                </p>
+              </div>
             </div>
-          </div>
 
-          <div class="remt-table-desc">
-            <h3>MDSSurfaceHeader</h3>
-            <table class="table table-dark table-striped table-bordered">
-              <tbody>
-                <tr>
-                  <td>MDSSurfaceHeader</td>
-                  <td></td>
-                  <td></td>
-                </tr>
-                <tr>
-                  <td><strong>Name</strong></td>
-                  <td><strong>Description</strong></td>
-                  <td><strong>Type</strong></td>
-                </tr>
-                <tr>
-                  <td>ident</td>
-                  <td>magic number, ASCII encoded, length 4.</td>
-                  <td>4*ASCII</td>
-                </tr>
-                <tr>
-                  <td>name</td>
-                  <td>surface name, ASCII encoded, null-terminated, length 64.</td>
-                  <td>64*ASCII</td>
-                </tr>
-                <tr>
-                  <td>shader</td>
-                  <td>shader name, ASCII encoded, null-terminated, length 64.</td>
-                  <td>64*ASCII</td>
-                </tr>
-                <tr>
-                  <td>shader_index</td>
-                  <td>TODO</td>
-                  <td>UINT32</td>
-                </tr>
-                <tr>
-                  <td>min_lod</td>
-                  <td>minimum amount of vertices for the surface or maximum
+            <div class="remt-table-desc">
+              <h3>MDSSurfaceHeader</h3>
+              <table class="table table-dark table-striped table-bordered">
+                <tbody>
+                  <tr>
+                    <td>MDSSurfaceHeader</td>
+                    <td></td>
+                    <td></td>
+                  </tr>
+                  <tr>
+                    <td><strong>Name</strong></td>
+                    <td><strong>Description</strong></td>
+                    <td><strong>Type</strong></td>
+                  </tr>
+                  <tr>
+                    <td>ident</td>
+                    <td>magic number, ASCII encoded, length 4.</td>
+                    <td>4*ASCII</td>
+                  </tr>
+                  <tr>
+                    <td>name</td>
+                    <td>
+                      surface name, ASCII encoded, null-terminated, length 64.
+                    </td>
+                    <td>64*ASCII</td>
+                  </tr>
+                  <tr>
+                    <td>shader</td>
+                    <td>
+                      shader name, ASCII encoded, null-terminated, length 64.
+                    </td>
+                    <td>64*ASCII</td>
+                  </tr>
+                  <tr>
+                    <td>shader_index</td>
+                    <td>TODO</td>
+                    <td>UINT32</td>
+                  </tr>
+                  <tr>
+                    <td>min_lod</td>
+                    <td>
+                      minimum amount of vertices for the surface or maximum
                       amount of collapse operations during runtime.
-                  </td>
-                  <td>UINT32</td>
-                </tr>
-                <tr>
-                  <td>ofs_header</td>
-                  <td>relative offset from this surface to start of file.
-                      This is a negative number.
-                  </td>
-                  <td>UINT32</td>
-                </tr>
-                <tr>
-                  <td>num_vertices</td>
-                  <td>number of vertices.</td>
-                  <td>UINT32</td>
-                </tr>
-                <tr>
-                  <td>ofs_vertices</td>
-                  <td>file offset to field of vertices.</td>
-                  <td>UINT32</td>
-                </tr>
-                <tr>
-                  <td>num_triangles</td>
-                  <td>number of triangles.</td>
-                  <td>UINT32</td>
-                </tr>
-                <tr>
-                  <td>ofs_triangles</td>
-                  <td>file offset to field of triangles.</td>
-                  <td>UINT32</td>
-                </tr>
-                <tr>
-                  <td>ofs_collapse_map</td>
-                  <td>file offset to collapse map.</td>
-                  <td>UINT32</td>
-                </tr>
-                <tr>
-                  <td>num_bone_refs</td>
-                  <td>number of bones this surface references.</td>
-                  <td>UINT32</td>
-                </tr>
-                <tr>
-                  <td>ofs_bone_refs</td>
-                  <td>file offset to bone references.</td>
-                  <td>UINT32</td>
-                </tr>
-                <tr>
-                  <td>ofs_end</td>
-                  <td>file offset to end of surface.</td>
-                  <td>UINT32</td>
-                </tr>
-              </tbody>
-            </table>
-            <div class="remt-table-desc-notes">
-              <p><span style="text-decoration: underline;">Notes:</span></p>
-              <p>General information about a surface. Used mainly to navigate surface data.</p>
+                    </td>
+                    <td>UINT32</td>
+                  </tr>
+                  <tr>
+                    <td>ofs_header</td>
+                    <td>
+                      relative offset from this surface to start of file. This
+                      is a negative number.
+                    </td>
+                    <td>UINT32</td>
+                  </tr>
+                  <tr>
+                    <td>num_vertices</td>
+                    <td>number of vertices.</td>
+                    <td>UINT32</td>
+                  </tr>
+                  <tr>
+                    <td>ofs_vertices</td>
+                    <td>file offset to field of vertices.</td>
+                    <td>UINT32</td>
+                  </tr>
+                  <tr>
+                    <td>num_triangles</td>
+                    <td>number of triangles.</td>
+                    <td>UINT32</td>
+                  </tr>
+                  <tr>
+                    <td>ofs_triangles</td>
+                    <td>file offset to field of triangles.</td>
+                    <td>UINT32</td>
+                  </tr>
+                  <tr>
+                    <td>ofs_collapse_map</td>
+                    <td>file offset to collapse map.</td>
+                    <td>UINT32</td>
+                  </tr>
+                  <tr>
+                    <td>num_bone_refs</td>
+                    <td>number of bones this surface references.</td>
+                    <td>UINT32</td>
+                  </tr>
+                  <tr>
+                    <td>ofs_bone_refs</td>
+                    <td>file offset to bone references.</td>
+                    <td>UINT32</td>
+                  </tr>
+                  <tr>
+                    <td>ofs_end</td>
+                    <td>file offset to end of surface.</td>
+                    <td>UINT32</td>
+                  </tr>
+                </tbody>
+              </table>
+              <div class="remt-table-desc-notes">
+                <p><span style="text-decoration: underline">Notes:</span></p>
+                <p>
+                  General information about a surface. Used mainly to navigate
+                  surface data.
+                </p>
+              </div>
             </div>
-          </div>
 
-          <div class="remt-table-desc">
-            <h3>MDSVertex</h3>
-            <table class="table table-dark table-striped table-bordered">
-              <tbody>
-                <tr>
-                  <td><strong>Name</strong></td>
-                  <td><strong>Description</strong></td>
-                  <td><strong>Type</strong></td>
-                </tr>
-                <tr>
-                  <td>normal</td>
-                  <td>vertex normal coordinates.</td>
-                  <td>3*F32</td>
-                </tr>
-                <tr>
-                  <td>tex_coords</td>
-                  <td>u and v coordinates in UV-space as tuple.</td>
-                  <td>2*F32</td>
-                </tr>
-                <tr>
-                  <td>num_weights</td>
-                  <td>number of weights for this vertex.</td>
-                  <td>UINT32</td>
-                </tr>
-                <tr>
-                  <td>fixed_parent</td>
-                  <td>not used.</td>
-                  <td>UINT32</td>
-                </tr>
-                <tr>
-                  <td>fixed_dist</td>
-                  <td>not used.</td>
-                  <td>F32</td>
-                </tr>
-              </tbody>
-            </table>
-            <div class="remt-table-desc-notes">
-              <p><span style="text-decoration: underline;">Notes:</span></p>
-              <p>Vertex location, normal and texture coordinates.</p>
-              <p>The number of weights usually does not exceed 3 (at least i have never seen any model with more).</p>
-              <p><span style="text-decoration: underline;">Background:</span></p>
-              <p>Vertex normals manipulate the shading of a surface (for example smooth or flat).</p>
-              <p>Texture coordinate values refer to the process of UV-mapping.</p>
+            <div class="remt-table-desc">
+              <h3>MDSVertex</h3>
+              <table class="table table-dark table-striped table-bordered">
+                <tbody>
+                  <tr>
+                    <td><strong>Name</strong></td>
+                    <td><strong>Description</strong></td>
+                    <td><strong>Type</strong></td>
+                  </tr>
+                  <tr>
+                    <td>normal</td>
+                    <td>vertex normal coordinates.</td>
+                    <td>3*F32</td>
+                  </tr>
+                  <tr>
+                    <td>tex_coords</td>
+                    <td>u and v coordinates in UV-space as tuple.</td>
+                    <td>2*F32</td>
+                  </tr>
+                  <tr>
+                    <td>num_weights</td>
+                    <td>number of weights for this vertex.</td>
+                    <td>UINT32</td>
+                  </tr>
+                  <tr>
+                    <td>fixed_parent</td>
+                    <td>not used.</td>
+                    <td>UINT32</td>
+                  </tr>
+                  <tr>
+                    <td>fixed_dist</td>
+                    <td>not used.</td>
+                    <td>F32</td>
+                  </tr>
+                </tbody>
+              </table>
+              <div class="remt-table-desc-notes">
+                <p><span style="text-decoration: underline">Notes:</span></p>
+                <p>Vertex location, normal and texture coordinates.</p>
+                <p>
+                  The number of weights usually does not exceed 3 (at least i
+                  have never seen any model with more).
+                </p>
+                <p>
+                  <span style="text-decoration: underline">Background:</span>
+                </p>
+                <p>
+                  Vertex normals manipulate the shading of a surface (for
+                  example smooth or flat).
+                </p>
+                <p>
+                  Texture coordinate values refer to the process of UV-mapping.
+                </p>
+              </div>
             </div>
-          </div>
 
-          <div class="remt-table-desc">
-            <h3>MDSWeight</h3>
-            <table class="table table-dark table-striped table-bordered">
-              <tbody>
-                <tr>
-                  <td><strong>Name</strong></td>
-                  <td><strong>Description</strong></td>
-                  <td><strong>Type</strong></td>
-                </tr>
-                <tr>
-                  <td>bone_index</td>
-                  <td>bone that exercises a weighted influence over the
-                      vertex location given as index into the list of bone_infos.
-                  </td>
-                  <td>UINT32</td>
-                </tr>
-                <tr>
-                  <td>bone_weight</td>
-                  <td>amount of influence from the bone over the vertex
+            <div class="remt-table-desc">
+              <h3>MDSWeight</h3>
+              <table class="table table-dark table-striped table-bordered">
+                <tbody>
+                  <tr>
+                    <td><strong>Name</strong></td>
+                    <td><strong>Description</strong></td>
+                    <td><strong>Type</strong></td>
+                  </tr>
+                  <tr>
+                    <td>bone_index</td>
+                    <td>
+                      bone that exercises a weighted influence over the vertex
+                      location given as index into the list of bone_infos.
+                    </td>
+                    <td>UINT32</td>
+                  </tr>
+                  <tr>
+                    <td>bone_weight</td>
+                    <td>
+                      amount of influence from the bone over the vertex
                       location.
-                  </td>
-                  <td>F32</td>
-                </tr>
-                <tr>
-                  <td>location_offset</td>
-                  <td>location coordinates given in bone space.
-                      TODO recheck with source code.
-                  </td>
-                  <td>3*F32</td>
-                </tr>
-              </tbody>
-            </table>
-            <div class="remt-table-desc-notes">
-              <p><span style="text-decoration: underline;">Notes:</span></p>
-              <p>
-                Weights are used to define a vertex location in conjunction with all other weights of a vertex.
-                The weights and their offsets are specified in binding pose.
-              </p>
-              <p>The sum of all weights for a vertex should always be equal to 1.</p>
+                    </td>
+                    <td>F32</td>
+                  </tr>
+                  <tr>
+                    <td>location_offset</td>
+                    <td>
+                      location coordinates given in bone space. TODO recheck
+                      with source code.
+                    </td>
+                    <td>3*F32</td>
+                  </tr>
+                </tbody>
+              </table>
+              <div class="remt-table-desc-notes">
+                <p><span style="text-decoration: underline">Notes:</span></p>
+                <p>
+                  Weights are used to define a vertex location in conjunction
+                  with all other weights of a vertex. The weights and their
+                  offsets are specified in binding pose.
+                </p>
+                <p>
+                  The sum of all weights for a vertex should always be equal to
+                  1.
+                </p>
+              </div>
             </div>
-          </div>
 
-          <div class="remt-table-desc">
-            <h3>MDSTriangle</h3>
-            <table class="table table-dark table-striped table-bordered">
-              <tbody>
-                <tr>
-                  <td><strong>Name</strong></td>
-                  <td><strong>Description</strong></td>
-                  <td><strong>Type</strong></td>
-                </tr>
-                <tr>
-                  <td>indices</td>
-                  <td>indices into the list of vertices. The order defines
-                      in which direction the face normal is pointing.
-                  </td>
-                  <td>3*UINT32</td>
-                </tr>
-              </tbody>
-            </table>
-            <div class="remt-table-desc-notes">
-              <p><span style="text-decoration: underline;">Notes:</span></p>
-              <p>A triangle for a surface.</p>
+            <div class="remt-table-desc">
+              <h3>MDSTriangle</h3>
+              <table class="table table-dark table-striped table-bordered">
+                <tbody>
+                  <tr>
+                    <td><strong>Name</strong></td>
+                    <td><strong>Description</strong></td>
+                    <td><strong>Type</strong></td>
+                  </tr>
+                  <tr>
+                    <td>indices</td>
+                    <td>
+                      indices into the list of vertices. The order defines in
+                      which direction the face normal is pointing.
+                    </td>
+                    <td>3*UINT32</td>
+                  </tr>
+                </tbody>
+              </table>
+              <div class="remt-table-desc-notes">
+                <p><span style="text-decoration: underline">Notes:</span></p>
+                <p>A triangle for a surface.</p>
+              </div>
             </div>
-          </div>
 
-          <div class="remt-table-desc">
-            <h3>MDSCollapseMap</h3>
-            <table class="table table-dark table-striped table-bordered">
-              <tbody>
-                <tr>
-                  <td><strong>Name</strong></td>
-                  <td><strong>Description</strong></td>
-                  <td><strong>Type</strong></td>
-                </tr>
-                <tr>
-                  <td>mappings</td>
-                  <td>indices into the list of vertices for this surface,
+            <div class="remt-table-desc">
+              <h3>MDSCollapseMap</h3>
+              <table class="table table-dark table-striped table-bordered">
+                <tbody>
+                  <tr>
+                    <td><strong>Name</strong></td>
+                    <td><strong>Description</strong></td>
+                    <td><strong>Type</strong></td>
+                  </tr>
+                  <tr>
+                    <td>mappings</td>
+                    <td>
+                      indices into the list of vertices for this surface,
                       size=num_vertices.
-                  </td>
-                  <td>num_vertices*UINT32</td>
-                </tr>
-              </tbody>
-            </table>
-            <div class="remt-table-desc-notes">
-              <p><span style="text-decoration: underline;">Notes:</span></p>
-              <p>
-                The collapse map is used to render a surface with varying level of detail (LOD)
-                dependent on view distance during runtime (progressive mesh algorithm).
-              </p>
-              <p><span style="text-decoration: underline;">Background:</span></p>
-              <p>The collapse map is a list of vertex indices pointing into the list of vertices for this surface. The value j at index i of the collapse map describes a collapse operation. This operation can be read as "vertex i is to be mapped/collapsed to vertex j".</p>
-              <p>A user will take a fully detailed mesh and gradually reduce vertex and triangle count at runtime by using the pre-calculated collapse map. For this, he first determines the amount of vertices the mesh should have. Then he applies the collapse operations starting from the end of the collapse map.</p>
-              <p>The particular method used was described by Stan Melax in a publication from November 1998, see "A Simple, Fast, and Effective Polygon Reduction Algorithm" for further details. A demo implementation can be found at: https://github.com/melax/sandbox/tree/master/bunnylod</p>
+                    </td>
+                    <td>num_vertices*UINT32</td>
+                  </tr>
+                </tbody>
+              </table>
+              <div class="remt-table-desc-notes">
+                <p><span style="text-decoration: underline">Notes:</span></p>
+                <p>
+                  The collapse map is used to render a surface with varying
+                  level of detail (LOD) dependent on view distance during
+                  runtime (progressive mesh algorithm).
+                </p>
+                <p>
+                  <span style="text-decoration: underline">Background:</span>
+                </p>
+                <p>
+                  The collapse map is a list of vertex indices pointing into the
+                  list of vertices for this surface. The value j at index i of
+                  the collapse map describes a collapse operation. This
+                  operation can be read as "vertex i is to be mapped/collapsed
+                  to vertex j".
+                </p>
+                <p>
+                  A user will take a fully detailed mesh and gradually reduce
+                  vertex and triangle count at runtime by using the
+                  pre-calculated collapse map. For this, he first determines the
+                  amount of vertices the mesh should have. Then he applies the
+                  collapse operations starting from the end of the collapse map.
+                </p>
+                <p>
+                  The particular method used was described by Stan Melax in a
+                  publication from November 1998, see "A Simple, Fast, and
+                  Effective Polygon Reduction Algorithm" for further details. A
+                  demo implementation can be found at:
+                  https://github.com/melax/sandbox/tree/master/bunnylod
+                </p>
+              </div>
             </div>
-          </div>
 
-          <div class="remt-table-desc">
-            <h3>MDSBoneRefs</h3>
-            <table class="table table-dark table-striped table-bordered">
-              <tbody>
-                <tr>
-                  <td><strong>Name</strong></td>
-                  <td><strong>Description</strong></td>
-                  <td><strong>Type</strong></td>
-                </tr>
-                <tr>
-                  <td>bone_refs</td>
-                  <td>indices into the list of bone_infos for this surface,
+            <div class="remt-table-desc">
+              <h3>MDSBoneRefs</h3>
+              <table class="table table-dark table-striped table-bordered">
+                <tbody>
+                  <tr>
+                    <td><strong>Name</strong></td>
+                    <td><strong>Description</strong></td>
+                    <td><strong>Type</strong></td>
+                  </tr>
+                  <tr>
+                    <td>bone_refs</td>
+                    <td>
+                      indices into the list of bone_infos for this surface,
                       size=num_bone_refs.
-                  </td>
-                  <td>num_bone_refs*UINT32</td>
-                </tr>
-              </tbody>
-            </table>
-            <div class="remt-table-desc-notes">
-              <p><span style="text-decoration: underline;">Notes:</span></p>
-              <p>
-                Defines which bones a surface references.
-                Probably used for optimization inside the engine. Needs to be hierarchically ordered.
-              </p>
+                    </td>
+                    <td>num_bone_refs*UINT32</td>
+                  </tr>
+                </tbody>
+              </table>
+              <div class="remt-table-desc-notes">
+                <p><span style="text-decoration: underline">Notes:</span></p>
+                <p>
+                  Defines which bones a surface references. Probably used for
+                  optimization inside the engine. Needs to be hierarchically
+                  ordered.
+                </p>
+              </div>
             </div>
-          </div>
 
-          <div class="remt-table-desc">
-            <h3>MDSTag</h3>
-            <table class="table table-dark table-striped table-bordered">
-              <tbody>
-                <tr>
-                  <td><strong>Name</strong></td>
-                  <td><strong>Description</strong></td>
-                  <td><strong>Type</strong></td>
-                </tr>
-                <tr>
-                  <td>name</td>
-                  <td>tag name, ASCII encoded, null-terminated, length 64.</td>
-                  <td>64*ASCII</td>
-                </tr>
-                <tr>
-                  <td>torso_weight</td>
-                  <td>scale torso rotation about torso parent by this.</td>
-                  <td>F32</td>
-                </tr>
-                <tr>
-                  <td>parent_bone</td>
-                  <td>bone that controls the tags location and
-                      orientation. Given as index into the list of bone_infos.
-                  </td>
-                  <td>UINT32</td>
-                </tr>
-              </tbody>
-            </table>
-            <div class="remt-table-desc-notes">
-              <p><span style="text-decoration: underline;">Notes:</span></p>
-              <p>
-                MDS stores location and orientation values for a tag in the field of bones, so tags are actually bones with a special flag.
-              </p>
-              <p><span style="text-decoration: underline;">Background:</span></p>
-              <p>Tags are used to attach external models to a model. Attachment means that the external models origin aligns itself with the models tag location and orientation. As the external model is parented to the tag (nested in tag space), any animation of the tag will also affect the external model.</p>
-              <p>Domain specific scripts tell the engine which external models to attach to a given tag. These scripts are either located in mapscript files (attachtotag command) or .skin files. Sometimes they are also hard coded.</p>
-              <p>An example use case is a hat model (defined separately) attached to a head model. This way, characters can be assembled with different looks without having to duplicate their model definitions. Tags therefore support reuse.</p>
-              <p>Another example use case is that of a tank turret model attached to a tank model. Instead of having a shooting animation (rotate turret left, shoot, rotate turret right) be recorded as vertex positions across several key-frames inside a single model, a tag can be used to control&nbsp; the shooting animation of a separated model. This safes memory, as the&nbsp; tags animation data most likely takes much less space compared to the animation data of the tank turret inside a single model.</p>
-              <p>However, reuse and memory savings are traded against loss in performance. Vertex positions of the external models have to be recalculated against the current frame tags location and orientation.</p>
-
+            <div class="remt-table-desc">
+              <h3>MDSTag</h3>
+              <table class="table table-dark table-striped table-bordered">
+                <tbody>
+                  <tr>
+                    <td><strong>Name</strong></td>
+                    <td><strong>Description</strong></td>
+                    <td><strong>Type</strong></td>
+                  </tr>
+                  <tr>
+                    <td>name</td>
+                    <td>
+                      tag name, ASCII encoded, null-terminated, length 64.
+                    </td>
+                    <td>64*ASCII</td>
+                  </tr>
+                  <tr>
+                    <td>torso_weight</td>
+                    <td>scale torso rotation about torso parent by this.</td>
+                    <td>F32</td>
+                  </tr>
+                  <tr>
+                    <td>parent_bone</td>
+                    <td>
+                      bone that controls the tags location and orientation.
+                      Given as index into the list of bone_infos.
+                    </td>
+                    <td>UINT32</td>
+                  </tr>
+                </tbody>
+              </table>
+              <div class="remt-table-desc-notes">
+                <p><span style="text-decoration: underline">Notes:</span></p>
+                <p>
+                  MDS stores location and orientation values for a tag in the
+                  field of bones, so tags are actually bones with a special
+                  flag.
+                </p>
+                <p>
+                  <span style="text-decoration: underline">Background:</span>
+                </p>
+                <p>
+                  Tags are used to attach external models to a model. Attachment
+                  means that the external models origin aligns itself with the
+                  models tag location and orientation. As the external model is
+                  parented to the tag (nested in tag space), any animation of
+                  the tag will also affect the external model.
+                </p>
+                <p>
+                  Domain specific scripts tell the engine which external models
+                  to attach to a given tag. These scripts are either located in
+                  mapscript files (attachtotag command) or .skin files.
+                  Sometimes they are also hard coded.
+                </p>
+                <p>
+                  An example use case is a hat model (defined separately)
+                  attached to a head model. This way, characters can be
+                  assembled with different looks without having to duplicate
+                  their model definitions. Tags therefore support reuse.
+                </p>
+                <p>
+                  Another example use case is that of a tank turret model
+                  attached to a tank model. Instead of having a shooting
+                  animation (rotate turret left, shoot, rotate turret right) be
+                  recorded as vertex positions across several key-frames inside
+                  a single model, a tag can be used to control&nbsp; the
+                  shooting animation of a separated model. This safes memory, as
+                  the&nbsp; tags animation data most likely takes much less
+                  space compared to the animation data of the tank turret inside
+                  a single model.
+                </p>
+                <p>
+                  However, reuse and memory savings are traded against loss in
+                  performance. Vertex positions of the external models have to
+                  be recalculated against the current frame tags location and
+                  orientation.
+                </p>
+              </div>
             </div>
-          </div>
 
-          <h2>UML View</h2>
-          <p>
-            <figure class="remt-pic-explain">
-              <img src="./img/specifications/mds.svg" alt="UML view of MDS file format">
-              <figcaption>Figure: UML view of MDS file format</figcaption>
-            </figure>
-          </p>
+            <h2>UML View</h2>
+            <p>
+              <figure class="remt-pic-explain">
+                <img
+                  src="./img/specifications/mds.svg"
+                  alt="UML view of MDS file format"
+                />
+                <figcaption>Figure: UML view of MDS file format</figcaption>
+              </figure>
+            </p>
+          </div>
+        </div>
+        <div class="col-sm-3">
+          <nav id="toc" data-toggle="toc" class="sticky-top"></nav>
         </div>
       </div>
-      <div class="col-sm-3">
-        <nav id="toc" data-toggle="toc" class="sticky-top"></nav>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+      <div class="container">
+        <div class="text-center">
+          Copyright 2019 <a href="mailto:n.mitschke@mail.de">Norman Mitschke</a>
+        </div>
       </div>
-    </div>
+    </footer>
 
-  </div>
+    <!-- Javascript -->
+    <script src="./js/jquery-3.7.1.min.js"></script>
+    <script src="./js/bootstrap.bundle.min.js"></script>
+    <script src="./js/bootstrap-toc.min.js"></script>
 
-  <!-- Footer -->
-  <footer>
-    <div class="container">
-      <div class="text-center">Copyright 2019 <a href="mailto:n.mitschke@mail.de">Norman Mitschke</a></div>
-    </div>
-  </footer>
-
-  <!-- Javascript -->
-  <script src="./js/jquery-3.2.1.slim.min.js"></script>
-  <script src="./js/bootstrap.bundle.min.js"></script>
-  <script src="./js/bootstrap-toc.min.js"></script>
-
-  <!-- Scrollspy fix -->
-  <script type="text/javascript">
-    $(document).ready(function () {
-      $('body').scrollspy({
-        target: '#toc',
-        offset: 10
+    <!-- Scrollspy fix -->
+    <script type="text/javascript">
+      $(document).ready(function () {
+        $("body").scrollspy({
+          target: "#toc",
+          offset: 10,
+        });
       });
-    });
-  </script>
-
-</body>
-
+    </script>
+  </body>
 </html>

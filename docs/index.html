@@ -1,144 +1,184 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
     <link rel="stylesheet" href="./css/bootstrap.min.css" />
     <link rel="stylesheet" href="./css/animate.css" />
     <link rel="stylesheet" href="./css/remt.css" />
-    <title>
-      RtCW:ET Blender Model Tools - Welcome.
-    </title>
+    <title>RtCW:ET Blender Model Tools - Welcome.</title>
 
-    <meta name="description" content="MD3, MDC, MDS, MDM/MDX and TAG format support for the 3D modeling software Blender."/>
-    <meta name="keywords" content="MD3, MDC, MDS, MDM/MDX, TAG, file format, 3D model format, import, export,
-    interoperability, Return to Castle Wolfenstein, Wolfenstein: Enemy Territory"/>
+    <meta
+      name="description"
+      content="MD3, MDC, MDS, MDM/MDX and TAG format support for the 3D modeling software Blender."
+    />
+    <meta
+      name="keywords"
+      content="MD3, MDC, MDS, MDM/MDX, TAG, file format, 3D model format, import, export,
+    interoperability, Return to Castle Wolfenstein, Wolfenstein: Enemy Territory"
+    />
 
-    <meta property="og:title" content="RtCW:ET Blender Model Tools - Welcome"/>
-    <meta property="og:description" content="MD3, MDC, MDS, MDM/MDX and TAG format support for the 3D modeling software Blender."/>
-    <meta property="og:url" content="https://mino-git.github.io/rtcw-wet-blender-model-tools/index.html"/>
+    <meta property="og:title" content="RtCW:ET Blender Model Tools - Welcome" />
+    <meta
+      property="og:description"
+      content="MD3, MDC, MDS, MDM/MDX and TAG format support for the 3D modeling software Blender."
+    />
+    <meta
+      property="og:url"
+      content="https://mino-git.github.io/rtcw-wet-blender-model-tools/index.html"
+    />
     <meta property="og:site_name" content="mino-git.github.io" />
-    <meta property="og:keywords" content="MD3, MDC, MDS, MDM/MDX, TAG, file format, 3D model format, import, export,
-    interoperability, Return to Castle Wolfenstein, Wolfenstein: Enemy Territory"/>
-    <meta property="og:image" content="https://mino-git.github.io/rtcw-wet-blender-model-tools/img/brand/logo.png"/>
-    <meta property="og:type" content="article"/>
+    <meta
+      property="og:keywords"
+      content="MD3, MDC, MDS, MDM/MDX, TAG, file format, 3D model format, import, export,
+    interoperability, Return to Castle Wolfenstein, Wolfenstein: Enemy Territory"
+    />
+    <meta
+      property="og:image"
+      content="https://mino-git.github.io/rtcw-wet-blender-model-tools/img/brand/logo.png"
+    />
+    <meta property="og:type" content="article" />
     <meta property="article:author" content="Norman Mitschke" />
     <link rel="icon" href="./img/brand/icon.ico" />
   </head>
 
-<body>
+  <body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+      <div class="container">
+        <!-- Brand -->
+        <a class="navbar-brand d-none d-md-block" href="./index.html">
+          <img src="./img/brand/navbar.png" alt="Brand" />
+        </a>
+        <a class="navbar-brand d-block d-md-none" href="./index.html">
+          <img src="./img/brand/navbar_collapsed.png" alt="Brand" />
+        </a>
+        <!-- Toggler -->
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-toggle="collapse"
+          data-target="#remt-navbar-collapse"
+          aria-controls="remt-navbar-collapse"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <!-- Links -->
+        <div class="collapse navbar-collapse" id="remt-navbar-collapse">
+          <ul class="navbar-nav">
+            <li class="nav-item">
+              <a class="nav-link" href="./downloads.html">Downloads</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="./user_guide.html">User Guide</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="./developer_guide.html"
+                >Developer Guide</a
+              >
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="./tutorials.html">Tutorials</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
 
-  <!-- Navbar -->
-  <nav class="navbar navbar-expand-lg navbar-dark">
+    <!-- Content -->
     <div class="container">
-      <!-- Brand -->
-      <a class="navbar-brand d-none d-md-block" href="./index.html">
-        <img src="./img/brand/navbar.png" alt="Brand" />
-      </a>
-      <a class="navbar-brand d-block d-md-none" href="./index.html">
-        <img src="./img/brand/navbar_collapsed.png" alt="Brand" />
-      </a>
-      <!-- Toggler -->
-      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#remt-navbar-collapse" aria-controls="remt-navbar-collapse"
-              aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span>
-      </button>
-      <!-- Links -->
-      <div class="collapse navbar-collapse" id="remt-navbar-collapse">
-        <ul class="navbar-nav">
-          <li class="nav-item"><a class="nav-link" href="./downloads.html">Downloads</a></li>
-          <li class="nav-item"><a class="nav-link" href="./user_guide.html">User Guide</a></li>
-          <li class="nav-item"><a class="nav-link" href="./developer_guide.html">Developer Guide</a></li>
-          <li class="nav-item"><a class="nav-link" href="./tutorials.html">Tutorials</a></li>
-        </ul>
-      </div>
-    </div>
-  </nav>
+      <div class="row">
+        <div class="col-sm-9">
+          <!-- Title -->
+          <div class="remt-title">
+            <h1>Welcome</h1>
+            <hr />
+            <p class="animated fadeInDown">RtCW:ET Model tools for Blender.</p>
+            <hr />
+          </div>
 
-  <!-- Content -->
-  <div class="container">
+          <!-- Chapter: Introduction -->
+          <div class="remt-chapter">
+            <h2 id="introduction">Introduction</h2>
+            <p>
+              RtCW:ET Blender Model Tools is an addon for the 3D modeling
+              software Blender. It adds support for the MD3, MDC, MDS, MDM/MDX
+              and TAG model formats. These formats make up parts of the assets
+              for the games Return to Castle Wolfenstein and Wolfenstein: Enemy
+              Territory.
+            </p>
+          </div>
 
-    <div class="row">
+          <!-- Chapter: Features -->
+          <div class="remt-chapter">
+            <h2 id="features">Features</h2>
+            <p>Its main features are:</p>
+            <ul type="circle">
+              <li>Import/Export of all formats</li>
+              <li>Convertability among the formats</li>
+            </ul>
+            <p>But there is also:</p>
+            <ul type="circle">
+              <li>
+                Direct conversion to convert models without writing to Blender
+              </li>
+              <li>Attachment of external models to tag objects in Blender</li>
+              <li>Shading mesh objects in Blender</li>
+              <li>Exctracting PK3 files</li>
+            </ul>
+          </div>
 
-      <div class="col-sm-9">
+          <!-- Chapter: Getting started -->
+          <div class="remt-chapter">
+            <h2 id="gettingstarted">Getting started</h2>
+            <ul type="circle">
+              <li><a href="./downloads.html">Downloads</a></li>
+              <li><a href="./user_guide.html">User Guide</a></li>
+              <li><a href="./developer_guide.html">Developer Guide</a></li>
+              <li>Tutorials (TODO)</li>
+              <li>
+                <a
+                  href="https://github.com/mino-git/rtcw-wet-blender-model-tools"
+                  >GitHub</a
+                >
+              </li>
+            </ul>
+          </div>
 
-        <!-- Title -->
-        <div class="remt-title">
-          <h1>Welcome</h1>
-          <hr>
-          <p class="animated fadeInDown">RtCW:ET Model tools for Blender.</p>
-          <hr>
+          <!-- Chapter: Notice -->
+          <div class="remt-chapter">
+            <h2 id="noticeofnonaffiliationanddisclaimer">
+              Notice of Non-Affiliation and Disclaimer
+            </h2>
+            <p>
+              This product is in no way affiliated, associated, authorized,
+              endorsed by, or in any way officially connected with the creators
+              and publishers of the games Return to Castle Wolfenstein and
+              Wolfenstein: Enemy Territory.
+            </p>
+          </div>
         </div>
 
-        <!-- Chapter: Introduction -->
-        <div class="remt-chapter">
-
-          <h2 id="introduction">Introduction</h2>
-          <p>
-            RtCW:ET Blender Model Tools is an addon for the 3D modeling software Blender.
-            It adds support for the MD3, MDC, MDS, MDM/MDX and TAG model formats.
-            These formats make up parts of the assets for the games Return to Castle Wolfenstein and Wolfenstein: Enemy Territory.
-          </p>
-        </div>
-
-        <!-- Chapter: Features -->
-        <div class="remt-chapter">
-          <h2 id="features">Features</h2>
-          <p>Its main features are:</p>
-          <ul type="circle">
-            <li>Import/Export of all formats</li>
-            <li>Convertability among the formats</li>
-          </ul>
-          <p>But there is also:</p>
-          <ul type="circle">
-            <li>Direct conversion to convert models without writing to Blender</li>
-            <li>Attachment of external models to tag objects in Blender</li>
-            <li>Shading mesh objects in Blender</li>
-            <li>Exctracting PK3 files</li>
-          </ul>
-        </div>
-
-        <!-- Chapter: Getting started -->
-        <div class="remt-chapter">
-          <h2 id="gettingstarted">Getting started</h2>
-          <ul type="circle">
-            <li><a href="./downloads.html">Downloads</a></li>
-            <li><a href="./user_guide.html">User Guide</a></li>
-            <li><a href="./developer_guide.html">Developer Guide</a></li>
-            <li>Tutorials (TODO)</li>
-            <li><a href="https://github.com/mino-git/rtcw-wet-blender-model-tools">GitHub</a></li>
-          </ul>
-        </div>
-
-        <!-- Chapter: Notice -->
-        <div class="remt-chapter">
-          <h2 id="noticeofnonaffiliationanddisclaimer">Notice of Non-Affiliation and Disclaimer</h2>
-          <p>
-            This product is in no way affiliated, associated, authorized, endorsed by,
-            or in any way officially connected with the creators and publishers of
-            the games Return to Castle Wolfenstein and Wolfenstein: Enemy Territory.
-          </p>
-        </div>
-
-      </div>
-
-      <div class="col-sm-3">
+        <div class="col-sm-3"></div>
       </div>
     </div>
 
-  </div>
+    <!-- Footer -->
+    <footer>
+      <div class="container">
+        <div class="text-center">
+          Copyright 2019 <a href="mailto:n.mitschke@mail.de">Norman Mitschke</a>
+        </div>
+      </div>
+    </footer>
 
-  <!-- Footer -->
-  <footer>
-    <div class="container">
-      <div class="text-center">Copyright 2019 <a href="mailto:n.mitschke@mail.de">Norman Mitschke</a></div>
-    </div>
-  </footer>
-
-  <!-- Javascript -->
-  <script src="./js/jquery-3.2.1.slim.min.js"></script>
-  <script src="./js/bootstrap.bundle.min.js"></script>
-
-</body>
-
+    <!-- Javascript -->
+    <script src="./js/jquery-3.7.1.min.js"></script>
+    <script src="./js/bootstrap.bundle.min.js"></script>
+  </body>
 </html>
