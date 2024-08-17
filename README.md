@@ -1,7 +1,7 @@
 
 # RtCW:ET Blender Model Tools
 
-**Status: version 1.0.0 (rc3)**
+**Status: version 1.0.0 (rc4)**
 
 ## Introduction
 
