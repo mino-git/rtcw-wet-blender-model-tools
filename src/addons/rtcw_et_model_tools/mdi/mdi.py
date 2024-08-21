@@ -293,7 +293,7 @@ class MDIRiggedVertex:
             bone_weight = mdi_weight.weight_value
 
             # to object space
-            tmp = mdi_bone.orientations[num_frame] @ mdi_weight.location
+            tmp = mdi_bone.orientations[num_frame] * mdi_weight.location
             object_space_coords = mdi_bone.locations[num_frame] + tmp
 
             # weight it against bone
@@ -323,7 +323,7 @@ class MDIRiggedVertex:
                 total_rotation = \
                     total_rotation + (bone_orientation * bone_weight)
 
-        normal_ms = total_rotation @ self.normal
+        normal_ms = total_rotation * self.normal
         normal_ms.normalize()
 
         return normal_ms
@@ -348,7 +348,7 @@ class MDIRiggedVertex:
                 total_rotation = \
                     total_rotation + (bone_orientation.transposed() * bone_weight)
 
-        normal_w = total_rotation @ self.normal
+        normal_w = total_rotation * self.normal
         normal_w.normalize()
 
         return normal_w
@@ -365,7 +365,7 @@ class MDIRiggedVertex:
             bone_weight = mdi_weight.weight_value
 
             # to object space
-            tmp = mdi_bone.orientations[num_frame] @ mdi_weight.location
+            tmp = mdi_bone.orientations[num_frame] * mdi_weight.location
             object_space_coords = mdi_bone.locations[num_frame] + tmp
 
             # weight it against bone
@@ -925,7 +925,7 @@ class MDIBoneTagOff:
         pfl_ms = mdi_parent_bone.locations[num_frame]
         pfo_ms = mdi_parent_bone.orientations[num_frame]
 
-        tfl_ms = pfl_ms + (pfo_ms @ self.location)
+        tfl_ms = pfl_ms + (pfo_ms * self.location)
 
         return tfl_ms
 
@@ -934,7 +934,7 @@ class MDIBoneTagOff:
         mdi_parent_bone = mdi_model.skeleton.bones[self.parent_bone]
 
         pfo_ms = mdi_parent_bone.orientations[num_frame]
-        tfo_ms = pfo_ms @ self.orientation
+        tfo_ms = pfo_ms * self.orientation
 
         return tfo_ms
 

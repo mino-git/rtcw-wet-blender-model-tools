@@ -76,7 +76,7 @@ def is_tag_object(tag_object):
     if not tag_object.type == 'EMPTY':
         return False
 
-    if not tag_object.empty_display_type == 'ARROWS':
+    if not tag_object.empty_draw_type == 'ARROWS':
         return False
 
     if not tag_object.name.startswith("tag_"):
@@ -89,7 +89,7 @@ def _import_tag_model(game_path, skin_file_path, tag_name, model_path):
 
     import rtcw_et_model_tools.md3.facade as md3_facade
     import rtcw_et_model_tools.mdc.facade as mdc_facade
-    import rtcw_et_model_tools.blender.core.collection as collection_m
+    import rtcw_et_model_tools.blender.core.blender_scene as blender_scene_m
 
     # paths relative to game directory
     model_path_1 = os.path.join(game_path, model_path)
@@ -107,13 +107,13 @@ def _import_tag_model(game_path, skin_file_path, tag_name, model_path):
 
         bind_frame = 0
         mdi_model = md3_facade.read(model_path_md3_1, bind_frame)
-        collection = collection_m.write(mdi_model)
+        blender_scene = blender_scene_m.write(mdi_model)
 
     elif os.path.isfile(model_path_mdc_1):
 
         bind_frame = 0
         mdi_model = mdc_facade.read(model_path_mdc_1, bind_frame)
-        collection = collection_m.write(mdi_model)
+        blender_scene = blender_scene_m.write(mdi_model)
 
     # try to find it relative to the skin file path
     elif os.path.isfile(model_path_md3_2):
@@ -121,32 +121,32 @@ def _import_tag_model(game_path, skin_file_path, tag_name, model_path):
         bind_frame = 0
         mdi_model = md3_facade.read(model_path_md3_2, bind_frame,
                                     encoding="binary")
-        collection = collection_m.write(mdi_model)
+        blender_scene = blender_scene_m.write(mdi_model)
 
     elif os.path.isfile(model_path_mdc_2):
 
         bind_frame = 0
         mdi_model = mdc_facade.read(model_path_mdc_2, bind_frame,
                                     encoding="binary")
-        collection = collection_m.write(mdi_model)
+        blender_scene = blender_scene_m.write(mdi_model)
 
     else:
 
         raise Exception("Tag model '{}' not found".format(model_path))
 
-    return collection
+    return blender_scene
 
-def _find_tag_object(tag_name, collection = None):
+def _find_tag_object(tag_name, blender_scene = None):
 
-    if not collection:
+    if not blender_scene:
 
-        collection = bpy.context.view_layer.active_layer_collection.collection
+        blender_scene = bpy.context.screen.scene
 
     arrow_object = None
-    for obj in collection.objects:
+    for obj in blender_scene.objects:
 
         if obj.type == 'EMPTY' and \
-           obj.empty_display_type == 'ARROWS' and \
+           obj.empty_draw_type == 'ARROWS' and \
            obj.name == tag_name:
             arrow_object = obj
             break
@@ -160,36 +160,36 @@ def _attach_by_skin_file(game_path, skin_file_path):
     skin_data = skin_file_m.read(skin_file_path)
     if skin_data:
 
-        collection = bpy.context.view_layer.active_layer_collection.collection
+        blender_scene = bpy.context.screen.scene
 
         for mapping in skin_data.tag_to_model_mappings:
 
             tag_name = mapping.tag_name
-            tag_object = _find_tag_object(tag_name, collection)
+            tag_object = _find_tag_object(tag_name, blender_scene)
 
             model_path = mapping.model_path
-            new_collection = \
+            new_blender_scene = \
                 _import_tag_model(game_path, skin_file_path, tag_name,
                                   model_path)
 
-            _attach_by_collection(new_collection, tag_object)
+            _attach_by_collection(blender_scene, tag_object)
 
     else:
 
         raise Exception("Could not parse skin file data")
 
-def _attach_by_collection(collection = None, tag_object = None):
+def _attach_by_collection(blender_scene = None, tag_object = None):
     """Attach all objects from active collection to tag by setting a
     child-of constraint.
     """
 
-    if not collection:
+    if not blender_scene:
 
-        collection = bpy.context.view_layer.active_layer_collection.collection
+        blender_scene = bpy.context.screen.scene
 
     if not tag_object:
 
-        tag_object = bpy.context.view_layer.objects.active
+        tag_object = bpy.context.scene.objects.active
 
     if not is_tag_object(tag_object):
 
@@ -200,10 +200,10 @@ def _attach_by_collection(collection = None, tag_object = None):
         raise Exception(exception_str)
 
     attach_objects = []
-    for collection_object in collection.all_objects:
+    for scene_object in blender_scene.objects:
 
-        if is_attach_object(collection_object):
-            attach_objects.append(collection_object)
+        if is_attach_object(scene_object):
+            attach_objects.append(scene_object)
         else:
             reporter_m.warning("Selected object is not attachable.")
 
@@ -217,7 +217,7 @@ def _attach_by_objects():
     """Attach all selected objects to tag by setting a child-of constraint.
     """
 
-    tag_object = bpy.context.view_layer.objects.active
+    tag_object = bpy.context.scene.objects.active
     if not is_tag_object(tag_object):
 
         exception_str = "Tag object not found. " \
@@ -250,8 +250,8 @@ def attach_to_tag(method, game_path = None, skin_file_path = None):
 
     if method == 'Objects':
         _attach_by_objects()
-    elif method == 'Collection':
-        _attach_by_collection()
+    # elif method == 'Collection':
+    #     _attach_by_collection()
     elif method == 'Skinfile':
         _attach_by_skin_file(game_path, skin_file_path)
     else:
@@ -277,7 +277,7 @@ def read(arrow_object, transforms, armature_object=None, frame_start=0, frame_en
     """
 
     if not arrow_object.type == 'EMPTY' or \
-        not arrow_object.empty_display_type == 'ARROWS':
+        not arrow_object.empty_draw_type == 'ARROWS':
         return None
 
     mdi_tag = None
@@ -366,7 +366,7 @@ def read(arrow_object, transforms, armature_object=None, frame_start=0, frame_en
 # WRITE
 # =====================================
 
-def write(mdi_model, num_tag, collection, armature_object = None):
+def write(mdi_model, num_tag, blender_scene, armature_object = None):
     """Convert and write mdi tag to collection.
 
     Args:
@@ -391,9 +391,9 @@ def write(mdi_model, num_tag, collection, armature_object = None):
     if isinstance(mdi_tag, mdi_m.MDIFreeTag):
 
         empty_object = bpy.data.objects.new("empty", None)
-        collection.objects.link(empty_object)
+        blender_scene.objects.link(empty_object)
         empty_object.name = mdi_tag.name
-        empty_object.empty_display_type = 'ARROWS'
+        empty_object.empty_draw_type = 'ARROWS'
         empty_object.rotation_mode = 'QUATERNION'
 
         root_frame_location = mdi_tag.locations[mdi_model.root_frame]
@@ -401,7 +401,7 @@ def write(mdi_model, num_tag, collection, armature_object = None):
 
         matrix = mathutils.Matrix.Identity(4)
         matrix.translation = root_frame_location
-        matrix = matrix @ root_frame_orientation.to_4x4()
+        matrix = matrix * root_frame_orientation.to_4x4()
         empty_object.matrix_world = matrix
 
         # animate
@@ -421,9 +421,9 @@ def write(mdi_model, num_tag, collection, armature_object = None):
         parent_bone_name = mdi_bones[mdi_tag.parent_bone].name
 
         empty_object = bpy.data.objects.new("empty", None)
-        collection.objects.link(empty_object)
+        blender_scene.objects.link(empty_object)
         empty_object.name = mdi_tag.name
-        empty_object.empty_display_type = 'ARROWS'
+        empty_object.empty_draw_type = 'ARROWS'
         empty_object.rotation_mode = 'QUATERNION'
 
         empty_object.parent = armature_object
@@ -440,9 +440,9 @@ def write(mdi_model, num_tag, collection, armature_object = None):
         parent_bone_name = mdi_bones[mdi_tag.parent_bone].name
 
         empty_object = bpy.data.objects.new("empty", None)
-        collection.objects.link(empty_object)
+        blender_scene.objects.link(empty_object)
         empty_object.name = mdi_tag.name
-        empty_object.empty_display_type = 'ARROWS'
+        empty_object.empty_draw_type = 'ARROWS'
         empty_object.rotation_mode = 'QUATERNION'
 
         empty_object.parent = armature_object
@@ -452,7 +452,7 @@ def write(mdi_model, num_tag, collection, armature_object = None):
         matrix = mathutils.Matrix.Identity(4)
         matrix.translation = mdi_tag.location + mathutils.Vector((0, -1, 0))
         orientation = mdi_tag.orientation
-        empty_object.matrix_basis = matrix @ orientation.to_4x4()
+        empty_object.matrix_basis = matrix * orientation.to_4x4()
 
     else:
 

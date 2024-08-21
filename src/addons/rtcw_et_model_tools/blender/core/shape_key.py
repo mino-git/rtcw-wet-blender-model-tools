@@ -154,14 +154,14 @@ def read_shape_keys(blender_object, frame_start=0, frame_end=0):
 # WRITE
 # =====================================
 
-def write_shape_keys(mesh_object, vertex_locations, vertex_normals):
+def write_shape_keys(blender_object, vertex_locations, vertex_normals):
 
     num_vertices = len(vertex_locations)
     for _ in range(num_vertices):
 
         for num_frame in range(len(vertex_locations[_])):
 
-            shape_key = mesh_object.shape_key_add(name="Frame", from_mix=False)
+            shape_key = blender_object.shape_key_add(name="Frame", from_mix=False)
 
             for num_vertex in range(num_vertices):
 
@@ -172,14 +172,14 @@ def write_shape_keys(mesh_object, vertex_locations, vertex_normals):
 
         break
 
-    if mesh_object.data.shape_keys:
+    if blender_object.data.shape_keys:
 
-        mesh_object.data.shape_keys.use_relative = False
-        mesh_object.active_shape_key_index = 0
+        blender_object.data.shape_keys.use_relative = False
+        blender_object.active_shape_key_index = 0
 
         num_frames = len(vertex_locations[0])
         for num_frame in range(num_frames):
 
-            mesh_object.data.shape_keys.eval_time = 10.0 * num_frame
-            mesh_object.data.shape_keys. \
+            blender_object.data.shape_keys.eval_time = 10.0 * num_frame
+            blender_object.data.shape_keys. \
                 keyframe_insert('eval_time', frame = num_frame)

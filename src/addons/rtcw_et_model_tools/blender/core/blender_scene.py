@@ -18,8 +18,7 @@
 
 # <pep8-80 compliant>
 
-"""Reading, writing and converting a collection from a blender scene.
-Collections represent a model.
+"""Reading, writing and converting a blender_scene object from a blender scene.
 """
 
 import bpy
@@ -34,15 +33,15 @@ import rtcw_et_model_tools.common.timer as timer_m
 import rtcw_et_model_tools.common.reporter as reporter_m
 
 
-def _collect_objects_for_export(collection):
+def _collect_objects_for_export(blender_scene):
 
     mesh_objects = []
     armature_objects = []
     arrow_objects = []
-    for obj in collection.all_objects:
+    for obj in blender_scene.objects:
 
         # only export visible objects
-        is_visible = obj.visible_get()
+        is_visible = obj.is_visible(blender_scene)
         if not is_visible:
 
             reporter_m.info("Object '{}' not visible in viewport. Dropping."
@@ -56,7 +55,7 @@ def _collect_objects_for_export(collection):
             armature_objects.append(obj)
 
         elif obj.type == 'EMPTY' and \
-             obj.empty_display_type == 'ARROWS' and \
+             obj.empty_draw_type == 'ARROWS' and \
              obj.name.startswith('tag_'):
             arrow_objects.append(obj)
 
@@ -87,7 +86,7 @@ def _collect_objects_for_export(collection):
     return (mesh_objects, armature_object, arrow_objects)
 
 def read(collapse_frame = -1):
-    """Reads a collection from active blender collection and converts to MDI.
+    """Reads a blender_scene from active blender scene and converts to MDI.
 
     Args:
 
@@ -112,24 +111,23 @@ def read(collapse_frame = -1):
         if frame_start > 0:
             collapse_frame = collapse_frame - frame_start
 
-    active_collection = \
-        bpy.context.view_layer.active_layer_collection.collection
+    blender_scene = bpy.context.screen.scene
 
     timer = timer_m.Timer()
-    reporter_m.info("Reading collection: {} ..."
-        .format(active_collection.name))
+    reporter_m.info("Reading blender_scene: {} ..."
+        .format(blender_scene.name))
 
     mdi_model = mdi_m.MDI()
 
-    mdi_model.name = active_collection.name
+    mdi_model.name = blender_scene.name
     # mdi_model.root_frame = 0  # only used during import
 
-    transforms = blender_util_m.build_transforms_ws(active_collection,
+    transforms = blender_util_m.build_transforms_ws(blender_scene,
                                                     frame_start,
                                                     frame_end)
 
     mesh_objects, armature_object, arrow_objects = \
-        _collect_objects_for_export(active_collection)
+        _collect_objects_for_export(blender_scene)
 
     # mdi surfaces
     for mesh_object in mesh_objects:
@@ -157,7 +155,7 @@ def read(collapse_frame = -1):
             reporter_m.warning("Could not read mesh object '{}'"
                                .format(mesh_object.name))
 
-    # mdi skeleton
+    # # mdi skeleton
     mdi_skeleton = armature_m.read(armature_object, transforms, frame_start, frame_end)
     if mdi_skeleton:
 
@@ -214,12 +212,12 @@ def read(collapse_frame = -1):
     mdi_model.lod = mdi_m.MDIDiscreteLOD()
 
     time = timer.time()
-    reporter_m.info("Reading collection DONE (time={})".format(time))
+    reporter_m.info("Reading blender_scene DONE (time={})".format(time))
 
     return (mdi_model, collapse_frame)
 
 def write(mdi_model):
-    """Converts MDI model and writes it to a new collection in blender.
+    """Converts MDI model and writes it to a new blender_scene in blender.
 
     Args:
 
@@ -227,33 +225,33 @@ def write(mdi_model):
 
     Returns:
 
-        collection (Collection(ID)): blender collection.
+        blender_scene (bpy.Types.Scene): blender scene object.
     """
 
     timer = timer_m.Timer()
-    reporter_m.info("Writing collection: {} ...".format(mdi_model.name))
+    reporter_m.info("Writing blender_scene: {} ...".format(mdi_model.name))
 
-    collection = bpy.data.collections.new(mdi_model.name)
-    bpy.context.scene.collection.children.link(collection)
+    blender_scene = bpy.data.scenes.new(mdi_model.name)
+    bpy.context.screen.scene = blender_scene # operators depend on this
 
     armature_object = armature_m.write(mdi_model.skeleton,
                                        mdi_model.root_frame,
-                                       collection)
+                                       blender_scene)
 
     for num_surface in range(len(mdi_model.surfaces)):
 
-        mesh_m.write(mdi_model, num_surface, collection, armature_object)
+        mesh_m.write(mdi_model, num_surface, blender_scene, armature_object)
 
     for num_tag in range(len(mdi_model.tags)):
 
-        arrow_m.write(mdi_model, num_tag, collection, armature_object)
+        arrow_m.write(mdi_model, num_tag, blender_scene, armature_object)
 
-    # set frame to avoid a blender bug
-    # without this the model will show up in a different frame after import
+    # # set frame to avoid a blender bug
+    # # without this the model will show up in a different frame after import
     frame_current = bpy.context.scene.frame_current
     bpy.context.scene.frame_set(frame_current)
 
     time = timer.time()
-    reporter_m.info("Writing collection DONE (time={})".format(time))
+    reporter_m.info("Writing blender_scene DONE (time={})".format(time))
 
-    return collection
+    return blender_scene

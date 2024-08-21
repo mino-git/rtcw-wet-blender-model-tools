@@ -179,17 +179,17 @@ class Transform:
                     pfo_ms = self.parent_transform.rots[num_frame]
 
                     # express the childs bind pose in parent space
-                    cbl_ps = pbo_ms.transposed() @ (cbl_ms - pbl_ms)
-                    cbo_ps = pbo_ms.transposed() @ cbo_ms
+                    cbl_ps = pbo_ms.transposed() * (cbl_ms - pbl_ms)
+                    cbo_ps = pbo_ms.transposed() * cbo_ms
 
                     # calculate the model space coordinates of the child in
                     # blenders bind pose
-                    cbl_dash_ms = pfl_ms + pfo_ms @ cbl_ps
-                    cbo_dash_ms = pfo_ms @ cbo_ps
+                    cbl_dash_ms = pfl_ms + pfo_ms * cbl_ps
+                    cbo_dash_ms = pfo_ms * cbo_ps
 
                     # calculate model space values for frame
-                    location = cbl_dash_ms + cbo_dash_ms @ location_off
-                    orientation = cbo_dash_ms @ rotation_off
+                    location = cbl_dash_ms + cbo_dash_ms * location_off
+                    orientation = cbo_dash_ms * rotation_off
 
                     self.locs[num_frame] = location
                     self.rots[num_frame] = orientation
@@ -201,8 +201,8 @@ class Transform:
                     location_off = self.locs[num_frame]
                     rotation_off = self.rots[num_frame]
 
-                    location = cbl_ms + cbo_ms @ location_off
-                    orientation = cbo_ms @ rotation_off
+                    location = cbl_ms + cbo_ms * location_off
+                    orientation = cbo_ms * rotation_off
 
                     self.locs[num_frame] = location
                     self.rots[num_frame] = orientation
@@ -218,8 +218,8 @@ class Transform:
                     cfr = self.rots[num_frame]
                     #cfs = transform.scales[num_frame]
 
-                    location = pfl + pfr @ cfl
-                    orientation = pfr @ cfr
+                    location = pfl + pfr * cfl
+                    orientation = pfr * cfr
 
                     self.locs[num_frame] = location
                     self.rots[num_frame] = orientation
@@ -243,8 +243,8 @@ class Transform:
                         pfr = self.parent_transform.rots[num_frame]
                         #pfs = self.parent_transform.scales[num_frame]
 
-                        location = pfl + pfr @ cfl
-                        orientation = pfr @ cfr
+                        location = pfl + pfr * cfl
+                        orientation = pfr * cfr
 
                         self.locs[num_frame] = location
                         self.rots[num_frame] = orientation
@@ -264,10 +264,10 @@ class Transform:
                         pfl_ms = self.parent_transform.locs[num_frame]
                         pfr_ms = self.parent_transform.rots[num_frame]
 
-                        location = pfl_ms + pfr_ms @ (pil_ms + pir_ms @ cfl_ls)
+                        location = pfl_ms + pfr_ms * (pil_ms + pir_ms * cfl_ls)
 
                         cfr_ls = rotation_matrix_scaled(cfr_ls, cfs_ls)
-                        orientation = pfr_ms @ pir_ms @ cfr_ls
+                        orientation = pfr_ms * pir_ms * cfr_ls
 
                         self.locs[num_frame] = location
                         self.rots[num_frame] = orientation
@@ -284,12 +284,12 @@ class Transform:
                     self.rots[num_frame] = cfr_ls
 
 
-def build_transforms_ws(collection, frame_start, frame_end):
+def build_transforms_ws(blender_scene, frame_start, frame_end):
 
     transforms = []
 
     # initial reading
-    for blender_object in collection.all_objects:
+    for blender_object in blender_scene.objects:
 
         transform = Transform(blender_object)
         transforms.append(transform)
@@ -796,7 +796,7 @@ def getOrthogonal(v):
 
     return (x, y, z)
 
-def draw_normals_in_frame(mdi_vertices, num_frame, collection,
+def draw_normals_in_frame(mdi_vertices, num_frame, blender_scene,
                           mdi_skeleton = None):
     """Draw normals in frame.
     """
@@ -807,7 +807,7 @@ def draw_normals_in_frame(mdi_vertices, num_frame, collection,
 
             empty_object = bpy.data.objects.new("empty", None)
             empty_object.name = "vertex_normal"
-            empty_object.empty_display_type = 'SINGLE_ARROW'
+            empty_object.empty_draw_type = 'SINGLE_ARROW'
             empty_object.rotation_mode = 'QUATERNION'
 
             b3 = mdi_vertex.normals[num_frame]
@@ -831,13 +831,13 @@ def draw_normals_in_frame(mdi_vertices, num_frame, collection,
 
             empty_object.matrix_world = basis
 
-            collection.objects.link(empty_object)
+            blender_scene.objects.link(empty_object)
 
         elif isinstance(mdi_vertex, mdi_m.MDIRiggedVertex):
 
             empty_object = bpy.data.objects.new("empty", None)
             empty_object.name = "Normal"
-            empty_object.empty_display_type = 'SINGLE_ARROW'
+            empty_object.empty_draw_type = 'SINGLE_ARROW'
             empty_object.rotation_mode = 'QUATERNION'
 
             b3 = mdi_vertex.calc_normal_ms(mdi_skeleton, num_frame)
@@ -862,7 +862,7 @@ def draw_normals_in_frame(mdi_vertices, num_frame, collection,
 
             empty_object.matrix_world = basis
 
-            collection.objects.link(empty_object)
+            blender_scene.objects.link(empty_object)
 
         else:
 
@@ -945,9 +945,8 @@ def draw_bounding_volume(mdi_bounding_volume):
     mesh.update()
     mesh.validate(verbose=True)
 
-    active_collection = \
-        bpy.context.view_layer.active_layer_collection.collection
-    active_collection.objects.link(mesh_object)
+    blender_scene = bpy.context.screen.scene
+    blender_scene.objects.link(mesh_object)
 
     num_frames = len(mdi_bounding_volume.aabbs)
 

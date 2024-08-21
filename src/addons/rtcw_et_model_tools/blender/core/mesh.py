@@ -106,7 +106,7 @@ def _read_rigged_vertices(mesh_object, armature_object):
     bind_pose_bones = \
         [bone.matrix_local for bone in armature_object.data.bones]
 
-    bpy.context.view_layer.objects.active = mesh_object
+    bpy.context.scene.objects.active = mesh_object
 
     bind_pose_vertices = [vertex.co for vertex in mesh_object.data.vertices]
 
@@ -140,7 +140,7 @@ def _read_rigged_vertices(mesh_object, armature_object):
                 bone_bind_pose_location = loc
                 bone_bind_pose_orientation = ori.to_matrix().to_3x3()
 
-                location = bone_bind_pose_orientation.transposed() @ \
+                location = bone_bind_pose_orientation.transposed() * \
                             (bind_pose_vertices[vertex_index] - \
                             bone_bind_pose_location)
 
@@ -163,7 +163,7 @@ def _read_rigged_vertices(mesh_object, armature_object):
                         weight_value)
 
         normal = mesh_object.data.vertices[vertex_index].normal
-        normal = total_rotation.transposed() @ normal
+        normal = total_rotation.transposed() * normal
 
         mdi_rigged_vertex.normal = normal.normalized()
 
@@ -303,8 +303,8 @@ def read(mesh_object, transforms, frame_start=0, frame_end=0):
                     cfl = mdi_vertex.locations[num_frame]
                     cfn = mdi_vertex.normals[num_frame]
 
-                    loc = pfl + pfr @ cfl
-                    normal = pfr @ cfn
+                    loc = pfl + pfr * cfl
+                    normal = pfr * cfn
 
                     mdi_vertex.locations[num_frame] = loc
                     mdi_vertex.normals[num_frame] = normal
@@ -394,7 +394,7 @@ def _write_rigged_vertices(mdi_rigged_vertices, mdi_skeleton, mesh_object,
     time = timer.time()
     reporter_m.debug("Rigging vertices DONE (time={})".format(time))
 
-def _write_morph_vertices(mdi_morph_vertices, mesh_object, root_frame):
+def _write_morph_vertices(mdi_morph_vertices, blender_object, root_frame):
     """Converts and writes a list of MDIMorphVertex.
 
     Args:
@@ -421,21 +421,21 @@ def _write_morph_vertices(mdi_morph_vertices, mesh_object, root_frame):
             vertex_locations.append(mdi_morph_vertex.locations)
             vertex_normals.append(mdi_morph_vertex.normals)
 
-        shape_key_m.write_shape_keys(mesh_object,
+        shape_key_m.write_shape_keys(blender_object,
                                      vertex_locations,
                                      vertex_normals)
 
     time = timer.time()
     reporter_m.debug("Morphing vertices DONE (time={})".format(time))
 
-def _create_geometry(mdi_model, num_surface, collection):
+def _create_geometry(mdi_model, num_surface, blender_scene):
     """Creates a new mesh object along with vertices and triangles.
 
     Args:
 
         mdi_model
         num_surface
-        collection
+        blender_scene
 
     Returns:
 
@@ -444,9 +444,9 @@ def _create_geometry(mdi_model, num_surface, collection):
 
     mdi_surface = mdi_model.surfaces[num_surface]
 
-    name = mdi_surface.name
-    mesh = bpy.data.meshes.new("{}{}".format(name, "_data"))
-    mesh_object = bpy.data.objects.new(name, mesh)
+    surface_name = mdi_surface.name
+    blender_mesh = bpy.data.meshes.new("{}{}".format(surface_name, "_data"))
+    blender_object = bpy.data.objects.new(surface_name, blender_mesh)
 
     mdi_vertices = mdi_surface.vertices
     mdi_triangles = mdi_surface.triangles
@@ -475,27 +475,27 @@ def _create_geometry(mdi_model, num_surface, collection):
 
     if vertex_locations and triangles:
 
-        mesh.from_pydata(vertex_locations, [], triangles)
-        mesh.update()
-        mesh.validate(verbose=True)
+        blender_mesh.from_pydata(vertex_locations, [], triangles)
+        blender_mesh.update()
+        blender_mesh.validate(verbose=True)
 
     else:
 
         reporter_m.warning("A surface was defined without geometry")
         return None
 
-    collection.objects.link(mesh_object)
+    blender_scene.objects.link(blender_object)
 
-    return mesh_object
+    return blender_object
 
-def write(mdi_model, num_surface, collection, armature_object = None):
+def write(mdi_model, num_surface, blender_scene, armature_object = None):
     """Converts and writes an MDISurface object.
 
     Args:
 
         mdi_model
         num_surface
-        collection
+        blender_scene
         armature_object
 
     Returns:
@@ -509,8 +509,8 @@ def write(mdi_model, num_surface, collection, armature_object = None):
     reporter_m.debug("Writing mesh: {} ...".format(mdi_surface.name))
 
     # geometry
-    mesh_object = _create_geometry(mdi_model, num_surface, collection)
-    if not mesh_object:
+    blender_object = _create_geometry(mdi_model, num_surface, blender_scene)
+    if not blender_object:
         return None
 
     # animation
@@ -523,12 +523,12 @@ def write(mdi_model, num_surface, collection, armature_object = None):
         if isinstance(sample_vertex, mdi_m.MDIRiggedVertex):
 
             _write_rigged_vertices(mdi_surface.vertices, mdi_model.skeleton,
-                                   mesh_object, armature_object)
-            mesh_object.parent = armature_object
+                                   blender_object, armature_object)
+            blender_object.parent = armature_object
 
         elif isinstance(sample_vertex, mdi_m.MDIMorphVertex):
 
-            _write_morph_vertices(mdi_surface.vertices, mesh_object,
+            _write_morph_vertices(mdi_surface.vertices, blender_object,
                                   mdi_model.root_frame)
 
         else:
@@ -541,13 +541,13 @@ def write(mdi_model, num_surface, collection, armature_object = None):
         reporter_m.warning("A surface was defined without geometry")
         return None
 
-    # shaders
-    material_m.write(mdi_surface.shader, mesh_object)
+    # # shaders
+    material_m.write(mdi_surface.shader, blender_object)
 
-    # uv map
-    uv_map_m.write(mdi_surface.uv_map, mesh_object)
+    # # uv map
+    uv_map_m.write(mdi_surface.uv_map, blender_object)
 
     time = timer.time()
     reporter_m.debug("Writing mesh DONE (time={})".format(time))
 
-    return mesh_object
+    return blender_object

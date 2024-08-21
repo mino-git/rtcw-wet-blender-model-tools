@@ -36,24 +36,24 @@ import rtcw_et_model_tools.common.reporter as reporter_m
 # SHADING OPERATION
 # =====================================
 
-def _set_material_active_all(mesh_object, material):
+def _set_material_active_all(blender_object, material):
 
-    material_index = _get_index_for_material(mesh_object, material)
+    material_index = _get_index_for_material(blender_object, material)
     if material_index == -1:
 
-        mesh_object.data.materials.append(material)
+        blender_object.data.materials.append(material)
         material_index = \
-            _get_index_for_material(mesh_object, material)
+            _get_index_for_material(blender_object, material)
 
-    mesh_object.active_material_index = material_index
+    blender_object.active_material_index = material_index
 
-    for polygon in mesh_object.data.polygons:
+    for polygon in blender_object.data.polygons:
         polygon.material_index = material_index
 
-def _get_index_for_material(mesh_object, material):
+def _get_index_for_material(blender_object, material):
 
     material_index = -1
-    for index, material_tmp in enumerate(mesh_object.data.materials):
+    for index, material_tmp in enumerate(blender_object.data.materials):
 
         if material == material_tmp:
             material_index = index
@@ -277,7 +277,7 @@ def read(mesh_object):
 # WRITE
 # =====================================
 
-def write_empty_material_by_name(mesh_object, material_name):
+def write_empty_material_by_name(blender_object, material_name):
     """Creates a new empty material just by name. Will not create if exists.
 
     Args:
@@ -294,11 +294,11 @@ def write_empty_material_by_name(mesh_object, material_name):
         if not material:
 
             material = bpy.data.materials.new(material_name)
-            mesh_object.data.materials.append(material)
+            blender_object.data.materials.append(material)
 
     return material
 
-def write(mdi_shader, mesh_object):
+def write(mdi_shader, blender_object):
     """Write mdi shader to mesh object.
 
     Args:
@@ -313,17 +313,17 @@ def write(mdi_shader, mesh_object):
         for mdi_shader_path in mdi_shader.paths:
 
             material = \
-                write_empty_material_by_name(mesh_object, mdi_shader_path.path)
+                write_empty_material_by_name(blender_object, mdi_shader_path.path)
 
         if material:
-            _set_material_active_all(mesh_object, material)
+            _set_material_active_all(blender_object, material)
 
     elif isinstance(mdi_shader, mdi_m.MDIShaderPath):
 
         material = \
-            write_empty_material_by_name(mesh_object, mdi_shader.path)
+            write_empty_material_by_name(blender_object, mdi_shader.path)
         if material:
-            _set_material_active_all(mesh_object, material)
+            _set_material_active_all(blender_object, material)
 
     else:
 

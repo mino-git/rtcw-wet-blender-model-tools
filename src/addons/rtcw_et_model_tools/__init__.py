@@ -22,7 +22,7 @@ bl_info = {
     "name": "RtCW/ET Model Tools",
     "author": "Norman Mitschke",
     "version": (1, 0, 0),
-    "blender": (2, 80, 0),
+    "blender": (2, 79, 0),
     "location": "View3D",
     "description": "RtCW/ET Model Tools for Blender",
     "warning": "",
@@ -42,7 +42,7 @@ def register():
     import rtcw_et_model_tools.blender.ui.exports as exports_m
     import rtcw_et_model_tools.blender.ui.direct_conversion as direct_conversion_m
     import rtcw_et_model_tools.blender.ui.attachment as attachment_m
-    import rtcw_et_model_tools.blender.ui.shading as shading_m
+    # import rtcw_et_model_tools.blender.ui.shading as shading_m
     import rtcw_et_model_tools.blender.ui.unzip_pk3s as unzip_pk3s_m
 
     reporter_m.init()
@@ -61,7 +61,7 @@ def register():
     exports_m.register()
     direct_conversion_m.register()
     attachment_m.register()
-    shading_m.register()
+    # shading_m.register()
     unzip_pk3s_m.register()
 
 def unregister():
@@ -73,7 +73,7 @@ def unregister():
     import rtcw_et_model_tools.blender.ui.direct_conversion as \
            direct_conversion_m
     import rtcw_et_model_tools.blender.ui.attachment as attachment_m
-    import rtcw_et_model_tools.blender.ui.shading as shading_m
+    # import rtcw_et_model_tools.blender.ui.shading as shading_m
     import rtcw_et_model_tools.blender.ui.unzip_pk3s as unzip_pk3s_m
 
     reporter_m.deinit()
@@ -84,5 +84,5 @@ def unregister():
     exports_m.unregister()
     direct_conversion_m.unregister()
     attachment_m.unregister()
-    shading_m.unregister()
+    # shading_m.unregister()
     unzip_pk3s_m.unregister()

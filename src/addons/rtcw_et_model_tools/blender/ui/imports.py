@@ -32,7 +32,7 @@ class REMT_PT_Import(bpy.types.Panel):
 
     bl_label = "Import"
     bl_space_type = 'VIEW_3D'
-    bl_region_type = 'UI'
+    bl_region_type = 'TOOLS'
     bl_context = "objectmode"
     bl_category = "RtCW/ET"
 
@@ -140,9 +140,11 @@ class REMT_OT_MD3Import(bpy.types.Operator):
         """Import MD3 file format.
         """
 
+        print("Import MD3 file format. reload ... next one ...")
+
         import rtcw_et_model_tools.md3.facade as md3_facade_m
         import rtcw_et_model_tools.mdi.mdi as mdi_m
-        import rtcw_et_model_tools.blender.core.collection as collection_m
+        import rtcw_et_model_tools.blender.core.blender_scene as blender_scene_m
         import rtcw_et_model_tools.common.timer as timer_m
         import rtcw_et_model_tools.common.reporter as reporter_m
 
@@ -156,7 +158,7 @@ class REMT_OT_MD3Import(bpy.types.Operator):
             reporter_m.info("MD3 import started ...")
 
             mdi_model = md3_facade_m.read(md3_file_path, bind_frame)
-            collection_m.write(mdi_model)
+            blender_scene_m.write(mdi_model)
 
             time = timer.time()
             reporter_m.info("MD3 import DONE (time={})".format(time))
@@ -202,7 +204,7 @@ class REMT_OT_MDCImport(bpy.types.Operator):
 
         import rtcw_et_model_tools.mdc.facade as mdc_facade_m
         import rtcw_et_model_tools.mdi.mdi as mdi_m
-        import rtcw_et_model_tools.blender.core.collection as collection_m
+        import rtcw_et_model_tools.blender.core.blender_scene as blender_scene_m
         import rtcw_et_model_tools.common.timer as timer_m
         import rtcw_et_model_tools.common.reporter as reporter_m
 
@@ -216,7 +218,7 @@ class REMT_OT_MDCImport(bpy.types.Operator):
             reporter_m.info("MDC import started ...")
 
             mdi_model = mdc_facade_m.read(mdc_file_path, bind_frame)
-            collection_m.write(mdi_model)
+            blender_scene_m.write(mdi_model)
 
             time = timer.time()
             reporter_m.info("MDC import DONE (time={})".format(time))
@@ -262,7 +264,7 @@ class REMT_OT_MDSImport(bpy.types.Operator):
 
         import rtcw_et_model_tools.mds.facade as mds_facade_m
         import rtcw_et_model_tools.mdi.mdi as mdi_m
-        import rtcw_et_model_tools.blender.core.collection as collection_m
+        import rtcw_et_model_tools.blender.core.blender_scene as blender_scene_m
         import rtcw_et_model_tools.common.timer as timer_m
         import rtcw_et_model_tools.common.reporter as reporter_m
 
@@ -276,7 +278,7 @@ class REMT_OT_MDSImport(bpy.types.Operator):
             reporter_m.info("MDS import started ...")
 
             mdi_model = mds_facade_m.read(mds_file_path, bind_frame)
-            collection_m.write(mdi_model)
+            blender_scene_m.write(mdi_model)
 
             time = timer.time()
             reporter_m.info("MDS import DONE (time={})".format(time))
@@ -335,7 +337,7 @@ class REMT_OT_MDMMDXImport(bpy.types.Operator):
 
         import rtcw_et_model_tools.mdmmdx.facade as mdmmdx_facade_m
         import rtcw_et_model_tools.mdi.mdi as mdi_m
-        import rtcw_et_model_tools.blender.core.collection as collection_m
+        import rtcw_et_model_tools.blender.core.blender_scene as blender_scene_m
         import rtcw_et_model_tools.common.timer as timer_m
         import rtcw_et_model_tools.common.reporter as reporter_m
 
@@ -351,7 +353,7 @@ class REMT_OT_MDMMDXImport(bpy.types.Operator):
 
             mdi_model = \
                 mdmmdx_facade_m.read(mdm_file_path, mdx_file_path, bind_frame)
-            collection_m.write(mdi_model)
+            blender_scene_m.write(mdi_model)
 
             time = timer.time()
             reporter_m.info("Import DONE (time={})".format(time))
@@ -401,7 +403,7 @@ class REMT_OT_TAGImport(bpy.types.Operator):
 
         import rtcw_et_model_tools.tag.facade as tag_facade_m
         import rtcw_et_model_tools.mdi.mdi as mdi_m
-        import rtcw_et_model_tools.blender.core.collection as collection_m
+        import rtcw_et_model_tools.blender.core.blender_scene as blender_scene_m
         import rtcw_et_model_tools.common.timer as timer_m
         import rtcw_et_model_tools.common.reporter as reporter_m
 
@@ -415,7 +417,7 @@ class REMT_OT_TAGImport(bpy.types.Operator):
             reporter_m.info("TAG import started ...")
 
             mdi_model = tag_facade_m.read(tag_file_path)
-            collection_m.write(mdi_model)
+            blender_scene_m.write(mdi_model)
 
             time = timer.time()
             reporter_m.info("Import DONE (time={})".format(time))

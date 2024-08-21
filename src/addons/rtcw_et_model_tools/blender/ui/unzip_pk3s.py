@@ -30,7 +30,7 @@ class REMT_PT_UnzipPK3s(bpy.types.Panel):
 
     bl_label = "Unzip PK3s"
     bl_space_type = 'VIEW_3D'
-    bl_region_type = 'UI'
+    bl_region_type = 'TOOLS'
     bl_context = "objectmode"
     bl_category = "RtCW/ET"
 

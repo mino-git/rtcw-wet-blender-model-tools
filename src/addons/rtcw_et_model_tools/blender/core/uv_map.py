@@ -106,7 +106,7 @@ def read(mesh_object):
 # WRITE
 # =====================================
 
-def write(mdi_uv_map, mesh_object):
+def write(mdi_uv_map, blender_object):
     """Write UV map.
 
     Args:
@@ -121,18 +121,18 @@ def write(mdi_uv_map, mesh_object):
 
     elif isinstance(mdi_uv_map, mdi_m.MDIUVMapBijective):
 
-        mesh_object.data.uv_layers.new(name="UVMap")
+        blender_object.data.uv_textures.new(name="UVMap")
 
-        for polygon in mesh_object.data.polygons:
+        for polygon in blender_object.data.polygons:
 
             for loop_index in \
                 range(polygon.loop_start,
                         polygon.loop_start + polygon.loop_total):
 
                 vertex_index = \
-                    mesh_object.data.loops[loop_index].vertex_index
+                    blender_object.data.loops[loop_index].vertex_index
 
-                mesh_object.data.uv_layers['UVMap'].data[loop_index].uv = \
+                blender_object.data.uv_layers['UVMap'].data[loop_index].uv = \
                     (mdi_uv_map.uvs[vertex_index].u,
                      mdi_uv_map.uvs[vertex_index].v)
 

@@ -316,24 +316,24 @@ def _animate_bones(mdi_skeleton, root_frame, armature_object):
                 # transform our data which is given in model space
 
                 # express the childs bind pose in parent space
-                cbl_ps = pbo_ms.transposed() @ (cbl_ms - pbl_ms)
-                cbo_ps = pbo_ms.transposed() @ cbo_ms
+                cbl_ps = pbo_ms.transposed() * (cbl_ms - pbl_ms)
+                cbo_ps = pbo_ms.transposed() * cbo_ms
 
                 # calculate the model space coordinates of the child in
                 # blenders bind pose
-                cbl_dash_ms = pfl_ms + pfo_ms @ cbl_ps
-                cbo_dash_ms = pfo_ms @ cbo_ps
+                cbl_dash_ms = pfl_ms + pfo_ms * cbl_ps
+                cbo_dash_ms = pfo_ms * cbo_ps
 
                 # offset from blenders bind pose to our wished model space
                 # values
-                location_off = cbo_dash_ms.transposed() @ \
+                location_off = cbo_dash_ms.transposed() * \
                     (cfl_ms - cbl_dash_ms)
-                orientation_off = cbo_dash_ms.transposed() @ cfo_ms
+                orientation_off = cbo_dash_ms.transposed() * cfo_ms
 
             else:
 
-                location_off = cbo_ms.transposed() @ (cfl_ms - cbl_ms)
-                orientation_off = cbo_ms.transposed() @ cfo_ms
+                location_off = cbo_ms.transposed() * (cfl_ms - cbl_ms)
+                orientation_off = cbo_ms.transposed() * cfo_ms
 
             locations.append(location_off)
             rotations.append(orientation_off)
@@ -358,7 +358,7 @@ def _add_edit_bones(mdi_skeleton, root_frame, armature_object):
     timer = timer_m.Timer()
     reporter_m.debug("Adding edit bones ...")
 
-    bpy.context.view_layer.objects.active = \
+    bpy.context.scene.objects.active = \
         bpy.data.objects[armature_object.name]
     bpy.ops.object.mode_set(mode='EDIT')
 
@@ -377,7 +377,7 @@ def _add_edit_bones(mdi_skeleton, root_frame, armature_object):
         bind_pose_orientation = mdi_bone.orientations[root_frame]
 
         bind_pose_matrix = \
-            mathutils.Matrix.Translation(bind_pose_location) @ \
+            mathutils.Matrix.Translation(bind_pose_location) * \
                 bind_pose_orientation.to_4x4()
         edit_bone.matrix = bind_pose_matrix
 
@@ -397,7 +397,7 @@ def _add_edit_bones(mdi_skeleton, root_frame, armature_object):
     time = timer.time()
     reporter_m.debug("Adding edit bones DONE (time={})".format(time))
 
-def _create_armature(mdi_skeleton, collection):
+def _create_armature(mdi_skeleton, blender_scene):
 
     timer = timer_m.Timer()
     reporter_m.debug("Creating armature ...")
@@ -407,20 +407,20 @@ def _create_armature(mdi_skeleton, collection):
     armature = bpy.data.armatures.new("{}{}".format(name, "_data"))
     armature_object = bpy.data.objects.new(name, armature)
 
-    collection.objects.link(armature_object)
+    blender_scene.objects.link(armature_object)
 
     time = timer.time()
     reporter_m.debug("Creating armature DONE (time={})".format(time))
 
     return armature_object
 
-def write(mdi_skeleton, root_frame, collection):
-    """Convert mdi skeleton and write to collection.
+def write(mdi_skeleton, root_frame, blender_scene):
+    """Convert mdi skeleton and write to blender_scene.
 
     Args:
 
         mdi_model
-        collection
+        blender_scene
 
     Returns:
 
@@ -433,7 +433,7 @@ def write(mdi_skeleton, root_frame, collection):
     timer = timer_m.Timer()
     reporter_m.debug("Writing armature ...")
 
-    armature_object = _create_armature(mdi_skeleton, collection)
+    armature_object = _create_armature(mdi_skeleton, blender_scene)
 
     _add_edit_bones(mdi_skeleton, root_frame, armature_object)
 

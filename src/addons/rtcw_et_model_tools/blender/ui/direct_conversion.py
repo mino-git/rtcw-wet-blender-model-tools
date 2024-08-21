@@ -30,7 +30,7 @@ class REMT_PT_DirectConversion(bpy.types.Panel):
 
     bl_label = "Direct Conversion"
     bl_space_type = 'VIEW_3D'
-    bl_region_type = 'UI'
+    bl_region_type = 'TOOLS'
     bl_context = "objectmode"
     bl_category = "RtCW/ET"
 
@@ -98,7 +98,7 @@ class REMT_PT_DirectConversion(bpy.types.Panel):
 
             row = layout.row()
             row.prop(context.scene,
-                    "remt_dc_mds_collapse_frame")                      
+                    "remt_dc_mds_collapse_frame")
 
         elif context.scene.remt_dc_target_format == "MDM/MDX":
 
@@ -112,7 +112,7 @@ class REMT_PT_DirectConversion(bpy.types.Panel):
 
             row = layout.row()
             row.prop(context.scene,
-                    "remt_dc_mdmmdx_collapse_frame")                    
+                    "remt_dc_mdmmdx_collapse_frame")
 
         else:
 
@@ -457,7 +457,7 @@ def register():
             default = 0,
             min = 0,
             max = 1000000
-            )                        
+            )
 
 def unregister():
 

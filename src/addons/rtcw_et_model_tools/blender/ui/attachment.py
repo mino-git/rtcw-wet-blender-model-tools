@@ -30,7 +30,7 @@ class REMT_PT_Attachment(bpy.types.Panel):
 
     bl_label = "Attachment"
     bl_space_type = 'VIEW_3D'
-    bl_region_type = 'UI'
+    bl_region_type = 'TOOLS'
     bl_context = "objectmode"
     bl_category = "RtCW/ET"
 
@@ -71,7 +71,6 @@ class REMT_OT_Attachment(bpy.types.Operator):
 
         method = context.scene.remt_attach_method
         if not (method == 'Objects' or
-                method == 'Collection' or
                 method == 'Skinfile'):
             raise Exception("Method not supported.")
 
@@ -125,12 +124,9 @@ def register():
                           " to a tag object.\n"
                            "- Objects: selection of objects is attached to"
                            " tag. The tag object is the last selected object\n"
-                           "- Collection: all objects from active collection"
-                           " are attached to tag.\n"
                            "- Skinfile: import and attach models based on skin"
                            " files to active collection",
             items = [("Objects", "Objects", ""),
-                     ("Collection", "Collection", ""),
                      ("Skinfile", "Skinfile", "")],
             default = "Objects")
 
