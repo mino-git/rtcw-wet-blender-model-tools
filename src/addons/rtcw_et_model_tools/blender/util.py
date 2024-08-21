@@ -24,11 +24,6 @@
 import bpy
 import mathutils
 
-import rtcw_et_model_tools.mdi.mdi as mdi_m
-import rtcw_et_model_tools.blender.core.armature as armature_m
-import rtcw_et_model_tools.blender.core.fcurve as fcurve_m
-import rtcw_et_model_tools.common.reporter as reporter_m
-
 
 class Transform:
 
@@ -133,6 +128,8 @@ class Transform:
         self.parent_transform = parent_transform
 
     def read_local(self, frame_start, frame_end):
+
+        import rtcw_et_model_tools.blender.core.armature as armature_m
 
         if isinstance(self.blender_object, bpy.types.Bone):
 
@@ -355,6 +352,10 @@ def is_object_supported(mdi_object, blender_object):
     """Checks for constraints, modifiers, object space animation.
     """
 
+    import rtcw_et_model_tools.mdi.mdi as mdi_m
+    import rtcw_et_model_tools.blender.core.fcurve as fcurve_m
+    import rtcw_et_model_tools.common.reporter as reporter_m
+
     is_supported = True
 
     # constraints not supported
@@ -501,6 +502,9 @@ def read_object_space_lrs(blender_object, frame_start=0, frame_end=0,
         (locations, rotations, scales)
     """
 
+    import rtcw_et_model_tools.blender.core.fcurve as fcurve_m
+    import rtcw_et_model_tools.common.reporter as reporter_m
+
     # find out if its animated by searching for the fcurve of an action
     fcurves = None
     if blender_object.animation_data:
@@ -635,6 +639,8 @@ def write_object_space_lrs(blender_object, locations=None, rotations=None,
         scales
         frame_start
     """
+
+    import rtcw_et_model_tools.blender.core.fcurve as fcurve_m
 
     # ensure there is animation data to write to
     needs_animation_data = False
@@ -800,6 +806,8 @@ def draw_normals_in_frame(mdi_vertices, num_frame, blender_scene,
                           mdi_skeleton = None):
     """Draw normals in frame.
     """
+
+    import rtcw_et_model_tools.mdi.mdi as mdi_m
 
     for mdi_vertex in mdi_vertices:
 

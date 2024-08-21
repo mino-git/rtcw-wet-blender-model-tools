@@ -140,8 +140,6 @@ class REMT_OT_MD3Import(bpy.types.Operator):
         """Import MD3 file format.
         """
 
-        print("Import MD3 file format. reload ... next one ...")
-
         import rtcw_et_model_tools.md3.facade as md3_facade_m
         import rtcw_et_model_tools.mdi.mdi as mdi_m
         import rtcw_et_model_tools.blender.core.blender_scene as blender_scene_m
