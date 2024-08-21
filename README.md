@@ -6,22 +6,22 @@ RtCW:ET Blender Model Tools is an addon for the 3D modeling software Blender. It
 
 Its main features are:
 
-- Import/Export of all formats
-- Convertability among the formats
+* Import/Export of all formats
+* Convertability among the formats
 
 But there is also:
 
-- Direct conversion to convert models without writing to Blender
-- Attachment of external models to tag objects in Blender
-- Shading mesh objects in Blender
-- Exctracting PK3 files
+* Direct conversion to convert models without writing to Blender
+* Attachment of external models to tag objects in Blender
+* Shading mesh objects in Blender
+* Exctracting PK3 files
 
 ## Getting started
 
-- [Downloads](https://mino-git.github.io/rtcw-wet-blender-model-tools/downloads.html)
-- [User Guide](https://mino-git.github.io/rtcw-wet-blender-model-tools/user_guide.html)
-- [Developer Guide](https://mino-git.github.io/rtcw-wet-blender-model-tools/developer_guide.html)
-- Tutorials (TODO)
+* [Downloads](https://mino-git.github.io/rtcw-wet-blender-model-tools/downloads.html)
+* [User Guide](https://mino-git.github.io/rtcw-wet-blender-model-tools/user_guide.html)
+* [Developer Guide](https://mino-git.github.io/rtcw-wet-blender-model-tools/developer_guide.html)
+* Tutorials (TODO)
 
 ## Notice of Non-Affiliation and Disclaimer
 
