@@ -1,7 +1,5 @@
 # RtCW:ET Blender Model Tools
 
-## Introduction
-
 RtCW:ET Blender Model Tools is an addon for the 3D modeling software Blender. It adds support for the MD3, MDC, MDS, MDM/MDX and TAG model formats. These formats make up parts of the assets for the games Return to Castle Wolfenstein and Wolfenstein: Enemy Territory.
 
 ## Features
