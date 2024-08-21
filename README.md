@@ -1,7 +1,7 @@
 
 # RtCW:ET Blender Model Tools
 
-**Status: version 1.0.0 (rc3)**
+**Status: version 1.0.0 (rc1)**
 
 ## Introduction
 
@@ -18,7 +18,6 @@ But there is also:
 
 * Direct conversion to convert models without writing to Blender
 * Attachment of external models to tag objects in Blender
-* Shading mesh objects in Blender
 * Exctracting PK3 files
 
 ## Getting started
