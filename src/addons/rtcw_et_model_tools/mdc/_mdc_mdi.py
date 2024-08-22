@@ -617,10 +617,11 @@ class MDIToModel:
                         int(location[1] + 0.5),
                         int(location[2] + 0.5))
 
-            yaw, pitch, roll = mdi_util_m.matrix_to_angles \
-                               (
-                                   mdi_free_tag.orientations[num_frame]
-                               )
+            # fix for issues #8 and #17
+            # TODO research why, probably mdc was done with a different toolchain
+            mdi_orientation = mdi_free_tag.orientations[num_frame].transposed()
+            yaw, pitch, roll = mdi_util_m.matrix_to_angles(mdi_orientation)
+
             yaw = int(yaw / mdc_m.MDCFrameTag.orientation_scale)
             pitch = int(pitch / mdc_m.MDCFrameTag.orientation_scale)
             roll = int(roll / mdc_m.MDCFrameTag.orientation_scale)
@@ -791,7 +792,7 @@ class ModelToMDI:
 
             mdi_orientation = mdi_util_m.angles_to_matrix(yaw, pitch, roll)
 
-            # fix for issues #11 and #17
+            # fix for issues #8 and #17
             # TODO research why, probably mdc was done with a different toolchain
             mdi_orientation = mdi_orientation.transposed()
 
