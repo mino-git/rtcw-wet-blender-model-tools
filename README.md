@@ -16,6 +16,10 @@ But there is also:
 * Attachment of external models to tag objects in Blender
 * Exctracting PK3 files
 
+Note:
+
+* Shading is not supported for this version (Blender 2.79)
+
 ## Getting started
 
 * [Downloads](https://mino-git.github.io/rtcw-wet-blender-model-tools/downloads.html)
